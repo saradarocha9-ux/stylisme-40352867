@@ -202,6 +202,31 @@ export const actions = {
     const s = read();
     write({ ...s, profile: { ...s.profile, ...patch } });
   },
+  tryOnAdd(garmentId: string) {
+    const s = read();
+    if (s.tryOn.find((t) => t.garmentId === garmentId)) return;
+    const z = (s.tryOn.reduce((m, t) => Math.max(m, t.z), 0) || 0) + 1;
+    const item: TryOnItem = { garmentId, x: 0.5, y: 0.5, scale: 1, rotation: 0, z };
+    write({ ...s, tryOn: [...s.tryOn, item] });
+  },
+  tryOnUpdate(garmentId: string, patch: Partial<TryOnItem>) {
+    const s = read();
+    write({ ...s, tryOn: s.tryOn.map((t) => t.garmentId === garmentId ? { ...t, ...patch } : t) });
+  },
+  tryOnRemove(garmentId: string) {
+    const s = read();
+    write({ ...s, tryOn: s.tryOn.filter((t) => t.garmentId !== garmentId) });
+  },
+  tryOnClear() {
+    const s = read();
+    write({ ...s, tryOn: [] });
+  },
+  tryOnBringToFront(garmentId: string) {
+    const s = read();
+    const z = (s.tryOn.reduce((m, t) => Math.max(m, t.z), 0) || 0) + 1;
+    write({ ...s, tryOn: s.tryOn.map((t) => t.garmentId === garmentId ? { ...t, z } : t) });
+  },
+
   exportData(): string {
     return JSON.stringify(read(), null, 2);
   },
