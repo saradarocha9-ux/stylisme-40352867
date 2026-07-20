@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Logo } from "@/components/Logo";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/")({
   component: Splash,
@@ -13,7 +14,10 @@ function Splash() {
   useEffect(() => {
     const t1 = setTimeout(() => setPhase(1), 1200);
     const t2 = setTimeout(() => setPhase(2), 2400);
-    const t3 = setTimeout(() => navigate({ to: "/app" }), 3800);
+    const t3 = setTimeout(async () => {
+      const { data } = await supabase.auth.getSession();
+      navigate({ to: data.session ? "/app" : "/auth" });
+    }, 3800);
     return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
   }, [navigate]);
 
@@ -35,3 +39,4 @@ function Splash() {
     </div>
   );
 }
+
