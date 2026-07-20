@@ -95,14 +95,3 @@ function Stat({ label, value }: { label: string; value: number }) {
   );
 }
 
-function Row({ to, icon: Icon, label, danger }: { to: string; icon: React.ElementType; label: string; danger?: boolean }) {
-  return (
-    <Link to={to} className={"flex items-center justify-between border-b border-border px-5 py-4 last:border-b-0 " + (danger ? "text-destructive" : "")}>
-      <div className="flex items-center gap-3">
-        <Icon size={18} strokeWidth={1.5} />
-        <span className="text-sm">{label}</span>
-      </div>
-      <ChevronRight size={16} className="text-muted-foreground" />
-    </Link>
-  );
-}
