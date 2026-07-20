@@ -1,5 +1,7 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Crown, Settings, LogOut, ChevronRight, User as UserIcon, CreditCard, BarChart3 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { useStore } from "@/lib/store";
 
 export const Route = createFileRoute("/app/profile")({
@@ -8,9 +10,20 @@ export const Route = createFileRoute("/app/profile")({
 
 function ProfilePage() {
   const { state } = useStore();
+  const navigate = useNavigate();
+  const [email, setEmail] = useState("");
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => setEmail(data.user?.email ?? ""));
+  }, []);
   const p = state.profile;
   const days = Math.max(1, Math.floor((Date.now() - p.joinedAt) / 86400000));
   const favCount = state.garments.filter((g) => g.favorite).length + state.looks.filter((l) => l.favorite).length;
+
+  async function signOut() {
+    await supabase.auth.signOut();
+    navigate({ to: "/auth", replace: true });
+  }
+
 
   return (
     <div className="px-5 pt-8">
@@ -23,7 +36,7 @@ function ProfilePage() {
         </div>
         <div className="flex-1">
           <p className="font-display text-xl">{p.name}</p>
-          <p className="text-xs text-muted-foreground">{p.email || "sem email"}</p>
+          <p className="text-xs text-muted-foreground">{email || "sem email"}</p>
           <div className={"mt-1 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] uppercase tracking-[0.18em] " + (p.plan === "premium" ? "bg-foreground text-primary-foreground" : "bg-muted text-muted-foreground")}>
             <Crown size={10} /> {p.plan === "premium" ? "Premium" : "Free"}
           </div>
@@ -51,11 +64,27 @@ function ProfilePage() {
         <Row to="/app/subscription" icon={CreditCard} label="Minha assinatura" />
         <Row to="/app/stats" icon={BarChart3} label="Estatísticas" />
         <Row to="/app/settings" icon={Settings} label="Configurações" />
-        <Row to="/" icon={LogOut} label="Sair" danger />
+        <Row onClick={signOut} icon={LogOut} label="Sair" danger />
       </div>
     </div>
   );
 }
+
+function Row({ to, onClick, icon: Icon, label, danger }: { to?: string; onClick?: () => void; icon: React.ElementType; label: string; danger?: boolean }) {
+  const cls = "flex w-full items-center justify-between border-b border-border px-5 py-4 last:border-b-0 text-left " + (danger ? "text-destructive" : "");
+  const content = (
+    <>
+      <div className="flex items-center gap-3">
+        <Icon size={18} strokeWidth={1.5} />
+        <span className="text-sm">{label}</span>
+      </div>
+      <ChevronRight size={16} className="text-muted-foreground" />
+    </>
+  );
+  if (to) return <Link to={to} className={cls}>{content}</Link>;
+  return <button onClick={onClick} className={cls}>{content}</button>;
+}
+
 
 function Stat({ label, value }: { label: string; value: number }) {
   return (
