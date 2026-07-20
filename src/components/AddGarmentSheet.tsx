@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
-import { X, Upload } from "lucide-react";
+import { X, Upload, Sparkles } from "lucide-react";
 import { actions, type Category, type Occasion, type Season } from "@/lib/store";
+import { removeImageBackground, fileToDataUrl } from "@/lib/bg-removal";
 
 const CATEGORIES: Category[] = ["Camiseta", "Camisa", "Blusa", "Vestido", "Saia", "Calça", "Shorts", "Casaco", "Sapato", "Acessório"];
 const OCCASIONS: Occasion[] = ["Trabalho", "Faculdade", "Casual", "Festa", "Casamento", "Viagem", "Evento", "Academia", "Praia", "Jantar"];
@@ -14,7 +15,9 @@ export function AddGarmentSheet({ onClose }: { onClose: () => void }) {
   const [occasions, setOccasions] = useState<Occasion[]>([]);
   const [seasons, setSeasons] = useState<Season[]>([]);
   const [imageUrl, setImageUrl] = useState<string | undefined>();
-  const [processing, setProcessing] = useState(false);
+  const [rawUrl, setRawUrl] = useState<string | undefined>();
+  const [progress, setProgress] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
   function toggle<T>(arr: T[], v: T, setter: (a: T[]) => void) {
@@ -22,20 +25,32 @@ export function AddGarmentSheet({ onClose }: { onClose: () => void }) {
   }
 
   async function handleFile(f: File) {
-    setProcessing(true);
-    // Real background removal needs an API (planned via Cloud). For now,
-    // read image as data URL so cadastro funciona ponta-a-ponta.
-    const reader = new FileReader();
-    reader.onload = () => {
-      setImageUrl(reader.result as string);
-      setProcessing(false);
-    };
-    reader.readAsDataURL(f);
+    setError(null);
+    setImageUrl(undefined);
+    setRawUrl(undefined);
+    try {
+      const preview = await fileToDataUrl(f);
+      setRawUrl(preview);
+      setProgress("Removendo fundo…");
+      const url = await removeImageBackground(f);
+      setImageUrl(url);
+      setProgress(null);
+    } catch (e) {
+      console.error(e);
+      setError("Não consegui remover o fundo. Usando a foto original.");
+      setProgress(null);
+      // fallback: usa original
+      setImageUrl(await fileToDataUrl(f));
+    }
   }
 
   function submit() {
     if (!name.trim() || !color.trim()) {
       alert("Preencha nome e cor.");
+      return;
+    }
+    if (!imageUrl) {
+      alert("Envie uma foto da peça.");
       return;
     }
     actions.addGarment({
@@ -60,19 +75,27 @@ export function AddGarmentSheet({ onClose }: { onClose: () => void }) {
 
         <button
           onClick={() => fileRef.current?.click()}
-          className="mt-4 flex aspect-[4/3] w-full items-center justify-center overflow-hidden rounded-2xl border-2 border-dashed border-border bg-muted"
+          className="mt-4 relative flex aspect-[4/3] w-full items-center justify-center overflow-hidden rounded-2xl border-2 border-dashed border-border bg-[conic-gradient(from_45deg,transparent_0_25%,rgba(0,0,0,0.04)_0_50%,transparent_0_75%,rgba(0,0,0,0.04)_0)] bg-[length:24px_24px]"
         >
-          {processing ? (
-            <span className="text-sm text-muted-foreground">Processando…</span>
-          ) : imageUrl ? (
-            <img src={imageUrl} alt="preview" className="h-full w-full object-cover" />
+          {imageUrl ? (
+            <img src={imageUrl} alt="preview" className="h-full w-full object-contain" />
+          ) : rawUrl ? (
+            <img src={rawUrl} alt="preview" className="h-full w-full object-contain opacity-60" />
           ) : (
             <div className="flex flex-col items-center gap-2 text-muted-foreground">
               <Upload size={22} strokeWidth={1.5} />
               <span className="text-xs uppercase tracking-[0.2em]">Enviar foto</span>
             </div>
           )}
+          {progress && (
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-background/70 backdrop-blur-sm">
+              <Sparkles size={20} className="animate-pulse text-gold" />
+              <span className="text-xs uppercase tracking-[0.22em] text-foreground">{progress}</span>
+              <span className="text-[10px] text-muted-foreground">pode levar alguns segundos na primeira vez</span>
+            </div>
+          )}
         </button>
+        {error && <p className="mt-2 text-xs text-destructive">{error}</p>}
         <input
           ref={fileRef}
           type="file"
@@ -110,7 +133,11 @@ export function AddGarmentSheet({ onClose }: { onClose: () => void }) {
           </Field>
         </div>
 
-        <button onClick={submit} className="mt-6 w-full rounded-full bg-foreground py-3.5 text-sm uppercase tracking-[0.24em] text-primary-foreground">
+        <button
+          onClick={submit}
+          disabled={!!progress}
+          className="mt-6 w-full rounded-full bg-foreground py-3.5 text-sm uppercase tracking-[0.24em] text-primary-foreground disabled:opacity-40"
+        >
           Salvar peça
         </button>
       </div>

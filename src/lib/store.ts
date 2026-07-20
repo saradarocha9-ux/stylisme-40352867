@@ -52,6 +52,7 @@ export interface Profile {
   name: string;
   email: string;
   photoUrl?: string;
+  bodyPhotoUrl?: string;
   plan: "free" | "premium";
   joinedAt: number;
   language: "pt-BR" | "en-US";
@@ -59,11 +60,21 @@ export interface Profile {
   theme: "light" | "dark" | "system";
 }
 
+export interface TryOnItem {
+  garmentId: string;
+  x: number; // 0..1 (relative to canvas)
+  y: number; // 0..1
+  scale: number; // 1 = 40% of canvas width
+  rotation: number; // deg
+  z: number;
+}
+
 interface AppState {
   garments: Garment[];
   looks: Look[];
   plans: Plan[];
   profile: Profile;
+  tryOn: TryOnItem[];
 }
 
 const KEY = "stylisme:v1";
@@ -83,7 +94,9 @@ const initial: AppState = {
   looks: [],
   plans: [],
   profile: defaultProfile,
+  tryOn: [],
 };
+
 
 function read(): AppState {
   if (typeof window === "undefined") return initial;
@@ -96,6 +109,7 @@ function read(): AppState {
       looks: parsed.looks ?? [],
       plans: parsed.plans ?? [],
       profile: { ...defaultProfile, ...(parsed.profile ?? {}) },
+      tryOn: parsed.tryOn ?? [],
     };
   } catch {
     return initial;
@@ -188,6 +202,31 @@ export const actions = {
     const s = read();
     write({ ...s, profile: { ...s.profile, ...patch } });
   },
+  tryOnAdd(garmentId: string) {
+    const s = read();
+    if (s.tryOn.find((t) => t.garmentId === garmentId)) return;
+    const z = (s.tryOn.reduce((m, t) => Math.max(m, t.z), 0) || 0) + 1;
+    const item: TryOnItem = { garmentId, x: 0.5, y: 0.5, scale: 1, rotation: 0, z };
+    write({ ...s, tryOn: [...s.tryOn, item] });
+  },
+  tryOnUpdate(garmentId: string, patch: Partial<TryOnItem>) {
+    const s = read();
+    write({ ...s, tryOn: s.tryOn.map((t) => t.garmentId === garmentId ? { ...t, ...patch } : t) });
+  },
+  tryOnRemove(garmentId: string) {
+    const s = read();
+    write({ ...s, tryOn: s.tryOn.filter((t) => t.garmentId !== garmentId) });
+  },
+  tryOnClear() {
+    const s = read();
+    write({ ...s, tryOn: [] });
+  },
+  tryOnBringToFront(garmentId: string) {
+    const s = read();
+    const z = (s.tryOn.reduce((m, t) => Math.max(m, t.z), 0) || 0) + 1;
+    write({ ...s, tryOn: s.tryOn.map((t) => t.garmentId === garmentId ? { ...t, z } : t) });
+  },
+
   exportData(): string {
     return JSON.stringify(read(), null, 2);
   },
