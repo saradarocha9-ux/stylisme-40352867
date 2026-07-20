@@ -52,6 +52,7 @@ export interface Profile {
   name: string;
   email: string;
   photoUrl?: string;
+  bodyPhotoUrl?: string;
   plan: "free" | "premium";
   joinedAt: number;
   language: "pt-BR" | "en-US";
@@ -59,11 +60,21 @@ export interface Profile {
   theme: "light" | "dark" | "system";
 }
 
+export interface TryOnItem {
+  garmentId: string;
+  x: number; // 0..1 (relative to canvas)
+  y: number; // 0..1
+  scale: number; // 1 = 40% of canvas width
+  rotation: number; // deg
+  z: number;
+}
+
 interface AppState {
   garments: Garment[];
   looks: Look[];
   plans: Plan[];
   profile: Profile;
+  tryOn: TryOnItem[];
 }
 
 const KEY = "stylisme:v1";
@@ -83,7 +94,9 @@ const initial: AppState = {
   looks: [],
   plans: [],
   profile: defaultProfile,
+  tryOn: [],
 };
+
 
 function read(): AppState {
   if (typeof window === "undefined") return initial;
