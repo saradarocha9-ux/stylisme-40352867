@@ -109,6 +109,7 @@ function read(): AppState {
       looks: parsed.looks ?? [],
       plans: parsed.plans ?? [],
       profile: { ...defaultProfile, ...(parsed.profile ?? {}) },
+      tryOn: parsed.tryOn ?? [],
     };
   } catch {
     return initial;
