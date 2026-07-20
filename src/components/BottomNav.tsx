@@ -1,9 +1,9 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Shirt, Sparkles, Wand2, Heart, User } from "lucide-react";
+import { Shirt, UserSquare2, Wand2, Heart, User } from "lucide-react";
 
 const items = [
   { to: "/app", label: "Armário", icon: Shirt },
-  { to: "/app/looks", label: "Looks", icon: Sparkles },
+  { to: "/app/looks", label: "Provador", icon: UserSquare2 },
   { to: "/app/ai", label: "IA", icon: Wand2 },
   { to: "/app/favorites", label: "Favoritos", icon: Heart },
   { to: "/app/profile", label: "Perfil", icon: User },
