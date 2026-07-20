@@ -1,24 +1,37 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { Logo } from "@/components/Logo";
 
-// No head() here: the home route inherits title/description/og/twitter from
-// __root.tsx, and ships no og:image so serve-time hosting can inject the
-// project's social preview (explicit og:image or latest screenshot).
 export const Route = createFileRoute("/")({
-  component: Index,
+  component: Splash,
 });
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
-function Index() {
+function Splash() {
+  const navigate = useNavigate();
+  const [phase, setPhase] = useState<0 | 1 | 2>(0);
+
+  useEffect(() => {
+    const t1 = setTimeout(() => setPhase(1), 1200);
+    const t2 = setTimeout(() => setPhase(2), 2400);
+    const t3 = setTimeout(() => navigate({ to: "/app" }), 3800);
+    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
+  }, [navigate]);
+
   return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
+    <div className="min-h-screen flex flex-col items-center justify-center bg-background px-6 text-center">
+      <div className="animate-logo-in">
+        <Logo size={140} />
+      </div>
+      {phase >= 1 && (
+        <h1 className="mt-2 font-display text-5xl tracking-[0.02em] text-foreground animate-fade-in-slow">
+          Stylisme
+        </h1>
+      )}
+      {phase >= 2 && (
+        <p className="mt-4 text-sm uppercase tracking-[0.32em] text-muted-foreground animate-fade-in-slow">
+          Inteligência para o seu armário
+        </p>
+      )}
     </div>
   );
 }
