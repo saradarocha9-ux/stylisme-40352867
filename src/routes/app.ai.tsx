@@ -33,19 +33,17 @@ function AiPage() {
       setMsgs((m) => [...m, { role: "ai", text: "Não encontrei uma combinação com esses filtros. Tente sem filtros." }]);
       return;
     }
-    const look = actions.addLook({
-      name: `${style ?? "Look"}${occ ? ` · ${occ}` : ""}`,
-      garmentIds: ids,
-      occasion: occ,
-      style,
-    });
+    // Envia as peças diretamente para o Provador
+    actions.tryOnClear();
+    ids.forEach((id) => actions.tryOnAdd(id));
     setMsgs((m) => [
       ...m,
       { role: "user", text: `Monte um look ${style ?? ""} ${occ ? `para ${occ}` : ""}`.trim() },
-      { role: "ai", text: `Prontinho. Compus um look com ${ids.length} peças do seu armário. Você pode ajustar em Looks.`, ids },
+      { role: "ai", text: `Selecionei ${ids.length} peças. Abrindo o Provador para você experimentar…`, ids },
     ]);
-    setTimeout(() => navigate({ to: "/app/looks" }), 900);
+    setTimeout(() => navigate({ to: "/app/looks" }), 700);
   }
+
 
   function send() {
     if (!input.trim()) return;
