@@ -1,7 +1,8 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { Wand2, Send, Sparkles } from "lucide-react";
+import { Wand2, Send, Sparkles, Crown } from "lucide-react";
 import { useStore, actions, generateLook, type Occasion, type Style } from "@/lib/store";
+import { useSubscription } from "@/hooks/use-subscription";
 
 export const Route = createFileRoute("/app/ai")({
   component: AiPage,
@@ -9,21 +10,43 @@ export const Route = createFileRoute("/app/ai")({
 
 const OCC: Occasion[] = ["Trabalho", "Faculdade", "Casual", "Festa", "Casamento", "Viagem", "Evento", "Academia", "Praia", "Jantar"];
 const STY: Style[] = ["Elegante", "Minimalista", "Streetwear", "Casual", "Fashionista", "Vintage", "Romântico", "Esportivo"];
+const FREE_DAILY_LIMIT = 3;
 
 interface Msg { role: "ai" | "user"; text: string; ids?: string[] }
+
+function todayKey() {
+  return "stylisme:ai:" + new Date().toISOString().slice(0, 10);
+}
+function usedToday(): number {
+  if (typeof window === "undefined") return 0;
+  return Number(localStorage.getItem(todayKey()) ?? 0);
+}
+function bumpUsed(): number {
+  const next = usedToday() + 1;
+  localStorage.setItem(todayKey(), String(next));
+  return next;
+}
 
 function AiPage() {
   const { state } = useStore();
   const navigate = useNavigate();
+  const { isPremium } = useSubscription();
   const [occ, setOcc] = useState<Occasion | undefined>();
   const [style, setStyle] = useState<Style | undefined>();
   const [accessories, setAccessories] = useState(true);
+  const [used, setUsed] = useState<number>(usedToday());
   const [msgs, setMsgs] = useState<Msg[]>([
     { role: "ai", text: "Olá, eu sou a Stylisme AI. Escolha ocasião e estilo, ou me diga o que você precisa vestir." },
   ]);
   const [input, setInput] = useState("");
 
+  const remaining = isPremium ? Infinity : Math.max(0, FREE_DAILY_LIMIT - used);
+
   function generate() {
+    if (!isPremium && remaining <= 0) {
+      setMsgs((m) => [...m, { role: "ai", text: "Você atingiu o limite diário do plano Free (3 looks). Faça upgrade para IA ilimitada." }]);
+      return;
+    }
     if (state.garments.length < 2) {
       setMsgs((m) => [...m, { role: "ai", text: "Cadastre pelo menos 2 peças no seu armário para eu compor um look." }]);
       return;
@@ -33,6 +56,7 @@ function AiPage() {
       setMsgs((m) => [...m, { role: "ai", text: "Não encontrei uma combinação com esses filtros. Tente sem filtros." }]);
       return;
     }
+    if (!isPremium) setUsed(bumpUsed());
     // Envia as peças diretamente para o Provador
     actions.tryOnClear();
     ids.forEach((id) => actions.tryOnAdd(id));
@@ -56,12 +80,23 @@ function AiPage() {
 
   return (
     <div className="px-5 pt-8">
-      <div className="flex items-center gap-2">
-        <Wand2 size={20} className="text-gold" strokeWidth={1.5} />
-        <div>
-          <p className="text-[10px] uppercase tracking-[0.24em] text-muted-foreground">Assistente</p>
-          <h1 className="font-display text-3xl">Stylisme AI</h1>
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          <Wand2 size={20} className="text-gold" strokeWidth={1.5} />
+          <div>
+            <p className="text-[10px] uppercase tracking-[0.24em] text-muted-foreground">Assistente</p>
+            <h1 className="font-display text-3xl">Stylisme AI</h1>
+          </div>
         </div>
+        {isPremium ? (
+          <span className="inline-flex items-center gap-1 rounded-full bg-foreground px-2.5 py-1 text-[10px] uppercase tracking-[0.2em] text-primary-foreground">
+            <Crown size={10} /> Ilimitado
+          </span>
+        ) : (
+          <Link to="/app/premium" className="rounded-full border border-border px-2.5 py-1 text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+            {remaining}/{FREE_DAILY_LIMIT} hoje
+          </Link>
+        )}
       </div>
 
       <div className="mt-6 space-y-3">

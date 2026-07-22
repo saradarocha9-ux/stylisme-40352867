@@ -3,6 +3,7 @@ import { Crown, Settings, LogOut, ChevronRight, User as UserIcon, CreditCard, Ba
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useStore } from "@/lib/store";
+import { useSubscription } from "@/hooks/use-subscription";
 
 export const Route = createFileRoute("/app/profile")({
   component: ProfilePage,
@@ -12,6 +13,7 @@ function ProfilePage() {
   const { state } = useStore();
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
+  const { isPremium } = useSubscription();
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => setEmail(data.user?.email ?? ""));
   }, []);
@@ -37,8 +39,8 @@ function ProfilePage() {
         <div className="flex-1">
           <p className="font-display text-xl">{p.name}</p>
           <p className="text-xs text-muted-foreground">{email || "sem email"}</p>
-          <div className={"mt-1 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] uppercase tracking-[0.18em] " + (p.plan === "premium" ? "bg-foreground text-primary-foreground" : "bg-muted text-muted-foreground")}>
-            <Crown size={10} /> {p.plan === "premium" ? "Premium" : "Free"}
+          <div className={"mt-1 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] uppercase tracking-[0.18em] " + (isPremium ? "bg-foreground text-primary-foreground" : "bg-muted text-muted-foreground")}>
+            <Crown size={10} /> {isPremium ? "Premium" : "Free"}
           </div>
         </div>
       </div>
@@ -50,7 +52,7 @@ function ProfilePage() {
         <Stat label="Dias" value={days} />
       </div>
 
-      {p.plan === "free" && (
+      {!isPremium && (
         <Link to="/app/premium" className="mt-6 flex items-center justify-between rounded-3xl bg-premium p-5 text-white shadow-lift">
           <div>
             <p className="text-[10px] uppercase tracking-[0.24em] opacity-70">Plano atual · Free</p>
