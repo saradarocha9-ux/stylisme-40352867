@@ -1,8 +1,15 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Check, Crown, ArrowLeft, Sparkles, CalendarDays, BarChart3, Cloud, RefreshCw, Zap } from "lucide-react";
-import { actions, useStore } from "@/lib/store";
+import { useServerFn } from "@tanstack/react-start";
+import { Check, Crown, ArrowLeft, Sparkles, CalendarDays, BarChart3, Cloud, RefreshCw, Zap, Loader2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useSearch } from "@tanstack/react-router";
+import { createCheckout } from "@/lib/stripe.functions";
+import { useSubscription } from "@/hooks/use-subscription";
 
 export const Route = createFileRoute("/app/premium")({
+  validateSearch: (s: Record<string, unknown>) => ({
+    checkout: s.checkout === "cancelled" ? "cancelled" : undefined,
+  }),
   component: PremiumPage,
 });
 
@@ -15,17 +22,31 @@ const benefits = [
   { icon: Zap, title: "Recursos exclusivos", desc: "Novidades chegam primeiro para você." },
 ];
 
-const freeFeatures = ["Cadastro de roupas", "Guarda-roupa digital", "Avatar", "Criação básica de looks", "Favoritos", "Perfil"];
+const freeFeatures = ["Cadastro de roupas", "Guarda-roupa digital", "Provador virtual", "IA (3 looks/dia)", "Favoritos", "Perfil"];
 const premiumFeatures = ["Tudo do Free", "IA ilimitada", "Planejamento inteligente", "Estatísticas", "Recomendações avançadas", "Recursos exclusivos", "Sincronização completa"];
 
 function PremiumPage() {
-  const { state } = useStore();
-  const isPremium = state.profile.plan === "premium";
+  const { isPremium, loading } = useSubscription();
+  const search = useSearch({ from: "/app/premium" });
+  const checkout = useServerFn(createCheckout);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [showCancelled, setShowCancelled] = useState(false);
 
-  function subscribe() {
-    // Stripe conecta aqui via Lovable Payments. Enquanto isso, atualiza o plano localmente.
-    actions.updateProfile({ plan: "premium" });
-    alert("Bem-vindo(a) ao Stylisme Premium.");
+  useEffect(() => {
+    if (search.checkout === "cancelled") setShowCancelled(true);
+  }, [search.checkout]);
+
+  async function subscribe() {
+    setSubmitting(true);
+    setError(null);
+    try {
+      const { url } = await checkout();
+      if (url) window.location.href = url;
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Não foi possível iniciar o checkout.");
+      setSubmitting(false);
+    }
   }
 
   return (
@@ -34,6 +55,12 @@ function PremiumPage() {
         <Link to="/app/profile" className="inline-flex items-center gap-1 text-xs uppercase tracking-[0.24em] opacity-70">
           <ArrowLeft size={14} /> Voltar
         </Link>
+
+        {showCancelled && (
+          <div className="mt-6 rounded-2xl bg-white/10 p-4 text-xs">
+            Checkout cancelado. Você continua no plano gratuito.
+          </div>
+        )}
 
         <div className="mt-8 text-center animate-fade-in-slow">
           <Crown className="mx-auto text-gold" size={40} strokeWidth={1.5} />
@@ -68,14 +95,17 @@ function PremiumPage() {
           <Column title="Premium" features={premiumFeatures} gold />
         </div>
 
+        {error && <p className="mt-6 text-center text-xs text-red-200">{error}</p>}
+
         <button
           onClick={subscribe}
-          disabled={isPremium}
-          className="mt-10 w-full rounded-full bg-gold py-4 text-sm uppercase tracking-[0.28em] text-[oklch(0.16_0.01_60)] shadow-lift disabled:opacity-50"
+          disabled={isPremium || submitting || loading}
+          className="mt-8 flex w-full items-center justify-center gap-2 rounded-full bg-gold py-4 text-sm uppercase tracking-[0.28em] text-[oklch(0.16_0.01_60)] shadow-lift disabled:opacity-50"
         >
-          {isPremium ? "Você já é Premium" : "Assinar Premium"}
+          {submitting && <Loader2 size={14} className="animate-spin" />}
+          {isPremium ? "Você já é Premium" : submitting ? "Redirecionando…" : "Assinar Premium"}
         </button>
-        <p className="mt-3 text-center text-[10px] uppercase tracking-[0.24em] opacity-60">Cancele quando quiser</p>
+        <p className="mt-3 text-center text-[10px] uppercase tracking-[0.24em] opacity-60">Cancele quando quiser · Pagamento seguro via Stripe</p>
       </div>
     </div>
   );
