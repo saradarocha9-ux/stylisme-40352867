@@ -120,7 +120,7 @@ export const openCustomerPortal = createServerFn({ method: "POST" })
   });
 
 async function syncProfilePlan(
-  supabase: { from: (t: string) => { update: (v: unknown) => { eq: (c: string, v: string) => Promise<unknown> } } },
+  supabase: SupabaseClient<Database>,
   userId: string,
   subscribed: boolean,
 ) {
