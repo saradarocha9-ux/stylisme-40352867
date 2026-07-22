@@ -80,12 +80,23 @@ function AiPage() {
 
   return (
     <div className="px-5 pt-8">
-      <div className="flex items-center gap-2">
-        <Wand2 size={20} className="text-gold" strokeWidth={1.5} />
-        <div>
-          <p className="text-[10px] uppercase tracking-[0.24em] text-muted-foreground">Assistente</p>
-          <h1 className="font-display text-3xl">Stylisme AI</h1>
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          <Wand2 size={20} className="text-gold" strokeWidth={1.5} />
+          <div>
+            <p className="text-[10px] uppercase tracking-[0.24em] text-muted-foreground">Assistente</p>
+            <h1 className="font-display text-3xl">Stylisme AI</h1>
+          </div>
         </div>
+        {isPremium ? (
+          <span className="inline-flex items-center gap-1 rounded-full bg-foreground px-2.5 py-1 text-[10px] uppercase tracking-[0.2em] text-primary-foreground">
+            <Crown size={10} /> Ilimitado
+          </span>
+        ) : (
+          <Link to="/app/premium" className="rounded-full border border-border px-2.5 py-1 text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+            {remaining}/{FREE_DAILY_LIMIT} hoje
+          </Link>
+        )}
       </div>
 
       <div className="mt-6 space-y-3">
