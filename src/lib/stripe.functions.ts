@@ -1,6 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
 import { getRequestHeader } from "@tanstack/react-start/server";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "@/integrations/supabase/types";
 
 // Stylisme Premium price (BRL 24,90/mo)
 export const PREMIUM_PRICE_ID = "price_1TvnaiKGRX9cr4A84ODJyQmY";
