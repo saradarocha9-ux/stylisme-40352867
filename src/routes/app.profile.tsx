@@ -3,6 +3,7 @@ import { Crown, Settings, LogOut, ChevronRight, User as UserIcon, CreditCard, Ba
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useStore } from "@/lib/store";
+import { useSubscription } from "@/hooks/use-subscription";
 
 export const Route = createFileRoute("/app/profile")({
   component: ProfilePage,
