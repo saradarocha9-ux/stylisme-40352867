@@ -42,7 +42,15 @@ function PremiumPage() {
     setError(null);
     try {
       const { url } = await checkout();
-      if (url) window.location.href = url;
+      if (url) {
+        // Stripe bloqueia carregamento dentro de iframe (preview) — abre no topo/nova aba.
+        const opened = window.open(url, "_blank", "noopener,noreferrer");
+        if (!opened) {
+          if (window.top) window.top.location.href = url;
+          else window.location.href = url;
+        }
+        setSubmitting(false);
+      }
     } catch (e) {
       setError(e instanceof Error ? e.message : "Não foi possível iniciar o checkout.");
       setSubmitting(false);

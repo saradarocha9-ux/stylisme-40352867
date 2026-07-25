@@ -36,7 +36,14 @@ function SubscriptionPage() {
     setError(null);
     try {
       const { url } = await portalFn();
-      if (url) window.location.href = url;
+      if (url) {
+        const opened = window.open(url, "_blank", "noopener,noreferrer");
+        if (!opened) {
+          if (window.top) window.top.location.href = url;
+          else window.location.href = url;
+        }
+        setPortalLoading(false);
+      }
     } catch (e) {
       setError(e instanceof Error ? e.message : "Não foi possível abrir o portal.");
       setPortalLoading(false);
