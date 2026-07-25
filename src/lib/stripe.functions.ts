@@ -45,6 +45,7 @@ export const createCheckout = createServerFn({ method: "POST" })
       customer_email: customerId ? undefined : email,
       line_items: [{ price: PREMIUM_PRICE_ID, quantity: 1 }],
       mode: "subscription",
+      payment_method_types: ["card"],
       allow_promotion_codes: true,
       success_url: `${origin}/app/subscription?checkout=success`,
       cancel_url: `${origin}/app/premium?checkout=cancelled`,
