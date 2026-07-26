@@ -25,7 +25,7 @@ export const removeBgRemote = createServerFn({ method: "POST" })
       return fetch("https://api.remove.bg/v1.0/removebg", {
         method: "POST",
         headers: {
-          "X-Api-Key": apiKey,
+          "X-Api-Key": key,
           "Content-Type": "application/json",
           Accept: "application/json",
         },
