@@ -176,7 +176,7 @@ function AiPage() {
         </label>
 
         <button onClick={generate} className="mt-5 flex w-full items-center justify-center gap-2 rounded-full bg-foreground py-3.5 text-sm uppercase tracking-[0.24em] text-primary-foreground">
-          <Sparkles size={14} /> Gerar look
+          <Sparkles size={14} /> Gerar 3 looks
         </button>
       </section>
 
