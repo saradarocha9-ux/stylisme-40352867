@@ -51,22 +51,41 @@ function AiPage() {
       setMsgs((m) => [...m, { role: "ai", text: "Cadastre pelo menos 2 peças no seu armário para eu compor um look." }]);
       return;
     }
-    const ids = generateLook(state.garments, { occasion: occ, style, accessories });
-    if (!ids.length) {
+    // Gera 3 opções distintas
+    const options: string[][] = [];
+    const seen = new Set<string>();
+    for (let i = 0; i < 18 && options.length < 3; i++) {
+      const ids = generateLook(state.garments, { occasion: occ, style, accessories });
+      if (!ids.length) continue;
+      const key = [...ids].sort().join("|");
+      if (seen.has(key)) continue;
+      seen.add(key);
+      options.push(ids);
+    }
+    if (!options.length) {
       setMsgs((m) => [...m, { role: "ai", text: "Não encontrei uma combinação com esses filtros. Tente sem filtros." }]);
       return;
     }
     if (!isPremium) setUsed(bumpUsed());
-    // Envia as peças diretamente para o Provador
-    actions.tryOnClear();
-    ids.forEach((id) => actions.tryOnAdd(id));
     setMsgs((m) => [
       ...m,
       { role: "user", text: `Monte um look ${style ?? ""} ${occ ? `para ${occ}` : ""}`.trim() },
-      { role: "ai", text: `Selecionei ${ids.length} peças. Abrindo o Provador para você experimentar…`, ids },
+      {
+        role: "ai",
+        text: options.length === 1
+          ? "Consegui montar 1 opção com as peças do seu armário. Toque para provar."
+          : `Montei ${options.length} opções de look. Escolha uma para provar.`,
+        options,
+      },
     ]);
-    setTimeout(() => navigate({ to: "/app/looks" }), 700);
   }
+
+  function chooseOption(ids: string[]) {
+    actions.tryOnClear();
+    ids.forEach((id) => actions.tryOnAdd(id));
+    navigate({ to: "/app/looks" });
+  }
+
 
 
   function send() {
