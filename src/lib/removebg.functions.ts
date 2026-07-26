@@ -14,8 +14,10 @@ export const removeBgRemote = createServerFn({ method: "POST" })
     return data;
   })
   .handler(async ({ data }): Promise<{ dataUrl: string }> => {
-    const apiKey = process.env.REMOVE_BG_API_KEY;
+    const apiKey: string | undefined = process.env.REMOVE_BG_API_KEY;
     if (!apiKey) throw new Error("REMOVE_BG_API_KEY não configurada.");
+    const key: string = apiKey;
+
 
     const base64 = data.dataUrl.split(",")[1] ?? "";
 
