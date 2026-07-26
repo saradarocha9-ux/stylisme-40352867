@@ -120,13 +120,42 @@ function AiPage() {
 
       <div className="mt-6 space-y-3">
         {msgs.map((m, i) => (
-          <div key={i} className={m.role === "ai" ? "flex" : "flex justify-end"}>
-            <div className={"max-w-[85%] rounded-2xl px-4 py-3 text-sm " + (m.role === "ai" ? "bg-card text-foreground shadow-soft" : "bg-foreground text-primary-foreground")}>
-              {m.text}
+          <div key={i} className="space-y-2">
+            <div className={m.role === "ai" ? "flex" : "flex justify-end"}>
+              <div className={"max-w-[85%] rounded-2xl px-4 py-3 text-sm " + (m.role === "ai" ? "bg-card text-foreground shadow-soft" : "bg-foreground text-primary-foreground")}>
+                {m.text}
+              </div>
             </div>
+            {m.options && (
+              <div className="grid grid-cols-3 gap-2">
+                {m.options.map((ids, k) => (
+                  <button
+                    key={k}
+                    onClick={() => chooseOption(ids)}
+                    className="rounded-2xl bg-card p-2 text-left shadow-soft transition active:scale-[0.98]"
+                  >
+                    <p className="px-1 text-[9px] uppercase tracking-[0.2em] text-muted-foreground">Opção {k + 1}</p>
+                    <div className="mt-1 grid grid-cols-2 gap-1">
+                      {ids.slice(0, 4).map((id) => {
+                        const g = state.garments.find((x) => x.id === id);
+                        return (
+                          <div key={id} className="aspect-square overflow-hidden rounded-lg bg-muted">
+                            {g?.imageUrl ? (
+                              <img src={g.imageUrl} alt={g.name} className="h-full w-full object-contain" />
+                            ) : null}
+                          </div>
+                        );
+                      })}
+                    </div>
+                    <p className="mt-1.5 px-1 text-[10px] text-muted-foreground">{ids.length} peças · provar</p>
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         ))}
       </div>
+
 
       <section className="mt-6 rounded-3xl bg-card p-5 shadow-soft">
         <p className="text-[10px] uppercase tracking-[0.22em] text-muted-foreground">Ocasião</p>
