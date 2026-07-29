@@ -1,7 +1,8 @@
 import { useRef, useState } from "react";
-import { X, Upload, Sparkles } from "lucide-react";
+import { X, Upload, Sparkles, Wand2 } from "lucide-react";
 import { actions, type Category, type Occasion, type Season } from "@/lib/store";
 import { removeImageBackground, fileToDataUrl } from "@/lib/bg-removal";
+import { analyzeGarment } from "@/lib/garment-ai.functions";
 
 const CATEGORIES: Category[] = ["Camiseta", "Camisa", "Blusa", "Vestido", "Saia", "Calça", "Shorts", "Casaco", "Sapato", "Acessório"];
 const OCCASIONS: Occasion[] = ["Trabalho", "Faculdade", "Casual", "Festa", "Casamento", "Viagem", "Evento", "Academia", "Praia", "Jantar"];
@@ -11,6 +12,7 @@ export function AddGarmentSheet({ onClose }: { onClose: () => void }) {
   const [name, setName] = useState("");
   const [category, setCategory] = useState<Category>("Camiseta");
   const [color, setColor] = useState("");
+  const [material, setMaterial] = useState("");
   const [pattern, setPattern] = useState("");
   const [occasions, setOccasions] = useState<Occasion[]>([]);
   const [seasons, setSeasons] = useState<Season[]>([]);
@@ -18,30 +20,55 @@ export function AddGarmentSheet({ onClose }: { onClose: () => void }) {
   const [rawUrl, setRawUrl] = useState<string | undefined>();
   const [progress, setProgress] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [detected, setDetected] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
   function toggle<T>(arr: T[], v: T, setter: (a: T[]) => void) {
     setter(arr.includes(v) ? arr.filter((x) => x !== v) : [...arr, v]);
   }
 
+  async function analyze(url: string) {
+    setProgress("Identificando a peça…");
+    try {
+      const a = await analyzeGarment({ data: { dataUrl: url } });
+      if (a.name) setName(a.name);
+      if (CATEGORIES.includes(a.category as Category)) setCategory(a.category as Category);
+      if (a.color) setColor(a.color);
+      if (a.material) setMaterial(a.material);
+      if (a.pattern) setPattern(a.pattern);
+      const occ = a.occasions.filter((o): o is Occasion => OCCASIONS.includes(o as Occasion));
+      if (occ.length) setOccasions(occ);
+      const sea = a.seasons.filter((s): s is Season => SEASONS.includes(s as Season));
+      if (sea.length) setSeasons(sea);
+      setDetected(true);
+    } catch (e) {
+      console.error(e);
+      setError("Não consegui identificar automaticamente. Preencha manualmente.");
+    } finally {
+      setProgress(null);
+    }
+  }
+
   async function handleFile(f: File) {
     setError(null);
     setImageUrl(undefined);
     setRawUrl(undefined);
+    setDetected(false);
+    let finalUrl: string | undefined;
     try {
       const preview = await fileToDataUrl(f);
       setRawUrl(preview);
       setProgress("Removendo fundo…");
-      const url = await removeImageBackground(f);
-      setImageUrl(url);
-      setProgress(null);
+      finalUrl = await removeImageBackground(f);
+      setImageUrl(finalUrl);
     } catch (e) {
       console.error(e);
       setError("Não consegui remover o fundo. Usando a foto original.");
-      setProgress(null);
-      // fallback: usa original
-      setImageUrl(await fileToDataUrl(f));
+      finalUrl = await fileToDataUrl(f);
+      setImageUrl(finalUrl);
     }
+    setProgress(null);
+    if (finalUrl) await analyze(finalUrl);
   }
 
   function submit() {
@@ -57,6 +84,7 @@ export function AddGarmentSheet({ onClose }: { onClose: () => void }) {
       name: name.trim(),
       category,
       color: color.trim(),
+      material: material.trim() || undefined,
       pattern: pattern.trim() || undefined,
       occasions,
       seasons,
@@ -91,11 +119,26 @@ export function AddGarmentSheet({ onClose }: { onClose: () => void }) {
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-background/70 backdrop-blur-sm">
               <Sparkles size={20} className="animate-pulse text-gold" />
               <span className="text-xs uppercase tracking-[0.22em] text-foreground">{progress}</span>
-              <span className="text-[10px] text-muted-foreground">pode levar alguns segundos na primeira vez</span>
+              <span className="text-[10px] text-muted-foreground">leva só alguns segundos</span>
             </div>
           )}
         </button>
         {error && <p className="mt-2 text-xs text-destructive">{error}</p>}
+
+        {imageUrl && !progress && (
+          <div className="mt-2 flex items-center justify-between gap-2">
+            <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+              {detected ? "Preenchido pela IA · edite se quiser" : "Preencha os dados abaixo"}
+            </p>
+            <button
+              onClick={() => imageUrl && analyze(imageUrl)}
+              className="flex items-center gap-1 rounded-full border border-border px-3 py-1 text-[10px] uppercase tracking-[0.18em] text-muted-foreground"
+            >
+              <Wand2 size={12} /> Detectar
+            </button>
+          </div>
+        )}
+
         <input
           ref={fileRef}
           type="file"
@@ -115,8 +158,9 @@ export function AddGarmentSheet({ onClose }: { onClose: () => void }) {
           </Field>
           <div className="grid grid-cols-2 gap-3">
             <Field label="Cor"><input value={color} onChange={(e) => setColor(e.target.value)} className="input" placeholder="Bege" /></Field>
-            <Field label="Estampa"><input value={pattern} onChange={(e) => setPattern(e.target.value)} className="input" placeholder="Lisa" /></Field>
+            <Field label="Material"><input value={material} onChange={(e) => setMaterial(e.target.value)} className="input" placeholder="Linho" /></Field>
           </div>
+          <Field label="Estampa"><input value={pattern} onChange={(e) => setPattern(e.target.value)} className="input" placeholder="Lisa" /></Field>
           <Field label="Ocasiões">
             <div className="flex flex-wrap gap-1.5">
               {OCCASIONS.map((o) => (

@@ -22,6 +22,7 @@ export interface Garment {
   category: Category;
   color: string;
   pattern?: string;
+  material?: string;
   occasions: Occasion[];
   seasons: Season[];
   imageUrl?: string;
@@ -219,6 +220,14 @@ export const actions = {
     const s = read();
     write({ ...s, tryOn: s.tryOn.map((t) => t.garmentId === garmentId ? { ...t, ...patch } : t) });
   },
+  /** Volta a peça para o encaixe automático. */
+  tryOnResetFit(garmentId: string) {
+    const s = read();
+    const g = s.garments.find((x) => x.id === garmentId);
+    const fit = fitFor(g?.category);
+    write({ ...s, tryOn: s.tryOn.map((t) => t.garmentId === garmentId ? { garmentId, ...fit } : t) });
+  },
+
   tryOnRemove(garmentId: string) {
     const s = read();
     write({ ...s, tryOn: s.tryOn.filter((t) => t.garmentId !== garmentId) });
@@ -315,19 +324,24 @@ export function slotOf(category?: Category): BodySlot {
   }
 }
 
-/** Posição, largura e profundidade fixas de cada slot no canvas do provador. */
+/**
+ * Posição/largura de cada slot — relativas à ÁREA DA FOTO DO CORPO
+ * (não ao canvas), para a peça cair no lugar certo em qualquer proporção.
+ * x/y = centro da peça, w = largura em fração da largura do corpo.
+ */
 const SLOT_FIT: Record<BodySlot, { x: number; y: number; w: number; z: number }> = {
-  bottom: { x: 0.5, y: 0.63, w: 0.3, z: 1 },
-  dress: { x: 0.5, y: 0.46, w: 0.36, z: 2 },
-  top: { x: 0.5, y: 0.34, w: 0.34, z: 3 },
-  outer: { x: 0.5, y: 0.36, w: 0.42, z: 4 },
-  shoes: { x: 0.5, y: 0.91, w: 0.2, z: 5 },
-  acc: { x: 0.5, y: 0.17, w: 0.14, z: 6 },
+  bottom: { x: 0.5, y: 0.66, w: 0.34, z: 1 },
+  dress: { x: 0.5, y: 0.47, w: 0.44, z: 2 },
+  top: { x: 0.5, y: 0.33, w: 0.42, z: 3 },
+  outer: { x: 0.5, y: 0.36, w: 0.5, z: 4 },
+  shoes: { x: 0.5, y: 0.96, w: 0.26, z: 5 },
+  acc: { x: 0.5, y: 0.1, w: 0.18, z: 6 },
 };
 
 export function fitFor(category?: Category): Omit<TryOnItem, "garmentId"> {
   const slot = slotOf(category);
   const f = SLOT_FIT[slot];
-  // scale 1 = 40% da largura do canvas
+  // scale 1 = 40% da largura do corpo
   return { x: f.x, y: f.y, scale: f.w / 0.4, rotation: 0, z: f.z };
 }
+
