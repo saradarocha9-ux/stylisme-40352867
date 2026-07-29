@@ -22,6 +22,7 @@ export interface Garment {
   category: Category;
   color: string;
   pattern?: string;
+  material?: string;
   occasions: Occasion[];
   seasons: Season[];
   imageUrl?: string;
