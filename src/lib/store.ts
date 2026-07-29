@@ -220,6 +220,14 @@ export const actions = {
     const s = read();
     write({ ...s, tryOn: s.tryOn.map((t) => t.garmentId === garmentId ? { ...t, ...patch } : t) });
   },
+  /** Volta a peça para o encaixe automático. */
+  tryOnResetFit(garmentId: string) {
+    const s = read();
+    const g = s.garments.find((x) => x.id === garmentId);
+    const fit = fitFor(g?.category);
+    write({ ...s, tryOn: s.tryOn.map((t) => t.garmentId === garmentId ? { garmentId, ...fit } : t) });
+  },
+
   tryOnRemove(garmentId: string) {
     const s = read();
     write({ ...s, tryOn: s.tryOn.filter((t) => t.garmentId !== garmentId) });
