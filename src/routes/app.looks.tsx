@@ -1,21 +1,46 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useRef, useState, useEffect } from "react";
-import { Plus, User as UserIcon, X, RotateCcw } from "lucide-react";
-import { useStore, actions, fitFor, type TryOnItem, type Garment } from "@/lib/store";
+import { useMemo, useRef, useState, useEffect, useCallback } from "react";
+import { Plus, User as UserIcon, X, RotateCcw, Move, Check } from "lucide-react";
+import { useStore, actions, type TryOnItem, type Garment } from "@/lib/store";
 import { removeImageBackground } from "@/lib/bg-removal";
 
 export const Route = createFileRoute("/app/looks")({
   component: TryOnPage,
 });
 
+interface Rect { left: number; top: number; width: number; height: number }
+
 function TryOnPage() {
   const { state } = useStore();
   const [picker, setPicker] = useState(false);
   const [bodyBusy, setBodyBusy] = useState(false);
+  const [adjust, setAdjust] = useState(false);
+  const [bodyRect, setBodyRect] = useState<Rect | null>(null);
   const bodyRef = useRef<HTMLInputElement>(null);
+  const canvasRef = useRef<HTMLDivElement>(null);
+  const imgRef = useRef<HTMLImageElement>(null);
 
   const body = state.profile.bodyPhotoUrl;
   const items = useMemo(() => [...state.tryOn].sort((a, b) => a.z - b.z), [state.tryOn]);
+
+  /** Área realmente ocupada pela foto (object-contain) dentro do canvas. */
+  const measure = useCallback(() => {
+    const canvas = canvasRef.current;
+    const img = imgRef.current;
+    if (!canvas || !img || !img.naturalWidth) return;
+    const cw = canvas.clientWidth;
+    const ch = canvas.clientHeight;
+    const scale = Math.min(cw / img.naturalWidth, ch / img.naturalHeight);
+    const width = img.naturalWidth * scale;
+    const height = img.naturalHeight * scale;
+    setBodyRect({ left: (cw - width) / 2, top: (ch - height) / 2, width, height });
+  }, []);
+
+  useEffect(() => {
+    measure();
+    window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
+  }, [measure, body]);
 
   async function onBodyFile(f: File) {
     setBodyBusy(true);
@@ -58,10 +83,19 @@ function TryOnPage() {
         </div>
       </div>
 
-      {/* Canvas — as peças se encaixam automaticamente no corpo */}
-      <div className="relative mt-5 aspect-[3/4] w-full overflow-hidden rounded-3xl bg-[linear-gradient(180deg,var(--color-muted)_0%,var(--color-background)_100%)] shadow-soft">
+      {/* Canvas — peças alinhadas à foto do corpo */}
+      <div
+        ref={canvasRef}
+        className="relative mt-5 aspect-[3/4] w-full overflow-hidden rounded-3xl bg-[linear-gradient(180deg,var(--color-muted)_0%,var(--color-background)_100%)] shadow-soft"
+      >
         {body ? (
-          <img src={body} alt="Você" className="pointer-events-none absolute inset-0 h-full w-full object-contain" />
+          <img
+            ref={imgRef}
+            src={body}
+            alt="Você"
+            onLoad={measure}
+            className="pointer-events-none absolute inset-0 h-full w-full object-contain"
+          />
         ) : (
           <button
             onClick={() => bodyRef.current?.click()}
@@ -80,10 +114,10 @@ function TryOnPage() {
           </div>
         )}
 
-        {items.map((item) => {
+        {bodyRect && items.map((item) => {
           const g = state.garments.find((x) => x.id === item.garmentId);
           if (!g?.imageUrl) return null;
-          return <FittedGarment key={item.garmentId} item={item} garment={g} />;
+          return <FittedGarment key={item.garmentId} item={item} garment={g} rect={bodyRect} adjust={adjust} />;
         })}
       </div>
 
@@ -95,6 +129,18 @@ function TryOnPage() {
         onChange={(e) => e.target.files?.[0] && onBodyFile(e.target.files[0])}
       />
 
+      {state.tryOn.length > 0 && (
+        <button
+          onClick={() => setAdjust((a) => !a)}
+          className={
+            "mt-3 flex w-full items-center justify-center gap-2 rounded-full py-2.5 text-[11px] uppercase tracking-[0.22em] transition " +
+            (adjust ? "bg-foreground text-primary-foreground" : "border border-border text-muted-foreground")
+          }
+        >
+          {adjust ? <><Check size={13} /> Concluir ajuste</> : <><Move size={13} /> Ajustar manualmente</>}
+        </button>
+      )}
+
       {/* Peças no provador */}
       {state.tryOn.length > 0 && (
         <div className="mt-4 space-y-2">
@@ -102,26 +148,48 @@ function TryOnPage() {
             const g = state.garments.find((x) => x.id === t.garmentId);
             if (!g) return null;
             return (
-              <div key={t.garmentId} className="flex items-center gap-3 rounded-2xl bg-card p-3 shadow-soft">
-                <div className="h-10 w-10 overflow-hidden rounded-xl bg-muted">
-                  {g.imageUrl && <img src={g.imageUrl} className="h-full w-full object-contain" alt="" />}
+              <div key={t.garmentId} className="rounded-2xl bg-card p-3 shadow-soft">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 overflow-hidden rounded-xl bg-muted">
+                    {g.imageUrl && <img src={g.imageUrl} className="h-full w-full object-contain" alt="" />}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-medium">{g.name}</p>
+                    <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">{g.category}</p>
+                  </div>
+                  <button
+                    onClick={() => actions.tryOnRemove(t.garmentId)}
+                    className="rounded-full p-2 hover:bg-muted"
+                    aria-label="Remover"
+                  >
+                    <X size={16} className="text-destructive" />
+                  </button>
                 </div>
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium">{g.name}</p>
-                  <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">{g.category}</p>
-                </div>
-                <button
-                  onClick={() => actions.tryOnRemove(t.garmentId)}
-                  className="rounded-full p-2 hover:bg-muted"
-                  aria-label="Remover"
-                >
-                  <X size={16} className="text-destructive" />
-                </button>
+                {adjust && (
+                  <div className="mt-3 flex items-center gap-3">
+                    <span className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Tamanho</span>
+                    <input
+                      type="range"
+                      min={0.4}
+                      max={2.5}
+                      step={0.02}
+                      value={t.scale}
+                      onChange={(e) => actions.tryOnUpdate(t.garmentId, { scale: Number(e.target.value) })}
+                      className="flex-1 accent-[var(--color-foreground)]"
+                    />
+                    <button
+                      onClick={() => actions.tryOnResetFit(t.garmentId)}
+                      className="rounded-full border border-border px-3 py-1 text-[10px] uppercase tracking-[0.18em] text-muted-foreground"
+                    >
+                      Auto
+                    </button>
+                  </div>
+                )}
               </div>
             );
           })}
           <p className="pt-1 text-center text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
-            Encaixe automático · sem ajustes manuais
+            {adjust ? "Arraste a peça sobre o corpo" : "Encaixe automático"}
           </p>
         </div>
       )}
@@ -140,18 +208,44 @@ function TryOnPage() {
   );
 }
 
-/** Peça posicionada automaticamente — não é arrastável nem redimensionável. */
-function FittedGarment({ item, garment }: { item: TryOnItem; garment: Garment }) {
-  const fit = fitFor(garment.category);
+/** Peça encaixada na área da foto do corpo; arrastável só no modo de ajuste. */
+function FittedGarment({
+  item, garment, rect, adjust,
+}: { item: TryOnItem; garment: Garment; rect: Rect; adjust: boolean }) {
+  const width = rect.width * 0.4 * item.scale;
+
+  function onPointerDown(e: React.PointerEvent) {
+    if (!adjust) return;
+    e.preventDefault();
+    const startX = e.clientX;
+    const startY = e.clientY;
+    const ox = item.x;
+    const oy = item.y;
+    const el = e.currentTarget as HTMLElement;
+    el.setPointerCapture(e.pointerId);
+    const move = (ev: PointerEvent) => {
+      actions.tryOnUpdate(garment.id, {
+        x: Math.min(1.2, Math.max(-0.2, ox + (ev.clientX - startX) / rect.width)),
+        y: Math.min(1.2, Math.max(-0.2, oy + (ev.clientY - startY) / rect.height)),
+      });
+    };
+    const up = () => {
+      window.removeEventListener("pointermove", move);
+      window.removeEventListener("pointerup", up);
+    };
+    window.addEventListener("pointermove", move);
+    window.addEventListener("pointerup", up);
+  }
+
   return (
     <div
-      className="pointer-events-none absolute"
+      onPointerDown={onPointerDown}
+      className={"absolute " + (adjust ? "cursor-grab touch-none" : "pointer-events-none")}
       style={{
-        left: `${fit.x * 100}%`,
-        top: `${fit.y * 100}%`,
-        transform: `translate(-50%, -50%) scale(${fit.scale})`,
-        transformOrigin: "center",
-        width: "40%",
+        left: rect.left + rect.width * item.x,
+        top: rect.top + rect.height * item.y,
+        width,
+        transform: "translate(-50%, -50%)",
         zIndex: item.z,
       }}
     >
@@ -162,6 +256,7 @@ function FittedGarment({ item, garment }: { item: TryOnItem; garment: Garment })
         className="block h-auto w-full select-none"
         style={{ filter: "drop-shadow(0 6px 12px rgba(0,0,0,0.12))" }}
       />
+      {adjust && <div className="pointer-events-none absolute inset-0 rounded-lg border border-dashed border-foreground/40" />}
     </div>
   );
 }
