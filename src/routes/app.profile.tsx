@@ -52,6 +52,18 @@ function ProfilePage() {
         <Stat label="Dias" value={days} />
       </div>
 
+      <div className="mt-6 animate-rise">
+        <StreakCard gamify={state.gamify} />
+      </div>
+
+      <div className="mt-6">
+        <p className="mb-3 text-[10px] uppercase tracking-[0.24em] text-muted-foreground">
+          Conquistas · {state.gamify.unlocked.length}/{ACHIEVEMENTS.length}
+        </p>
+        <Achievements unlocked={state.gamify.unlocked} />
+      </div>
+
+
       {!isPremium && (
         <Link to="/app/premium" className="mt-6 flex items-center justify-between rounded-3xl bg-premium p-5 text-white shadow-lift">
           <div>
