@@ -258,8 +258,8 @@ function FittedGarment({
         src={garment.imageUrl}
         alt={garment.name}
         draggable={false}
-        className={"block w-full select-none " + (height ? "h-full" : "h-auto")}
-        style={height ? { objectFit: "fill", filter: "drop-shadow(0 6px 12px rgba(0,0,0,0.12))" } : { filter: "drop-shadow(0 6px 12px rgba(0,0,0,0.12))" }}
+        className={"block w-full select-none " + (height ? "h-full object-contain" : "h-auto")}
+        style={{ filter: "drop-shadow(0 6px 12px rgba(0,0,0,0.12))" }}
       />
       {adjust && <div className="pointer-events-none absolute inset-0 rounded-lg border border-dashed border-foreground/40" />}
     </div>
