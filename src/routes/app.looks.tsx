@@ -214,9 +214,6 @@ function FittedGarment({
   item, garment, rect, adjust,
 }: { item: TryOnItem; garment: Garment; rect: Rect; adjust: boolean }) {
   const width = rect.width * 0.4 * item.scale;
-  const height = item.height
-    ? rect.height * item.height * (item.scale / (item.autoScale ?? item.scale))
-    : undefined;
 
   function onPointerDown(e: React.PointerEvent) {
     if (!adjust) return;
@@ -249,7 +246,6 @@ function FittedGarment({
         left: rect.left + rect.width * item.x,
         top: rect.top + rect.height * item.y,
         width,
-        height,
         transform: `translate(-50%, -50%) rotate(${item.rotation}deg)`,
         zIndex: item.z,
       }}
@@ -258,7 +254,7 @@ function FittedGarment({
         src={garment.imageUrl}
         alt={garment.name}
         draggable={false}
-        className={"block w-full select-none " + (height ? "h-full object-contain" : "h-auto")}
+        className="block h-auto w-full select-none"
         style={{ filter: "drop-shadow(0 6px 12px rgba(0,0,0,0.12))" }}
       />
       {adjust && <div className="pointer-events-none absolute inset-0 rounded-lg border border-dashed border-foreground/40" />}
