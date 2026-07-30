@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { useMemo, useRef, useState, useEffect, useCallback } from "react";
 import { Plus, User as UserIcon, X, RotateCcw, Move, Check, Sparkles } from "lucide-react";
 import { useStore, actions, type TryOnItem, type Garment } from "@/lib/store";
@@ -49,6 +50,7 @@ function TryOnPage() {
     setBodyBusy(true);
     try {
       const url = await removeImageBackground(f);
+      actions.tryOnClear();
       actions.updateProfile({ bodyPhotoUrl: url });
     } catch (e) {
       console.error(e);
@@ -285,6 +287,7 @@ function FittedGarment({
 
 function GarmentPicker({ body, onClose }: { body?: string; onClose: () => void }) {
   const { state } = useStore();
+  const detectFit = useServerFn(detectTryOnFit);
   const [q, setQ] = useState("");
   const [fittingId, setFittingId] = useState<string | null>(null);
   const [fitError, setFitError] = useState<string | null>(null);
@@ -302,7 +305,7 @@ function GarmentPicker({ body, onClose }: { body?: string; onClose: () => void }
     setFittingId(garment.id);
     setFitError(null);
     try {
-      const fit = await detectTryOnFit({
+      const fit = await detectFit({
         data: {
           bodyDataUrl: body,
           garmentDataUrl: garment.imageUrl,
@@ -314,9 +317,7 @@ function GarmentPicker({ body, onClose }: { body?: string; onClose: () => void }
       onClose();
     } catch (error) {
       console.error(error);
-      setFitError("Não consegui detectar o corpo. A peça foi encaixada pelo modo padrão.");
-      actions.tryOnAdd(garment.id);
-      onClose();
+      setFitError(error instanceof Error ? error.message : "Não consegui detectar o corpo e a peça. Tente outra foto.");
     } finally {
       setFittingId(null);
     }
