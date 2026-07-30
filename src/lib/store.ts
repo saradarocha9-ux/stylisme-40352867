@@ -79,12 +79,21 @@ export interface TryOnItem {
   autoRotation?: number;
 }
 
+export interface Gamify {
+  xp: number;
+  streak: number;
+  best: number;
+  lastActive: string; // yyyy-mm-dd
+  unlocked: string[];
+}
+
 interface AppState {
   garments: Garment[];
   looks: Look[];
   plans: Plan[];
   profile: Profile;
   tryOn: TryOnItem[];
+  gamify: Gamify;
 }
 
 const KEY = "stylisme:v1";
@@ -99,12 +108,15 @@ const defaultProfile: Profile = {
   theme: "system",
 };
 
+const defaultGamify: Gamify = { xp: 0, streak: 0, best: 0, lastActive: "", unlocked: [] };
+
 const initial: AppState = {
   garments: [],
   looks: [],
   plans: [],
   profile: defaultProfile,
   tryOn: [],
+  gamify: defaultGamify,
 };
 
 
@@ -120,11 +132,13 @@ function read(): AppState {
       plans: parsed.plans ?? [],
       profile: { ...defaultProfile, ...(parsed.profile ?? {}) },
       tryOn: parsed.tryOn ?? [],
+      gamify: { ...defaultGamify, ...(parsed.gamify ?? {}) },
     };
   } catch {
     return initial;
   }
 }
+
 
 function write(state: AppState) {
   if (typeof window === "undefined") return;
