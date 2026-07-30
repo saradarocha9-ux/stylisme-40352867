@@ -18,6 +18,7 @@ import { Route as AppStatsRouteImport } from './routes/app.stats'
 import { Route as AppSettingsRouteImport } from './routes/app.settings'
 import { Route as AppProfileRouteImport } from './routes/app.profile'
 import { Route as AppPremiumRouteImport } from './routes/app.premium'
+import { Route as AppPaletteRouteImport } from './routes/app.palette'
 import { Route as AppLooksRouteImport } from './routes/app.looks'
 import { Route as AppFavoritesRouteImport } from './routes/app.favorites'
 import { Route as AppAiRouteImport } from './routes/app.ai'
@@ -67,6 +68,11 @@ const AppPremiumRoute = AppPremiumRouteImport.update({
   path: '/premium',
   getParentRoute: () => AppRoute,
 } as any)
+const AppPaletteRoute = AppPaletteRouteImport.update({
+  id: '/palette',
+  path: '/palette',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppLooksRoute = AppLooksRouteImport.update({
   id: '/looks',
   path: '/looks',
@@ -90,6 +96,7 @@ export interface FileRoutesByFullPath {
   '/app/ai': typeof AppAiRoute
   '/app/favorites': typeof AppFavoritesRoute
   '/app/looks': typeof AppLooksRoute
+  '/app/palette': typeof AppPaletteRoute
   '/app/premium': typeof AppPremiumRoute
   '/app/profile': typeof AppProfileRoute
   '/app/settings': typeof AppSettingsRoute
@@ -103,6 +110,7 @@ export interface FileRoutesByTo {
   '/app/ai': typeof AppAiRoute
   '/app/favorites': typeof AppFavoritesRoute
   '/app/looks': typeof AppLooksRoute
+  '/app/palette': typeof AppPaletteRoute
   '/app/premium': typeof AppPremiumRoute
   '/app/profile': typeof AppProfileRoute
   '/app/settings': typeof AppSettingsRoute
@@ -118,6 +126,7 @@ export interface FileRoutesById {
   '/app/ai': typeof AppAiRoute
   '/app/favorites': typeof AppFavoritesRoute
   '/app/looks': typeof AppLooksRoute
+  '/app/palette': typeof AppPaletteRoute
   '/app/premium': typeof AppPremiumRoute
   '/app/profile': typeof AppProfileRoute
   '/app/settings': typeof AppSettingsRoute
@@ -134,6 +143,7 @@ export interface FileRouteTypes {
     | '/app/ai'
     | '/app/favorites'
     | '/app/looks'
+    | '/app/palette'
     | '/app/premium'
     | '/app/profile'
     | '/app/settings'
@@ -147,6 +157,7 @@ export interface FileRouteTypes {
     | '/app/ai'
     | '/app/favorites'
     | '/app/looks'
+    | '/app/palette'
     | '/app/premium'
     | '/app/profile'
     | '/app/settings'
@@ -161,6 +172,7 @@ export interface FileRouteTypes {
     | '/app/ai'
     | '/app/favorites'
     | '/app/looks'
+    | '/app/palette'
     | '/app/premium'
     | '/app/profile'
     | '/app/settings'
@@ -240,6 +252,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppPremiumRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/palette': {
+      id: '/app/palette'
+      path: '/palette'
+      fullPath: '/app/palette'
+      preLoaderRoute: typeof AppPaletteRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/looks': {
       id: '/app/looks'
       path: '/looks'
@@ -268,6 +287,7 @@ interface AppRouteChildren {
   AppAiRoute: typeof AppAiRoute
   AppFavoritesRoute: typeof AppFavoritesRoute
   AppLooksRoute: typeof AppLooksRoute
+  AppPaletteRoute: typeof AppPaletteRoute
   AppPremiumRoute: typeof AppPremiumRoute
   AppProfileRoute: typeof AppProfileRoute
   AppSettingsRoute: typeof AppSettingsRoute
@@ -280,6 +300,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppAiRoute: AppAiRoute,
   AppFavoritesRoute: AppFavoritesRoute,
   AppLooksRoute: AppLooksRoute,
+  AppPaletteRoute: AppPaletteRoute,
   AppPremiumRoute: AppPremiumRoute,
   AppProfileRoute: AppProfileRoute,
   AppSettingsRoute: AppSettingsRoute,
