@@ -298,7 +298,28 @@ export const actions = {
     write({ ...s, tryOn: s.tryOn.map((t) => t.garmentId === garmentId ? { ...t, z } : t) });
   },
 
+  /** Registra atividade: soma XP, atualiza sequência diária e desbloqueia conquistas. */
+  track(event: keyof typeof XP_TABLE) {
+    const s = read();
+    const today = new Date().toISOString().slice(0, 10);
+    const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+    const g = s.gamify;
+    let streak = g.streak;
+    if (g.lastActive !== today) streak = g.lastActive === yesterday ? g.streak + 1 : 1;
+    const xp = g.xp + XP_TABLE[event];
+    const next: AppState = {
+      ...s,
+      gamify: { ...g, xp, streak, best: Math.max(g.best, streak), lastActive: today },
+    };
+    const unlocked = new Set(next.gamify.unlocked);
+    ACHIEVEMENTS.forEach((a) => { if (a.test(next)) unlocked.add(a.id); });
+    next.gamify.unlocked = [...unlocked];
+    write(next);
+    return { newlyUnlocked: next.gamify.unlocked.filter((id) => !g.unlocked.includes(id)), streak, xp };
+  },
+
   exportData(): string {
+
     return JSON.stringify(read(), null, 2);
   },
   wipe() {
