@@ -196,6 +196,24 @@ function TryOnPage() {
         </div>
       )}
 
+      {body && state.tryOn.length > 0 && (
+        <ShareButton
+          kind="tryon"
+          bodyUrl={body}
+          caption="Meu look"
+          label="Compartilhar meu look"
+          className="mt-4 w-full sheen"
+          pieces={items
+            .map((t) => {
+              const g = state.garments.find((x) => x.id === t.garmentId);
+              return g?.imageUrl
+                ? { url: g.imageUrl, x: t.x, y: t.y, scale: t.scale, rotation: t.rotation, z: t.z }
+                : null;
+            })
+            .filter(Boolean) as { url: string; x: number; y: number; scale: number; rotation: number; z: number }[]}
+        />
+      )}
+
       {body && (
         <button
           onClick={() => bodyRef.current?.click()}
@@ -204,6 +222,7 @@ function TryOnPage() {
           Trocar foto do corpo
         </button>
       )}
+
 
       {picker && <GarmentPicker body={body} onClose={() => setPicker(false)} />}
     </div>
