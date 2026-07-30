@@ -18,6 +18,7 @@ export type Database = {
         Row: {
           accent: string
           active: boolean
+          advertiser_id: string | null
           bg: string
           brand: string
           category: string
@@ -27,6 +28,7 @@ export type Database = {
           cta: string
           headline: string
           id: string
+          network: string
           priority: number
           subline: string
           url: string
@@ -34,6 +36,7 @@ export type Database = {
         Insert: {
           accent?: string
           active?: boolean
+          advertiser_id?: string | null
           bg?: string
           brand: string
           category?: string
@@ -43,6 +46,7 @@ export type Database = {
           cta?: string
           headline: string
           id?: string
+          network?: string
           priority?: number
           subline?: string
           url: string
@@ -50,6 +54,7 @@ export type Database = {
         Update: {
           accent?: string
           active?: boolean
+          advertiser_id?: string | null
           bg?: string
           brand?: string
           category?: string
@@ -59,6 +64,7 @@ export type Database = {
           cta?: string
           headline?: string
           id?: string
+          network?: string
           priority?: number
           subline?: string
           url?: string
