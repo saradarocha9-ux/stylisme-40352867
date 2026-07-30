@@ -49,6 +49,7 @@ Regras obrigatórias:
     ];
 
     type GatewayPayload = {
+      data?: Array<{ b64_json?: string; url?: string }>;
       choices?: Array<{
         message?: {
           content?: unknown;
@@ -58,6 +59,10 @@ Regras obrigatórias:
     };
 
     const extractImage = (payload: GatewayPayload): string | null => {
+      const first = payload.data?.[0];
+      if (first?.b64_json && first.b64_json.length > 100) return `data:image/png;base64,${first.b64_json}`;
+      if (typeof first?.url === "string" && first.url.startsWith("data:image/")) return first.url;
+
       const message = payload.choices?.[0]?.message;
       const direct = message?.images?.[0]?.image_url?.url;
       if (typeof direct === "string" && direct.startsWith("data:image/")) return direct;
@@ -81,7 +86,7 @@ Regras obrigatórias:
     };
 
     const callGateway = async () => {
-      const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      const response = await fetch("https://ai.gateway.lovable.dev/v1/images/generations", {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
         body: JSON.stringify({
@@ -94,6 +99,7 @@ Regras obrigatórias:
       if (!response.ok) {
         if (response.status === 429) throw new Error("Muitas provas seguidas. Aguarde um instante e tente novamente.");
         if (response.status === 402) throw new Error("Créditos de IA esgotados.");
+        console.error("try-on gateway error", response.status, (await response.text()).slice(0, 500));
         throw new Error("Não foi possível gerar o caimento das peças.");
       }
 
