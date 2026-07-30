@@ -142,6 +142,14 @@ function PalettePage() {
       )}
 
       {result && <Result data={result} />}
+      {result && (
+        <div className="mt-5 flex flex-col items-center gap-2 rounded-3xl border border-border bg-card p-5 text-center shadow-soft animate-rise">
+          <p className="font-display text-xl">Mostre sua cartela</p>
+          <p className="text-xs text-muted-foreground">Gere um card lindo pronto para os stories.</p>
+          <ShareButton kind="palette" analysis={result} className="mt-2 sheen" label="Compartilhar minha cartela" />
+        </div>
+      )}
+
       {result && <Recommendations analysis={result} garments={state.garments} />}
       <HistorySection refreshKey={historyKey} />
       <div className="h-8" />
