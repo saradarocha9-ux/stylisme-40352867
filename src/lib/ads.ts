@@ -13,12 +13,14 @@ export interface AdCampaign {
   priority: number;
   cpm_cents: number;
   cpc_cents: number;
+  network: string | null;
+  advertiser_id: string | null;
 }
 
 export async function fetchAds(): Promise<AdCampaign[]> {
   const { data, error } = await supabase
     .from("ad_campaigns")
-    .select("id, brand, headline, subline, cta, url, category, accent, bg, priority, cpm_cents, cpc_cents")
+    .select("id, brand, headline, subline, cta, url, category, accent, bg, priority, cpm_cents, cpc_cents, network, advertiser_id")
     .eq("active", true)
     .order("priority", { ascending: false });
   if (error) return [];

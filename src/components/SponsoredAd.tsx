@@ -5,6 +5,7 @@ import { Link } from "@tanstack/react-router";
 import { fetchAds, trackAd, type AdCampaign } from "@/lib/ads";
 import { useSubscription } from "@/hooks/use-subscription";
 import { tap } from "@/lib/haptics";
+import { affiliateLink } from "@/lib/affiliate";
 
 interface Props {
   placement: string;
@@ -94,7 +95,13 @@ export function SponsoredAd({ placement, category, className }: Props) {
           </div>
 
           <a
-            href={ad.url}
+            href={affiliateLink({
+              url: ad.url,
+              network: ad.network,
+              advertiserId: ad.advertiser_id,
+              campaignId: ad.id,
+              placement,
+            })}
             target="_blank"
             rel="sponsored noopener noreferrer"
             onClick={() => { tap(); void trackAd(ad, "click", placement); }}
