@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { ExternalLink, Crown } from "lucide-react";
+import { ExternalLink, X, Crown } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { fetchAds, trackAd, type AdCampaign } from "@/lib/ads";
 import { useSubscription } from "@/hooks/use-subscription";
@@ -13,7 +13,7 @@ interface Props {
   className?: string;
 }
 
-/** Banner patrocinado de marcas de moda. Oculto para assinantes Premium. */
+/** Chip patrocinado discreto no canto da tela. Oculto para assinantes Premium. */
 export function SponsoredAd({ placement, category, className }: Props) {
   const { isPremium, loading } = useSubscription();
   const { data } = useQuery({
@@ -21,6 +21,7 @@ export function SponsoredAd({ placement, category, className }: Props) {
     queryFn: fetchAds,
     staleTime: 5 * 60_000,
   });
+  const [dismissed, setDismissed] = useState(false);
 
   const ad = useMemo<AdCampaign | null>(() => {
     if (!data?.length) return null;
@@ -51,55 +52,71 @@ export function SponsoredAd({ placement, category, className }: Props) {
     return () => io.disconnect();
   }, [ad, seen, placement]);
 
-  if (loading || isPremium || !ad) return null;
+  if (loading || isPremium || !ad || dismissed) return null;
 
   return (
-    <div ref={ref} className={"animate-rise " + (className ?? "")}>
-      <div className="mb-1.5 flex items-center justify-between px-1">
-        <p className="text-[9px] uppercase tracking-[0.24em] text-muted-foreground">Publicidade</p>
-        <Link
-          to="/app/premium"
-          className="flex items-center gap-1 text-[9px] uppercase tracking-[0.2em] text-muted-foreground"
+    <div
+      ref={ref}
+      className={
+        "fixed inset-x-0 bottom-0 z-30 flex pointer-events-none animate-rise " + (className ?? "")
+      }
+    >
+      <div className="mx-auto flex w-full max-w-md justify-end px-4 pb-28 pt-4 pointer-events-auto">
+        <div
+          className="relative flex min-w-[260px] max-w-[330px] items-center gap-3 overflow-hidden rounded-2xl border border-white/10 px-3 py-2.5 shadow-lift"
+          style={{ background: ad.bg }}
         >
-          <Crown size={10} className="text-gold" /> Remover
-        </Link>
-      </div>
+          <button
+            onClick={() => { tap(); setDismissed(true); }}
+            className="absolute right-1 top-1 rounded-full p-1 text-white/60 hover:text-white"
+            aria-label="Fechar anúncio"
+          >
+            <X size={10} />
+          </button>
 
-      <a
-        href={ad.url}
-        target="_blank"
-        rel="sponsored noopener noreferrer"
-        onClick={() => { tap(); void trackAd(ad, "click", placement); }}
-        className="press block overflow-hidden rounded-3xl p-5 shadow-lift"
-        style={{ background: ad.bg }}
-      >
-        <div className="flex items-center justify-between gap-4">
-          <div className="min-w-0">
+          <div
+            className="grid h-9 w-9 shrink-0 place-items-center rounded-xl"
+            style={{ background: `color-mix(in oklch, ${ad.accent} 22%, transparent)` }}
+          >
+            <span className="font-display text-sm font-semibold" style={{ color: ad.accent }}>
+              {ad.brand.slice(0, 2).toUpperCase()}
+            </span>
+          </div>
+
+          <div className="min-w-0 flex-1 pr-4">
             <p
-              className="text-[10px] uppercase tracking-[0.32em]"
+              className="text-[9px] uppercase tracking-[0.24em]"
               style={{ color: ad.accent }}
             >
               {ad.brand}
             </p>
-            <p className="mt-1.5 font-display text-xl leading-tight text-white">{ad.headline}</p>
-            <p className="mt-1 text-xs text-white/70">{ad.subline}</p>
-            <span
-              className="mt-3 inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-[10px] uppercase tracking-[0.22em]"
-              style={{ background: ad.accent, color: "oklch(0.16 0.01 60)" }}
-            >
-              {ad.cta} <ExternalLink size={11} />
-            </span>
+            <p className="truncate text-xs font-medium leading-snug text-white">{ad.headline}</p>
           </div>
-          <div
-            className="hidden h-20 w-20 shrink-0 items-center justify-center rounded-2xl xs:flex"
-            style={{ background: `color-mix(in oklch, ${ad.accent} 22%, transparent)` }}
+
+          <a
+            href={ad.url}
+            target="_blank"
+            rel="sponsored noopener noreferrer"
+            onClick={() => { tap(); void trackAd(ad, "click", placement); }}
+            className="press flex shrink-0 items-center gap-1 rounded-full px-2 py-1.5 text-[10px] uppercase tracking-[0.16em]"
+            style={{ background: ad.accent, color: "oklch(0.16 0.01 60)" }}
           >
-            <span className="font-display text-2xl" style={{ color: ad.accent }}>
-              {ad.brand.slice(0, 2).toUpperCase()}
-            </span>
-          </div>
+            {ad.cta} <ExternalLink size={10} />
+          </a>
         </div>
-      </a>
+      </div>
     </div>
+  );
+}
+
+/** Pequeno link "Remover anúncios" para colocar próximo ao chip, se desejado. */
+export function RemoveAdsLink() {
+  return (
+    <Link
+      to="/app/premium"
+      className="flex items-center gap-1 text-[10px] uppercase tracking-[0.2em] text-muted-foreground"
+    >
+      <Crown size={10} className="text-gold" /> Remover
+    </Link>
   );
 }

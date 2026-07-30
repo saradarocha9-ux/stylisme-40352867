@@ -2,7 +2,6 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { Heart } from "lucide-react";
 import { useStore } from "@/lib/store";
-import { SponsoredAd } from "@/components/SponsoredAd";
 
 
 export const Route = createFileRoute("/app/favorites")({
@@ -24,10 +23,6 @@ function FavPage() {
           <h1 className="font-display text-3xl">Favoritos</h1>
         </div>
       </div>
-
-      <SponsoredAd placement="favorites" className="mt-6" />
-
-
 
       <div className="mt-6 grid grid-cols-2 gap-2 rounded-full bg-muted p-1">
         <button onClick={() => setTab("roupas")} className={"rounded-full py-2 text-xs uppercase tracking-[0.2em] " + (tab === "roupas" ? "bg-background text-foreground shadow-soft" : "text-muted-foreground")}>Roupas</button>

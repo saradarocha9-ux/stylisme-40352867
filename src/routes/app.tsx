@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { BottomNav } from "@/components/BottomNav";
 import { useSession } from "@/hooks/use-session";
 import { Logo } from "@/components/Logo";
+import { SponsoredAd } from "@/components/SponsoredAd";
 
 export const Route = createFileRoute("/app")({
   component: AppLayout,
@@ -32,6 +33,7 @@ function AppLayout() {
         <Outlet />
       </div>
       <BottomNav />
+      <SponsoredAd placement="app-corner" />
     </div>
   );
 }
