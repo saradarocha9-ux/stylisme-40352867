@@ -18,7 +18,7 @@
 export type AffiliateNetwork = "awin" | "rakuten" | "afilio" | "lomadee" | "direct";
 
 export const AFFILIATE_PUBLISHER_IDS: Record<Exclude<AffiliateNetwork, "direct">, string> = {
-  awin: "",
+  awin: "3013819",
   rakuten: "",
   afilio: "",
   lomadee: "",
