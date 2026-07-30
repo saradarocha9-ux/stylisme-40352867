@@ -236,7 +236,13 @@ function TryOnPage() {
 function FittedGarment({
   item, garment, rect, adjust,
 }: { item: TryOnItem; garment: Garment; rect: Rect; adjust: boolean }) {
-  const width = rect.width * 0.4 * item.scale;
+  const [aspectRatio, setAspectRatio] = useState<number | null>(null);
+  const sizeMultiplier = item.autoScale && item.autoScale > 0 ? item.scale / item.autoScale : 1;
+  const widthLimit = rect.width * 0.4 * item.scale;
+  const heightLimit = item.autoHeight ? rect.height * item.autoHeight * sizeMultiplier : undefined;
+  const width = aspectRatio && heightLimit
+    ? Math.min(widthLimit, heightLimit * aspectRatio)
+    : widthLimit;
 
   function onPointerDown(e: React.PointerEvent) {
     if (!adjust) return;
@@ -277,6 +283,12 @@ function FittedGarment({
         src={garment.imageUrl}
         alt={garment.name}
         draggable={false}
+        onLoad={(event) => {
+          const image = event.currentTarget;
+          if (image.naturalWidth > 0 && image.naturalHeight > 0) {
+            setAspectRatio(image.naturalWidth / image.naturalHeight);
+          }
+        }}
         className="block h-auto w-full select-none"
         style={{ filter: "drop-shadow(0 6px 12px rgba(0,0,0,0.12))" }}
       />
