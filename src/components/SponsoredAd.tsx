@@ -63,7 +63,7 @@ export function SponsoredAd({ placement, category, className }: Props) {
     >
       <div className="mx-auto flex w-full max-w-md justify-end px-4 pb-28 pt-4 pointer-events-auto">
         <div
-          className="relative flex min-w-[220px] max-w-[290px] items-center gap-3 overflow-hidden rounded-2xl border border-white/10 px-3 py-2.5 shadow-lift"
+          className="relative flex min-w-[260px] max-w-[330px] items-center gap-3 overflow-hidden rounded-2xl border border-white/10 px-3 py-2.5 shadow-lift"
           style={{ background: ad.bg }}
         >
           <button
@@ -90,7 +90,7 @@ export function SponsoredAd({ placement, category, className }: Props) {
             >
               {ad.brand}
             </p>
-            <p className="truncate text-xs font-medium text-white">{ad.headline}</p>
+            <p className="truncate text-xs font-medium leading-snug text-white">{ad.headline}</p>
           </div>
 
           <a
