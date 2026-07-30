@@ -84,22 +84,27 @@ function Wardrobe() {
 
       <div className="mt-6 grid grid-cols-2 gap-3">
         <button
-          onClick={() => setAdding(true)}
-          className="aspect-[3/4] rounded-2xl border-2 border-dashed border-border flex flex-col items-center justify-center gap-2 text-muted-foreground hover:text-foreground hover:border-foreground transition"
+          onClick={() => { tap(); setAdding(true); }}
+          className="press aspect-[3/4] rounded-2xl border-2 border-dashed border-border flex flex-col items-center justify-center gap-2 text-muted-foreground hover:text-foreground hover:border-foreground transition"
         >
-          <Plus size={22} strokeWidth={1.5} />
+          <Plus size={22} strokeWidth={1.5} className="animate-float" />
           <span className="text-xs uppercase tracking-[0.2em]">Adicionar</span>
         </button>
 
-        {filtered.map((g) => (
-          <div key={g.id} className="group relative aspect-[3/4] overflow-hidden rounded-2xl bg-card shadow-soft">
+        {filtered.map((g, i) => (
+          <div
+            key={g.id}
+            style={{ animationDelay: `${Math.min(i, 8) * 45}ms` }}
+            className="group press relative aspect-[3/4] animate-rise overflow-hidden rounded-2xl bg-card shadow-soft"
+          >
             {g.imageUrl ? (
-              <img src={g.imageUrl} alt={g.name} className="h-full w-full object-cover" />
+              <img src={g.imageUrl} alt={g.name} loading="lazy" decoding="async" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
             ) : (
               <div className="flex h-full w-full items-center justify-center bg-muted">
                 <span className="font-display text-3xl text-muted-foreground">{g.name.slice(0, 1)}</span>
               </div>
             )}
+
             <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-3 text-white">
               <p className="truncate text-sm font-medium">{g.name}</p>
               <p className="text-[10px] uppercase tracking-widest opacity-80">{g.category} · {g.color}</p>
