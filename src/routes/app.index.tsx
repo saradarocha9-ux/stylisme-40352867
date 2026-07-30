@@ -5,6 +5,8 @@ import { useStore, actions, type Category } from "@/lib/store";
 import { Logo } from "@/components/Logo";
 import { AddGarmentSheet } from "@/components/AddGarmentSheet";
 import { StreakCard } from "@/components/StreakCard";
+import { SponsoredAd } from "@/components/SponsoredAd";
+
 import { tap } from "@/lib/haptics";
 
 export const Route = createFileRoute("/app/")({
@@ -83,7 +85,10 @@ function Wardrobe() {
         </div>
       </div>
 
+      <SponsoredAd placement="wardrobe" className="mt-6" />
+
       <div className="mt-6 grid grid-cols-2 gap-3">
+
         <button
           onClick={() => { tap(); setAdding(true); }}
           className="press aspect-[3/4] rounded-2xl border-2 border-dashed border-border flex flex-col items-center justify-center gap-2 text-muted-foreground hover:text-foreground hover:border-foreground transition"

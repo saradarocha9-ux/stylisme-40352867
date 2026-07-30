@@ -14,6 +14,95 @@ export type Database = {
   }
   public: {
     Tables: {
+      ad_campaigns: {
+        Row: {
+          accent: string
+          active: boolean
+          bg: string
+          brand: string
+          category: string
+          cpc_cents: number
+          cpm_cents: number
+          created_at: string
+          cta: string
+          headline: string
+          id: string
+          priority: number
+          subline: string
+          url: string
+        }
+        Insert: {
+          accent?: string
+          active?: boolean
+          bg?: string
+          brand: string
+          category?: string
+          cpc_cents?: number
+          cpm_cents?: number
+          created_at?: string
+          cta?: string
+          headline: string
+          id?: string
+          priority?: number
+          subline?: string
+          url: string
+        }
+        Update: {
+          accent?: string
+          active?: boolean
+          bg?: string
+          brand?: string
+          category?: string
+          cpc_cents?: number
+          cpm_cents?: number
+          created_at?: string
+          cta?: string
+          headline?: string
+          id?: string
+          priority?: number
+          subline?: string
+          url?: string
+        }
+        Relationships: []
+      }
+      ad_events: {
+        Row: {
+          campaign_id: string
+          created_at: string
+          id: string
+          kind: string
+          placement: string
+          revenue_cents: number
+          user_id: string
+        }
+        Insert: {
+          campaign_id: string
+          created_at?: string
+          id?: string
+          kind: string
+          placement?: string
+          revenue_cents?: number
+          user_id: string
+        }
+        Update: {
+          campaign_id?: string
+          created_at?: string
+          id?: string
+          kind?: string
+          placement?: string
+          revenue_cents?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ad_events_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "ad_campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       color_analyses: {
         Row: {
           analysis: Json
