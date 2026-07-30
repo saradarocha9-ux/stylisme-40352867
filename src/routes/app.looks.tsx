@@ -3,7 +3,6 @@ import { useServerFn } from "@tanstack/react-start";
 import { useMemo, useRef, useState, useEffect } from "react";
 import { Plus, User as UserIcon, X, RotateCcw, Sparkles } from "lucide-react";
 import { useStore, actions, slotOf, type Garment } from "@/lib/store";
-import { removeImageBackground } from "@/lib/bg-removal";
 import { generateVirtualTryOn } from "@/lib/virtual-tryon.functions";
 import { track } from "@/lib/track";
 import { ShareButton } from "@/components/ShareButton";
@@ -31,6 +30,7 @@ function TryOnPage() {
   const [generatedUrl, setGeneratedUrl] = useState<string | null>(null);
   const [tryOnError, setTryOnError] = useState<string | null>(null);
   const bodyRef = useRef<HTMLInputElement>(null);
+  const initialLookRendered = useRef(false);
 
   const body = state.profile.bodyPhotoUrl;
   const items = useMemo(() => [...state.tryOn].sort((a, b) => a.z - b.z), [state.tryOn]);
@@ -38,15 +38,20 @@ function TryOnPage() {
   async function onBodyFile(f: File) {
     setBodyBusy(true);
     try {
-      const url = await removeImageBackground(f);
+      // A foto da pessoa precisa manter o cenário original. Somente as peças
+      // cadastradas passam pela remoção de fundo.
+      const url = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => typeof reader.result === "string" ? resolve(reader.result) : reject(new Error("Foto inválida"));
+        reader.onerror = () => reject(new Error("Não foi possível ler a foto"));
+        reader.readAsDataURL(f);
+      });
       actions.tryOnClear();
       setGeneratedUrl(null);
       actions.updateProfile({ bodyPhotoUrl: url });
     } catch (e) {
       console.error(e);
-      const r = new FileReader();
-      r.onload = () => actions.updateProfile({ bodyPhotoUrl: r.result as string });
-      r.readAsDataURL(f);
+      setTryOnError(e instanceof Error ? e.message : "Não foi possível preparar a foto.");
     } finally {
       setBodyBusy(false);
     }
@@ -83,17 +88,15 @@ function TryOnPage() {
   }
 
   async function addGarment(garment: Garment) {
+    initialLookRendered.current = true;
     const current = items.flatMap((item) => {
       const found = state.garments.find((candidate) => candidate.id === item.garmentId);
       return found ? [found] : [];
     });
     const kept = current.filter((item) => slotOf(item.category) !== slotOf(garment.category));
-    // Se nada foi substituído e já existe um resultado, veste só a peça nova sobre ele.
-    if (generatedUrl && kept.length === current.length && current.length > 0) {
-      await renderGarments([garment], generatedUrl);
-    } else {
-      await renderGarments([...kept, garment]);
-    }
+    // Sempre parte da foto original. Reprocessar uma imagem já gerada encolhia
+    // a pessoa e ampliava peças a cada nova rodada.
+    await renderGarments([...kept, garment], body);
     actions.tryOnAdd(garment.id);
     track("tryon");
     setPicker(false);
@@ -116,6 +119,19 @@ function TryOnPage() {
     // Sempre refaz a partir da foto original, para a peça removida sumir de verdade.
     try { await renderGarments(remaining, body); } catch { /* erro já exibido */ }
   }
+
+  // Looks enviados pela Stylisme AI e pela paleta chegam com as peças já no
+  // estado do provador; gere o resultado assim que a tela abrir.
+  useEffect(() => {
+    if (initialLookRendered.current || !body || items.length === 0) return;
+    const garments = items.flatMap((item) => {
+      const garment = state.garments.find((candidate) => candidate.id === item.garmentId);
+      return garment?.imageUrl ? [garment] : [];
+    });
+    if (garments.length === 0) return;
+    initialLookRendered.current = true;
+    void renderGarments(garments, body).catch(() => undefined);
+  }, [body, items, state.garments]);
 
 
   return (
