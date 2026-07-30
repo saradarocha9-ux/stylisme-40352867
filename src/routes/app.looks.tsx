@@ -54,7 +54,8 @@ function TryOnPage() {
 
   async function renderGarments(garments: Garment[], baseUrl?: string) {
     const base = baseUrl ?? body;
-    if (!base || garments.length === 0) {
+    const valid = garments.filter((garment) => !!garment.imageUrl).slice(0, 5);
+    if (!base || valid.length === 0) {
       setGeneratedUrl(null);
       return;
     }
@@ -64,12 +65,12 @@ function TryOnPage() {
       const result = await createTryOn({
         data: {
           bodyDataUrl: base,
-          garments: garments.flatMap((garment) => garment.imageUrl ? [{
-            dataUrl: garment.imageUrl,
+          garments: valid.map((garment) => ({
+            dataUrl: garment.imageUrl as string,
             name: garment.name,
             category: garment.category,
             material: garment.material,
-          }] : []),
+          })),
         },
       });
       setGeneratedUrl(result.imageUrl);
@@ -104,11 +105,18 @@ function TryOnPage() {
       .filter((item) => item.garmentId !== garmentId)
       .flatMap((item) => {
         const found = state.garments.find((candidate) => candidate.id === item.garmentId);
-        return found ? [found] : [];
+        return found?.imageUrl ? [found] : [];
       });
     actions.tryOnRemove(garmentId);
-    try { await renderGarments(remaining); } catch { /* erro já exibido */ }
+    setTryOnError(null);
+    if (remaining.length === 0) {
+      setGeneratedUrl(null);
+      return;
+    }
+    // Sempre refaz a partir da foto original, para a peça removida sumir de verdade.
+    try { await renderGarments(remaining, body); } catch { /* erro já exibido */ }
   }
+
 
   return (
     <div className="px-5 pt-8">
