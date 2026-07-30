@@ -1,9 +1,11 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useRef, useState } from "react";
-import { Camera, Loader2, Sparkles, RefreshCw, Palette as PaletteIcon, Ban, Gem } from "lucide-react";
+import { Camera, Loader2, Sparkles, RefreshCw, Palette as PaletteIcon, Ban, Gem, Shirt, ShoppingBag, Check, Minus, X } from "lucide-react";
 import { toast } from "sonner";
-import { useStore, actions } from "@/lib/store";
+import { useStore, actions, type Garment } from "@/lib/store";
 import { analyzeColorPalette, type ColorAnalysis } from "@/lib/color-ai.functions";
+import { recommendFromPalette, type PaletteRecommendation } from "@/lib/palette-looks.functions";
+
 
 export const Route = createFileRoute("/app/palette")({
   component: PalettePage,
@@ -126,10 +128,174 @@ function PalettePage() {
       )}
 
       {result && <Result data={result} />}
+      {result && <Recommendations analysis={result} garments={state.garments} />}
       <div className="h-8" />
     </div>
   );
 }
+
+function Recommendations({ analysis, garments }: { analysis: ColorAnalysis; garments: Garment[] }) {
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const [rec, setRec] = useState<PaletteRecommendation | null>(null);
+
+  async function run() {
+    if (garments.length === 0) {
+      toast.error("Cadastre peças no armário primeiro.");
+      return;
+    }
+    setLoading(true);
+    try {
+      const data = await recommendFromPalette({
+        data: {
+          analysis,
+          garments: garments.map((g) => ({
+            id: g.id,
+            name: g.name,
+            category: g.category,
+            color: g.color,
+            material: g.material,
+            pattern: g.pattern,
+            occasions: g.occasions,
+            seasons: g.seasons,
+          })),
+        },
+      });
+      setRec(data);
+      toast.success("Recomendações prontas");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Não consegui gerar as recomendações.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function tryOn(ids: string[]) {
+    actions.tryOnClear();
+    ids.forEach((id) => actions.tryOnAdd(id));
+    navigate({ to: "/app/looks" });
+  }
+
+  const byId = (id: string) => garments.find((g) => g.id === id);
+  const verdictStyle = {
+    ideal: { icon: Check, cls: "text-foreground", label: "Ideal" },
+    neutra: { icon: Minus, cls: "text-muted-foreground", label: "Neutra" },
+    evitar: { icon: X, cls: "text-destructive", label: "Evitar" },
+  } as const;
+
+  return (
+    <section className="mt-8 space-y-5">
+      <div className="rounded-3xl bg-card p-5 shadow-soft">
+        <p className="text-[10px] uppercase tracking-[0.24em] text-muted-foreground">Seu armário × sua cartela</p>
+        <p className="mt-1 font-display text-xl">Looks recomendados</p>
+        <p className="mt-1 text-sm text-muted-foreground">
+          A IA combina as peças do seu armário com as cores que mais valorizam você.
+        </p>
+        <button
+          type="button"
+          onClick={run}
+          disabled={loading}
+          className="mt-3 inline-flex items-center gap-2 rounded-full bg-foreground px-4 py-2 text-[11px] uppercase tracking-[0.18em] text-primary-foreground disabled:opacity-50"
+        >
+          {loading ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} />}
+          {loading ? "Gerando…" : rec ? "Gerar de novo" : "Gerar recomendações"}
+        </button>
+      </div>
+
+      {rec?.headline && (
+        <p className="rounded-3xl bg-card p-5 text-sm leading-relaxed text-muted-foreground shadow-soft">
+          {rec.headline}
+        </p>
+      )}
+
+      {rec?.looks.map((look, i) => (
+        <article key={i} className="rounded-3xl bg-card p-5 shadow-soft">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="text-[10px] uppercase tracking-[0.24em] text-muted-foreground">Look {i + 1}</p>
+              <h3 className="font-display text-xl">{look.title}</h3>
+            </div>
+            <div className="flex gap-1">
+              {look.colors.map((c) => (
+                <span key={c.hex + c.name} className="h-5 w-5 rounded-full ring-1 ring-black/10" style={{ background: c.hex }} title={c.name} />
+              ))}
+            </div>
+          </div>
+          <div className="mt-3 flex gap-2 overflow-x-auto">
+            {look.garmentIds.map((id) => {
+              const g = byId(id);
+              if (!g) return null;
+              return (
+                <div key={id} className="w-20 shrink-0">
+                  <div className="aspect-square overflow-hidden rounded-2xl bg-muted">
+                    {g.imageUrl ? (
+                      <img src={g.imageUrl} alt={g.name} className="h-full w-full object-contain" />
+                    ) : (
+                      <span className="flex h-full w-full items-center justify-center">
+                        <Shirt size={18} strokeWidth={1.5} className="text-muted-foreground" />
+                      </span>
+                    )}
+                  </div>
+                  <p className="mt-1 truncate text-[10px] text-muted-foreground">{g.name}</p>
+                </div>
+              );
+            })}
+          </div>
+          {look.why && <p className="mt-3 text-sm text-muted-foreground">{look.why}</p>}
+          <button
+            type="button"
+            onClick={() => tryOn(look.garmentIds)}
+            className="mt-3 inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-[11px] uppercase tracking-[0.18em]"
+          >
+            Provar este look
+          </button>
+        </article>
+      ))}
+
+      {rec && rec.wardrobe.length > 0 && (
+        <section className="rounded-3xl bg-card p-5 shadow-soft">
+          <p className="text-[10px] uppercase tracking-[0.24em] text-muted-foreground">Cores do seu armário</p>
+          <ul className="mt-3 space-y-2">
+            {rec.wardrobe.map((w) => {
+              const g = byId(w.garmentId);
+              const v = verdictStyle[w.verdict];
+              const Icon = v.icon;
+              return (
+                <li key={w.garmentId} className="flex gap-2 text-sm">
+                  <Icon size={14} className={`mt-0.5 shrink-0 ${v.cls}`} strokeWidth={1.8} />
+                  <span>
+                    <span className="text-foreground">{g?.name ?? "Peça"}</span>{" "}
+                    <span className="text-muted-foreground">— {w.reason || v.label}</span>
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      )}
+
+      {rec && rec.shoppingColors.length > 0 && (
+        <section className="rounded-3xl bg-card p-5 shadow-soft">
+          <p className="flex items-center gap-2 text-[10px] uppercase tracking-[0.24em] text-muted-foreground">
+            <ShoppingBag size={12} /> Cores que faltam
+          </p>
+          <div className="mt-3 space-y-2">
+            {rec.shoppingColors.map((c) => (
+              <div key={c.hex + c.name} className="flex items-center gap-3">
+                <span className="h-8 w-8 shrink-0 rounded-xl ring-1 ring-black/10" style={{ background: c.hex }} />
+                <div className="min-w-0">
+                  <p className="text-sm">{c.name}</p>
+                  <p className="truncate text-xs text-muted-foreground">{c.reason}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+    </section>
+  );
+}
+
 
 function Result({ data }: { data: ColorAnalysis }) {
   const gradient = familyGradient[data.seasonFamily] ?? familyGradient.Primavera;
