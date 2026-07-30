@@ -24,20 +24,39 @@ export const generateVirtualTryOn = createServerFn({ method: "POST" })
     const key = process.env.LOVABLE_API_KEY;
     if (!key) throw new Error("Provador inteligente indisponível.");
 
-    const garmentList = data.garments
+    const layerRank: Record<string, number> = {
+      Vestido: 10,
+      Calça: 20,
+      Saia: 20,
+      Shorts: 20,
+      Camiseta: 30,
+      Camisa: 30,
+      Blusa: 30,
+      Casaco: 40,
+      Sapato: 50,
+      Acessório: 60,
+    };
+    const orderedGarments = [...data.garments].sort(
+      (a, b) => (layerRank[a.category] ?? 60) - (layerRank[b.category] ?? 60),
+    );
+    const garmentList = orderedGarments
       .map((garment, index) => `${index + 1}. ${garment.name} — ${garment.category}${garment.material ? `, ${garment.material}` : ""}`)
       .join("\n");
-    const prompt = `Crie uma fotografia realista de provador virtual. A primeira imagem é a foto-base da pessoa; as imagens seguintes são as peças exatas que devem ser vestidas nela.
+    const prompt = `Edite localmente a primeira fotografia para criar um provador virtual realista. A primeira imagem é a FOTO-BASE imutável; as imagens seguintes são as peças exatas que devem ser vestidas nela.
 
 PEÇAS:
 ${garmentList}
 
 Regras obrigatórias:
-- preserve exatamente rosto, cabelo, pele, identidade, corpo, pose, mãos, pernas, pés, enquadramento, câmera, iluminação e fundo da foto-base;
+- preserve pixel a pixel todo o fundo original da FOTO-BASE; não remova, clareie, substitua, recorte, estenda ou transforme o fundo em branco;
+- mantenha exatamente as dimensões, proporção, enquadramento e câmera da FOTO-BASE;
+- a caixa ocupada pela pessoa deve permanecer na mesma posição e com exatamente a mesma altura e largura: não diminua, amplie, desloque ou reenquadre a pessoa;
+- preserve exatamente rosto, cabelo, pele, identidade, corpo, curvas, pose, mãos, pernas e pés;
 - vista somente as peças enviadas, preservando fielmente cor, estampa, textura, material, gola, mangas, costuras, botões, barras e proporções de cada produto;
-- adapte o tecido às curvas reais do corpo, perspectiva e pose: ombros, busto, cintura, quadril, braços e pernas;
+- adapte cada peça à anatomia correspondente sem exagerar seu tamanho: cós de saia/calça na cintura ou quadril, barra no comprimento natural, ombros de blazer exatamente sobre os ombros da pessoa;
 - produza caimento fisicamente plausível, com dobras, tensão, volume, oclusões e sombras de contato naturais;
-- respeite a sobreposição correta entre peças e partes do corpo; mãos, cabelo e acessórios originais devem permanecer à frente quando for fisicamente correto;
+- respeite esta ordem física de camadas, de dentro para fora: vestido ou parte de baixo; camiseta/camisa/blusa; casaco/blazer; acessórios. Uma saia ou calça NUNCA pode cobrir um blazer/casaco na região do tronco. O blazer fica visualmente por cima da cintura e do topo da saia, exceto se estiver claramente aberto;
+- mãos, cabelo e acessórios originais devem permanecer à frente quando for fisicamente correto;
 - não afine, alargue, alongue ou altere o corpo; não estique a roupa como adesivo; não invente novas peças;
 - cada peça enviada deve aparecer UMA ÚNICA VEZ, vestida no corpo: é proibido duplicar, repetir, espelhar ou mostrar cópias da mesma peça soltas, ao lado, no fundo ou em miniatura;
 - mantenha a mesma resolução e proporção vertical da foto-base;
@@ -46,7 +65,7 @@ Regras obrigatórias:
     const content: Array<Record<string, unknown>> = [
       { type: "text", text: prompt },
       { type: "image_url", image_url: { url: data.bodyDataUrl } },
-      ...data.garments.map((garment) => ({ type: "image_url", image_url: { url: garment.dataUrl } })),
+      ...orderedGarments.map((garment) => ({ type: "image_url", image_url: { url: garment.dataUrl } })),
     ];
 
     type GatewayPayload = {
@@ -91,7 +110,7 @@ Regras obrigatórias:
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
         body: JSON.stringify({
-          model: "google/gemini-3.1-flash-image",
+          model: "google/gemini-3-pro-image",
           messages: [{ role: "user", content }],
           modalities: ["image", "text"],
         }),
