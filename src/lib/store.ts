@@ -71,6 +71,8 @@ export interface TryOnItem {
   autoX?: number;
   autoY?: number;
   autoScale?: number;
+  height?: number; // fração da altura da foto do corpo
+  autoHeight?: number;
 }
 
 interface AppState {
@@ -206,7 +208,7 @@ export const actions = {
     const s = read();
     write({ ...s, profile: { ...s.profile, ...patch } });
   },
-  tryOnAdd(garmentId: string, detectedFit?: { x: number; y: number; width: number }) {
+  tryOnAdd(garmentId: string, detectedFit?: { x: number; y: number; width: number; height: number; rotation?: number }) {
     const s = read();
     if (s.tryOn.find((t) => t.garmentId === garmentId)) return;
     const g = s.garments.find((x) => x.id === garmentId);
@@ -217,9 +219,12 @@ export const actions = {
           x: detectedFit.x,
           y: detectedFit.y,
           scale: detectedFit.width / 0.4,
+          height: detectedFit.height,
+          rotation: detectedFit.rotation ?? 0,
           autoX: detectedFit.x,
           autoY: detectedFit.y,
           autoScale: detectedFit.width / 0.4,
+          autoHeight: detectedFit.height,
         }
       : fallback;
     // Substitui peças que ocupam o mesmo lugar no corpo (ex.: duas calças).
@@ -248,9 +253,11 @@ export const actions = {
             x: t.autoX ?? fit.x,
             y: t.autoY ?? fit.y,
             scale: t.autoScale ?? fit.scale,
+            height: t.autoHeight,
             autoX: t.autoX,
             autoY: t.autoY,
             autoScale: t.autoScale,
+            autoHeight: t.autoHeight,
           }
         : t),
     });
