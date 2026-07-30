@@ -7,6 +7,7 @@ import { analyzeColorPalette, type ColorAnalysis } from "@/lib/color-ai.function
 import { recommendFromPalette, type PaletteRecommendation } from "@/lib/palette-looks.functions";
 import { savePaletteAnalysis, listPaletteAnalyses, deletePaletteAnalysis, type SavedAnalysis } from "@/lib/palette-history.functions";
 import { track } from "@/lib/track";
+import { ShareButton } from "@/components/ShareButton";
 
 
 
