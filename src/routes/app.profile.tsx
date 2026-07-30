@@ -2,7 +2,9 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Crown, Settings, LogOut, ChevronRight, User as UserIcon, CreditCard, BarChart3 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useStore } from "@/lib/store";
+import { useStore, ACHIEVEMENTS } from "@/lib/store";
+import { StreakCard } from "@/components/StreakCard";
+import { Achievements } from "@/components/Achievements";
 import { useSubscription } from "@/hooks/use-subscription";
 
 export const Route = createFileRoute("/app/profile")({
