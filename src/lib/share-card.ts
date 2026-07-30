@@ -221,3 +221,76 @@ export async function shareBlob(blob: Blob, filename: string, text: string) {
   setTimeout(() => URL.revokeObjectURL(url), 4000);
   return "downloaded" as const;
 }
+
+/** Card do provador: recria a composição corpo + peças. */
+export async function renderTryOnCard(opts: {
+  bodyUrl: string;
+  pieces: { url: string; x: number; y: number; scale: number; rotation: number; z: number }[];
+  caption?: string;
+}): Promise<Blob> {
+  const canvas = document.createElement("canvas");
+  canvas.width = W;
+  canvas.height = H;
+  const ctx = canvas.getContext("2d")!;
+  base(ctx, ["#F7F2EA", "#EFE6DA", "#E2D6C6"], false);
+  const ink = "#171412";
+
+  ctx.textAlign = "center";
+  ctx.fillStyle = ink;
+  ctx.globalAlpha = 0.6;
+  ctx.font = "500 30px Inter, sans-serif";
+  ctx.fillText("PROVEI NO STYLISME", W / 2, 170);
+  ctx.globalAlpha = 1;
+  ctx.font = "500 92px 'Cormorant Garamond', Georgia, serif";
+  ctx.fillText(opts.caption?.slice(0, 24) || "Meu look", W / 2, 275);
+
+  // moldura da composição
+  const fx = 90;
+  const fy = 340;
+  const fw = W - fx * 2;
+  const fh = 1250;
+  ctx.save();
+  ctx.shadowColor = "rgba(0,0,0,0.14)";
+  ctx.shadowBlur = 40;
+  ctx.shadowOffsetY = 16;
+  ctx.fillStyle = "#FFFFFF";
+  roundRect(ctx, fx, fy, fw, fh, 56);
+  ctx.fill();
+  ctx.restore();
+
+  ctx.save();
+  roundRect(ctx, fx, fy, fw, fh, 56);
+  ctx.clip();
+
+  const bodyImg = await loadImage(opts.bodyUrl).catch(() => null);
+  let rect = { left: fx, top: fy, width: fw, height: fh };
+  if (bodyImg) {
+    const s = Math.min(fw / bodyImg.width, fh / bodyImg.height);
+    const w = bodyImg.width * s;
+    const h = bodyImg.height * s;
+    rect = { left: fx + (fw - w) / 2, top: fy + (fh - h) / 2, width: w, height: h };
+    ctx.drawImage(bodyImg, rect.left, rect.top, w, h);
+  }
+
+  const ordered = [...opts.pieces].sort((a, b) => a.z - b.z);
+  for (const p of ordered) {
+    const img = await loadImage(p.url).catch(() => null);
+    if (!img) continue;
+    const width = rect.width * 0.4 * p.scale;
+    const height = (img.height / img.width) * width;
+    const cx = rect.left + rect.width * p.x;
+    const cy = rect.top + rect.height * p.y;
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate((p.rotation * Math.PI) / 180);
+    ctx.shadowColor = "rgba(0,0,0,0.16)";
+    ctx.shadowBlur = 18;
+    ctx.shadowOffsetY = 8;
+    ctx.drawImage(img, -width / 2, -height / 2, width, height);
+    ctx.restore();
+  }
+  ctx.restore();
+
+  footer(ctx, ink);
+  return toBlob(canvas);
+}
