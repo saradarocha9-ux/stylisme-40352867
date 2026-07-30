@@ -24,7 +24,7 @@ export const detectTryOnFit = createServerFn({ method: "POST" })
 
     const prompt = `Atue como um sistema de visão computacional para provador virtual. A IMAGEM 1 é a pessoa e a IMAGEM 2 é uma peça recortada, sem fundo, da categoria "${data.category}".
 Analise os pixels visíveis das duas imagens. Na pessoa, localize ombros, axilas, cintura, quadril, joelhos e tornozelos. Na peça, considere sua modelagem, proporção original e limites visíveis. Calcule a CAIXA LIMITE em que a peça inteira cabe SEM ALTERAR SUA PROPORÇÃO, alinhando suas aberturas e costuras aos pontos anatômicos correspondentes.
-Regras: camiseta/camisa/blusa começa nos ombros e termina perto da cintura; casaco começa nos ombros; calça começa na cintura e termina nos tornozelos; shorts começa na cintura; saia começa na cintura; vestido começa nos ombros; sapato fica nos pés. Nunca use um slot genérico e nunca cubra o rosto.
+Regras: camiseta/camisa/blusa deve ter a largura real entre as extremidades das mangas e começar nos ombros; casaco começa nos ombros; calça deve ter a largura do quadril e começar na cintura; shorts e saia começam na cintura; vestido começa nos ombros; sapato cobre os pés. A largura retornada deve ser a largura FINAL da peça sobre o corpo, e não a largura de uma caixa aproximada. Nunca use um slot genérico e nunca cubra o rosto.
 Responda SOMENTE JSON válido: {"x":0.5,"y":0.4,"width":0.35,"height":0.3,"rotation":0,"confidence":0.9}.
 x e y são o CENTRO da caixa; width e height são os limites máximos da caixa preservando a proporção original da IMAGEM 2. Todos são frações de 0 a 1 relativas à IMAGEM 1 inteira. rotation é em graus, entre -15 e 15.`;
 
