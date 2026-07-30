@@ -27,7 +27,7 @@ export const savePaletteAnalysis = createServerFn({ method: "POST" })
         depth: a.depth ?? "",
         contrast: a.contrast ?? "",
         chroma: a.chroma ?? "",
-        analysis: a as unknown as Record<string, unknown>,
+        analysis: JSON.parse(JSON.stringify(a)),
         thumbnail: data.thumbnail ?? null,
       })
       .select("id, created_at, analysis, thumbnail")
