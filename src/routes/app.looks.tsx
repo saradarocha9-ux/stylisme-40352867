@@ -54,7 +54,8 @@ function TryOnPage() {
 
   async function renderGarments(garments: Garment[], baseUrl?: string) {
     const base = baseUrl ?? body;
-    if (!base || garments.length === 0) {
+    const valid = garments.filter((garment) => !!garment.imageUrl).slice(0, 5);
+    if (!base || valid.length === 0) {
       setGeneratedUrl(null);
       return;
     }
@@ -64,12 +65,12 @@ function TryOnPage() {
       const result = await createTryOn({
         data: {
           bodyDataUrl: base,
-          garments: garments.flatMap((garment) => garment.imageUrl ? [{
-            dataUrl: garment.imageUrl,
+          garments: valid.map((garment) => ({
+            dataUrl: garment.imageUrl as string,
             name: garment.name,
             category: garment.category,
             material: garment.material,
-          }] : []),
+          })),
         },
       });
       setGeneratedUrl(result.imageUrl);
