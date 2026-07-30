@@ -5,6 +5,7 @@ import { useStore, actions, type TryOnItem, type Garment } from "@/lib/store";
 import { removeImageBackground } from "@/lib/bg-removal";
 import { detectTryOnFit } from "@/lib/tryon-ai.functions";
 import { track } from "@/lib/track";
+import { ShareButton } from "@/components/ShareButton";
 
 export const Route = createFileRoute("/app/looks")({
   component: TryOnPage,
