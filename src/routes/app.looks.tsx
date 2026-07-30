@@ -1,56 +1,46 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { useMemo, useRef, useState, useEffect, useCallback } from "react";
-import { Plus, User as UserIcon, X, RotateCcw, Move, Check, Sparkles } from "lucide-react";
-import { useStore, actions, type TryOnItem, type Garment } from "@/lib/store";
+import { useMemo, useRef, useState, useEffect } from "react";
+import { Plus, User as UserIcon, X, RotateCcw, Sparkles } from "lucide-react";
+import { useStore, actions, slotOf, type Garment } from "@/lib/store";
 import { removeImageBackground } from "@/lib/bg-removal";
-import { detectTryOnFit } from "@/lib/tryon-ai.functions";
+import { generateVirtualTryOn } from "@/lib/virtual-tryon.functions";
 import { track } from "@/lib/track";
 import { ShareButton } from "@/components/ShareButton";
 
 export const Route = createFileRoute("/app/looks")({
+  head: () => ({
+    meta: [
+      { title: "Provador virtual | Stylisme" },
+      { name: "description", content: "Experimente suas roupas com caimento inteligente no corpo." },
+      { property: "og:title", content: "Provador virtual | Stylisme" },
+      { property: "og:description", content: "Experimente suas roupas com caimento inteligente no corpo." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
   component: TryOnPage,
 });
 
-interface Rect { left: number; top: number; width: number; height: number }
-
 function TryOnPage() {
   const { state } = useStore();
+  const createTryOn = useServerFn(generateVirtualTryOn);
   const [picker, setPicker] = useState(false);
   const [bodyBusy, setBodyBusy] = useState(false);
-  const [adjust, setAdjust] = useState(false);
-  const [bodyRect, setBodyRect] = useState<Rect | null>(null);
+  const [tryOnBusy, setTryOnBusy] = useState(false);
+  const [generatedUrl, setGeneratedUrl] = useState<string | null>(null);
+  const [tryOnError, setTryOnError] = useState<string | null>(null);
   const bodyRef = useRef<HTMLInputElement>(null);
-  const canvasRef = useRef<HTMLDivElement>(null);
-  const imgRef = useRef<HTMLImageElement>(null);
 
   const body = state.profile.bodyPhotoUrl;
   const items = useMemo(() => [...state.tryOn].sort((a, b) => a.z - b.z), [state.tryOn]);
-
-  /** Área realmente ocupada pela foto (object-contain) dentro do canvas. */
-  const measure = useCallback(() => {
-    const canvas = canvasRef.current;
-    const img = imgRef.current;
-    if (!canvas || !img || !img.naturalWidth) return;
-    const cw = canvas.clientWidth;
-    const ch = canvas.clientHeight;
-    const scale = Math.min(cw / img.naturalWidth, ch / img.naturalHeight);
-    const width = img.naturalWidth * scale;
-    const height = img.naturalHeight * scale;
-    setBodyRect({ left: (cw - width) / 2, top: (ch - height) / 2, width, height });
-  }, []);
-
-  useEffect(() => {
-    measure();
-    window.addEventListener("resize", measure);
-    return () => window.removeEventListener("resize", measure);
-  }, [measure, body]);
 
   async function onBodyFile(f: File) {
     setBodyBusy(true);
     try {
       const url = await removeImageBackground(f);
       actions.tryOnClear();
+      setGeneratedUrl(null);
       actions.updateProfile({ bodyPhotoUrl: url });
     } catch (e) {
       console.error(e);
@@ -60,6 +50,57 @@ function TryOnPage() {
     } finally {
       setBodyBusy(false);
     }
+  }
+
+  async function renderGarments(garments: Garment[]) {
+    if (!body || garments.length === 0) {
+      setGeneratedUrl(null);
+      return;
+    }
+    setTryOnBusy(true);
+    setTryOnError(null);
+    try {
+      const result = await createTryOn({
+        data: {
+          bodyDataUrl: body,
+          garments: garments.flatMap((garment) => garment.imageUrl ? [{
+            dataUrl: garment.imageUrl,
+            name: garment.name,
+            category: garment.category,
+            material: garment.material,
+          }] : []),
+        },
+      });
+      setGeneratedUrl(result.imageUrl);
+    } catch (error) {
+      setTryOnError(error instanceof Error ? error.message : "Não foi possível vestir as peças.");
+      throw error;
+    } finally {
+      setTryOnBusy(false);
+    }
+  }
+
+  async function addGarment(garment: Garment) {
+    const current = items.flatMap((item) => {
+      const found = state.garments.find((candidate) => candidate.id === item.garmentId);
+      return found ? [found] : [];
+    });
+    const next = [...current.filter((item) => slotOf(item.category) !== slotOf(garment.category)), garment];
+    await renderGarments(next);
+    actions.tryOnAdd(garment.id);
+    track("tryon");
+    setPicker(false);
+  }
+
+  async function removeGarment(garmentId: string) {
+    const remaining = items
+      .filter((item) => item.garmentId !== garmentId)
+      .flatMap((item) => {
+        const found = state.garments.find((candidate) => candidate.id === item.garmentId);
+        return found ? [found] : [];
+      });
+    actions.tryOnRemove(garmentId);
+    try { await renderGarments(remaining); } catch { /* erro já exibido */ }
   }
 
   return (
@@ -72,7 +113,12 @@ function TryOnPage() {
         <div className="flex gap-2">
           {state.tryOn.length > 0 && (
             <button
-              onClick={() => { if (confirm("Limpar o provador?")) actions.tryOnClear(); }}
+              onClick={() => {
+                if (confirm("Limpar o provador?")) {
+                  actions.tryOnClear();
+                  setGeneratedUrl(null);
+                }
+              }}
               className="rounded-full border border-border p-2.5 text-muted-foreground"
               aria-label="Limpar"
             >
@@ -90,15 +136,12 @@ function TryOnPage() {
 
       {/* Canvas — peças alinhadas à foto do corpo */}
       <div
-        ref={canvasRef}
         className="relative mt-5 aspect-[3/4] w-full overflow-hidden rounded-3xl bg-[linear-gradient(180deg,var(--color-muted)_0%,var(--color-background)_100%)] shadow-soft"
       >
         {body ? (
           <img
-            ref={imgRef}
-            src={body}
-            alt="Você"
-            onLoad={measure}
+            src={generatedUrl ?? body}
+            alt={generatedUrl ? "Resultado do provador virtual" : "Você"}
             className="pointer-events-none absolute inset-0 h-full w-full object-contain"
           />
         ) : (
@@ -118,12 +161,13 @@ function TryOnPage() {
             Preparando sua foto…
           </div>
         )}
-
-        {bodyRect && items.map((item) => {
-          const g = state.garments.find((x) => x.id === item.garmentId);
-          if (!g?.imageUrl) return null;
-          return <FittedGarment key={item.garmentId} item={item} garment={g} rect={bodyRect} adjust={adjust} />;
-        })}
+        {tryOnBusy && (
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-background/80 px-8 text-center backdrop-blur-sm">
+            <Sparkles size={28} className="animate-pulse" />
+            <span className="text-xs uppercase tracking-[0.22em]">Vestindo no seu corpo</span>
+            <span className="text-[11px] text-muted-foreground">Ajustando curvas, pose, tamanho, tecido e caimento…</span>
+          </div>
+        )}
       </div>
 
       <input
@@ -134,17 +178,7 @@ function TryOnPage() {
         onChange={(e) => e.target.files?.[0] && onBodyFile(e.target.files[0])}
       />
 
-      {state.tryOn.length > 0 && (
-        <button
-          onClick={() => setAdjust((a) => !a)}
-          className={
-            "mt-3 flex w-full items-center justify-center gap-2 rounded-full py-2.5 text-[11px] uppercase tracking-[0.22em] transition " +
-            (adjust ? "bg-foreground text-primary-foreground" : "border border-border text-muted-foreground")
-          }
-        >
-          {adjust ? <><Check size={13} /> Concluir ajuste</> : <><Move size={13} /> Ajustar manualmente</>}
-        </button>
-      )}
+      {tryOnError && <p className="mt-3 text-center text-xs text-destructive">{tryOnError}</p>}
 
       {/* Peças no provador */}
       {state.tryOn.length > 0 && (
@@ -163,38 +197,19 @@ function TryOnPage() {
                     <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">{g.category}</p>
                   </div>
                   <button
-                    onClick={() => actions.tryOnRemove(t.garmentId)}
+                    onClick={() => void removeGarment(t.garmentId)}
+                    disabled={tryOnBusy}
                     className="rounded-full p-2 hover:bg-muted"
                     aria-label="Remover"
                   >
                     <X size={16} className="text-destructive" />
                   </button>
                 </div>
-                {adjust && (
-                  <div className="mt-3 flex items-center gap-3">
-                    <span className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Tamanho</span>
-                    <input
-                      type="range"
-                      min={0.4}
-                      max={2.5}
-                      step={0.02}
-                      value={t.scale}
-                      onChange={(e) => actions.tryOnUpdate(t.garmentId, { scale: Number(e.target.value) })}
-                      className="flex-1 accent-[var(--color-foreground)]"
-                    />
-                    <button
-                      onClick={() => actions.tryOnResetFit(t.garmentId)}
-                      className="rounded-full border border-border px-3 py-1 text-[10px] uppercase tracking-[0.18em] text-muted-foreground"
-                    >
-                      Auto
-                    </button>
-                  </div>
-                )}
               </div>
             );
           })}
           <p className="pt-1 text-center text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
-            {adjust ? "Arraste a peça sobre o corpo" : "Encaixe automático"}
+            Caimento gerado automaticamente no seu corpo
           </p>
         </div>
       )}
@@ -202,11 +217,11 @@ function TryOnPage() {
       {body && state.tryOn.length > 0 && (
         <ShareButton
           kind="tryon"
-          bodyUrl={body}
+          bodyUrl={generatedUrl ?? body}
           caption="Meu look"
           label="Compartilhar meu look"
           className="mt-4 w-full sheen"
-          pieces={items
+          pieces={(generatedUrl ? [] : items)
             .map((t) => {
               const g = state.garments.find((x) => x.id === t.garmentId);
               return g?.imageUrl
@@ -227,79 +242,13 @@ function TryOnPage() {
       )}
 
 
-      {picker && <GarmentPicker body={body} onClose={() => setPicker(false)} />}
+      {picker && <GarmentPicker body={body} busy={tryOnBusy} onSelect={addGarment} onClose={() => setPicker(false)} />}
     </div>
   );
 }
 
-/** Peça encaixada na área da foto do corpo; arrastável só no modo de ajuste. */
-function FittedGarment({
-  item, garment, rect, adjust,
-}: { item: TryOnItem; garment: Garment; rect: Rect; adjust: boolean }) {
-  const [aspectRatio, setAspectRatio] = useState<number | null>(null);
-  const sizeMultiplier = item.autoScale && item.autoScale > 0 ? item.scale / item.autoScale : 1;
-  const widthLimit = rect.width * 0.4 * item.scale;
-  const heightLimit = item.autoHeight ? rect.height * item.autoHeight * sizeMultiplier : undefined;
-  const width = aspectRatio && heightLimit
-    ? Math.min(widthLimit, heightLimit * aspectRatio)
-    : widthLimit;
-
-  function onPointerDown(e: React.PointerEvent) {
-    if (!adjust) return;
-    e.preventDefault();
-    const startX = e.clientX;
-    const startY = e.clientY;
-    const ox = item.x;
-    const oy = item.y;
-    const el = e.currentTarget as HTMLElement;
-    el.setPointerCapture(e.pointerId);
-    const move = (ev: PointerEvent) => {
-      actions.tryOnUpdate(garment.id, {
-        x: Math.min(1.2, Math.max(-0.2, ox + (ev.clientX - startX) / rect.width)),
-        y: Math.min(1.2, Math.max(-0.2, oy + (ev.clientY - startY) / rect.height)),
-      });
-    };
-    const up = () => {
-      window.removeEventListener("pointermove", move);
-      window.removeEventListener("pointerup", up);
-    };
-    window.addEventListener("pointermove", move);
-    window.addEventListener("pointerup", up);
-  }
-
-  return (
-    <div
-      onPointerDown={onPointerDown}
-      className={"absolute " + (adjust ? "cursor-grab touch-none" : "pointer-events-none")}
-      style={{
-        left: rect.left + rect.width * item.x,
-        top: rect.top + rect.height * item.y,
-        width,
-        transform: `translate(-50%, -50%) rotate(${item.rotation}deg)`,
-        zIndex: item.z,
-      }}
-    >
-      <img
-        src={garment.imageUrl}
-        alt={garment.name}
-        draggable={false}
-        onLoad={(event) => {
-          const image = event.currentTarget;
-          if (image.naturalWidth > 0 && image.naturalHeight > 0) {
-            setAspectRatio(image.naturalWidth / image.naturalHeight);
-          }
-        }}
-        className="block h-auto w-full select-none"
-        style={{ filter: "drop-shadow(0 6px 12px rgba(0,0,0,0.12))" }}
-      />
-      {adjust && <div className="pointer-events-none absolute inset-0 rounded-lg border border-dashed border-foreground/40" />}
-    </div>
-  );
-}
-
-function GarmentPicker({ body, onClose }: { body?: string; onClose: () => void }) {
+function GarmentPicker({ body, busy, onSelect, onClose }: { body?: string; busy: boolean; onSelect: (garment: Garment) => Promise<void>; onClose: () => void }) {
   const { state } = useStore();
-  const detectFit = useServerFn(detectTryOnFit);
   const [q, setQ] = useState("");
   const [fittingId, setFittingId] = useState<string | null>(null);
   const [fitError, setFitError] = useState<string | null>(null);
@@ -309,24 +258,11 @@ function GarmentPicker({ body, onClose }: { body?: string; onClose: () => void }
   );
 
   async function addWithDetectedFit(garment: Garment) {
-    if (!body || !garment.imageUrl) {
-      actions.tryOnAdd(garment.id);
-      onClose();
-      return;
-    }
+    if (!body || !garment.imageUrl) return;
     setFittingId(garment.id);
     setFitError(null);
     try {
-      const fit = await detectFit({
-        data: {
-          bodyDataUrl: body,
-          garmentDataUrl: garment.imageUrl,
-          category: garment.category,
-        },
-      });
-      actions.tryOnAdd(garment.id, fit);
-      track("tryon");
-      onClose();
+      await onSelect(garment);
     } catch (error) {
       console.error(error);
       setFitError(error instanceof Error ? error.message : "Não consegui detectar o corpo e a peça. Tente outra foto.");
@@ -356,7 +292,7 @@ function GarmentPicker({ body, onClose }: { body?: string; onClose: () => void }
             <button
               key={g.id}
               onClick={() => void addWithDetectedFit(g)}
-              disabled={fittingId !== null}
+              disabled={fittingId !== null || busy || !body}
               className="group relative aspect-square overflow-hidden rounded-2xl bg-muted p-2 disabled:opacity-60"
             >
               {g.imageUrl ? (
@@ -366,7 +302,7 @@ function GarmentPicker({ body, onClose }: { body?: string; onClose: () => void }
               )}
               {fittingId === g.id && (
                 <span className="absolute inset-0 flex flex-col items-center justify-center gap-1 bg-background/80 text-[9px] uppercase tracking-[0.16em]">
-                  <Sparkles size={16} className="animate-pulse" /> Detectando corpo
+                   <Sparkles size={16} className="animate-pulse" /> Vestindo peça
                 </span>
               )}
             </button>
