@@ -141,10 +141,182 @@ function PalettePage() {
 
       {result && <Result data={result} />}
       {result && <Recommendations analysis={result} garments={state.garments} />}
+      <HistorySection refreshKey={historyKey} />
       <div className="h-8" />
     </div>
   );
 }
+
+const dateFmt = new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "short", year: "numeric" });
+
+function HistorySection({ refreshKey }: { refreshKey: number }) {
+  const [items, setItems] = useState<SavedAnalysis[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [openId, setOpenId] = useState<string | null>(null);
+  const [compare, setCompare] = useState<string[]>([]);
+
+  useEffect(() => {
+    let alive = true;
+    setLoading(true);
+    listPaletteAnalyses()
+      .then((data) => alive && setItems(data))
+      .catch(() => alive && setItems([]))
+      .finally(() => alive && setLoading(false));
+    return () => {
+      alive = false;
+    };
+  }, [refreshKey]);
+
+  async function remove(id: string) {
+    try {
+      await deletePaletteAnalysis({ data: { id } });
+      setItems((prev) => prev.filter((i) => i.id !== id));
+      setCompare((prev) => prev.filter((i) => i !== id));
+      toast.success("Análise removida");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Não consegui apagar.");
+    }
+  }
+
+  function toggleCompare(id: string) {
+    setCompare((prev) =>
+      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id].slice(-2),
+    );
+  }
+
+  const selected = compare.map((id) => items.find((i) => i.id === id)).filter(Boolean) as SavedAnalysis[];
+
+  return (
+    <section className="mt-8">
+      <p className="flex items-center gap-2 text-[10px] uppercase tracking-[0.24em] text-muted-foreground">
+        <History size={12} /> Histórico de análises
+      </p>
+
+      {loading ? (
+        <div className="mt-4 flex items-center gap-2 text-sm text-muted-foreground">
+          <Loader2 size={14} className="animate-spin" /> Carregando…
+        </div>
+      ) : items.length === 0 ? (
+        <p className="mt-3 rounded-3xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
+          Cada análise que você fizer fica salva aqui para comparar depois.
+        </p>
+      ) : (
+        <div className="mt-3 space-y-3">
+          {items.map((item) => {
+            const a = item.analysis;
+            const open = openId === item.id;
+            const picked = compare.includes(item.id);
+            return (
+              <article key={item.id} className="rounded-3xl bg-card p-4 shadow-soft">
+                <div className="flex items-center gap-3">
+                  <div className="h-12 w-12 shrink-0 overflow-hidden rounded-2xl bg-muted">
+                    {item.thumbnail ? (
+                      <img src={item.thumbnail} alt={`Foto da análise de ${dateFmt.format(new Date(item.createdAt))}`} className="h-full w-full object-cover" />
+                    ) : (
+                      <span className="flex h-full w-full items-center justify-center">
+                        <PaletteIcon size={16} strokeWidth={1.5} className="text-muted-foreground" />
+                      </span>
+                    )}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+                      {dateFmt.format(new Date(item.createdAt))}
+                    </p>
+                    <p className="truncate font-display text-lg">{a.season}</p>
+                  </div>
+                  <div className="flex shrink-0 gap-1">
+                    <button
+                      type="button"
+                      onClick={() => setOpenId(open ? null : item.id)}
+                      aria-label="Ver detalhes"
+                      className="rounded-full p-2 text-muted-foreground"
+                    >
+                      <Eye size={16} strokeWidth={1.5} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => remove(item.id)}
+                      aria-label="Apagar análise"
+                      className="rounded-full p-2 text-muted-foreground"
+                    >
+                      <Trash2 size={16} strokeWidth={1.5} />
+                    </button>
+                  </div>
+                </div>
+
+                <div className="mt-3 flex flex-wrap items-center gap-1">
+                  {a.palette.slice(0, 12).map((c) => (
+                    <span key={c.hex + c.name} className="h-5 w-5 rounded-full ring-1 ring-black/10" style={{ background: c.hex }} title={`${c.name} ${c.hex}`} />
+                  ))}
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => toggleCompare(item.id)}
+                  className={`mt-3 inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-[10px] uppercase tracking-[0.18em] ${
+                    picked ? "bg-foreground text-primary-foreground" : "border border-border text-muted-foreground"
+                  }`}
+                >
+                  {picked ? "Selecionada" : "Comparar"}
+                </button>
+
+                {open && (
+                  <div className="mt-3 space-y-3 border-t border-border pt-3">
+                    <div className="grid grid-cols-2 gap-2">
+                      <Chip label="Subtom" value={a.undertone} />
+                      <Chip label="Profundidade" value={a.depth} />
+                      <Chip label="Contraste" value={a.contrast} />
+                      <Chip label="Intensidade" value={a.chroma} />
+                    </div>
+                    {a.description && <p className="text-sm text-muted-foreground">{a.description}</p>}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        actions.updateProfile({ colorAnalysis: a, colorAnalyzedAt: new Date(item.createdAt).getTime() });
+                        toast.success("Cartela aplicada ao seu perfil");
+                      }}
+                      className="inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-[11px] uppercase tracking-[0.18em]"
+                    >
+                      Usar esta cartela
+                    </button>
+                  </div>
+                )}
+              </article>
+            );
+          })}
+        </div>
+      )}
+
+      {selected.length === 2 && (
+        <div className="mt-4 rounded-3xl bg-card p-5 shadow-soft">
+          <p className="text-[10px] uppercase tracking-[0.24em] text-muted-foreground">Comparação</p>
+          <div className="mt-3 grid grid-cols-2 gap-4">
+            {selected.map((s) => (
+              <div key={s.id}>
+                <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+                  {dateFmt.format(new Date(s.createdAt))}
+                </p>
+                <p className="font-display text-lg">{s.analysis.season}</p>
+                <ul className="mt-2 space-y-1 text-xs text-muted-foreground">
+                  <li>Subtom: {s.analysis.undertone || "—"}</li>
+                  <li>Profundidade: {s.analysis.depth || "—"}</li>
+                  <li>Contraste: {s.analysis.contrast || "—"}</li>
+                  <li>Intensidade: {s.analysis.chroma || "—"}</li>
+                </ul>
+                <div className="mt-2 flex flex-wrap gap-1">
+                  {s.analysis.palette.slice(0, 12).map((c) => (
+                    <span key={c.hex + c.name} className="h-4 w-4 rounded-full ring-1 ring-black/10" style={{ background: c.hex }} title={c.name} />
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </section>
+  );
+}
+
 
 function Recommendations({ analysis, garments }: { analysis: ColorAnalysis; garments: Garment[] }) {
   const navigate = useNavigate();
