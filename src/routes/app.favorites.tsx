@@ -23,6 +23,10 @@ function FavPage() {
         </div>
       </div>
 
+      <SponsoredAd placement="favorites" className="mt-6" />
+
+
+
       <div className="mt-6 grid grid-cols-2 gap-2 rounded-full bg-muted p-1">
         <button onClick={() => setTab("roupas")} className={"rounded-full py-2 text-xs uppercase tracking-[0.2em] " + (tab === "roupas" ? "bg-background text-foreground shadow-soft" : "text-muted-foreground")}>Roupas</button>
         <button onClick={() => setTab("looks")} className={"rounded-full py-2 text-xs uppercase tracking-[0.2em] " + (tab === "looks" ? "bg-background text-foreground shadow-soft" : "text-muted-foreground")}>Looks</button>
