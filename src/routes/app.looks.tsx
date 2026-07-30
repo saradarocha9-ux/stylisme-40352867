@@ -52,8 +52,9 @@ function TryOnPage() {
     }
   }
 
-  async function renderGarments(garments: Garment[]) {
-    if (!body || garments.length === 0) {
+  async function renderGarments(garments: Garment[], baseUrl?: string) {
+    const base = baseUrl ?? body;
+    if (!base || garments.length === 0) {
       setGeneratedUrl(null);
       return;
     }
@@ -62,7 +63,7 @@ function TryOnPage() {
     try {
       const result = await createTryOn({
         data: {
-          bodyDataUrl: body,
+          bodyDataUrl: base,
           garments: garments.flatMap((garment) => garment.imageUrl ? [{
             dataUrl: garment.imageUrl,
             name: garment.name,
@@ -85,12 +86,18 @@ function TryOnPage() {
       const found = state.garments.find((candidate) => candidate.id === item.garmentId);
       return found ? [found] : [];
     });
-    const next = [...current.filter((item) => slotOf(item.category) !== slotOf(garment.category)), garment];
-    await renderGarments(next);
+    const kept = current.filter((item) => slotOf(item.category) !== slotOf(garment.category));
+    // Se nada foi substituído e já existe um resultado, veste só a peça nova sobre ele.
+    if (generatedUrl && kept.length === current.length && current.length > 0) {
+      await renderGarments([garment], generatedUrl);
+    } else {
+      await renderGarments([...kept, garment]);
+    }
     actions.tryOnAdd(garment.id);
     track("tryon");
     setPicker(false);
   }
+
 
   async function removeGarment(garmentId: string) {
     const remaining = items
