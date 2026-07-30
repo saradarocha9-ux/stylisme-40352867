@@ -1,8 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useRef, useState, useEffect, useCallback } from "react";
-import { Plus, User as UserIcon, X, RotateCcw, Move, Check } from "lucide-react";
+import { Plus, User as UserIcon, X, RotateCcw, Move, Check, Sparkles } from "lucide-react";
 import { useStore, actions, type TryOnItem, type Garment } from "@/lib/store";
 import { removeImageBackground } from "@/lib/bg-removal";
+import { detectTryOnFit } from "@/lib/tryon-ai.functions";
 
 export const Route = createFileRoute("/app/looks")({
   component: TryOnPage,
@@ -203,7 +204,7 @@ function TryOnPage() {
         </button>
       )}
 
-      {picker && <GarmentPicker onClose={() => setPicker(false)} />}
+      {picker && <GarmentPicker body={body} onClose={() => setPicker(false)} />}
     </div>
   );
 }
@@ -261,13 +262,43 @@ function FittedGarment({
   );
 }
 
-function GarmentPicker({ onClose }: { onClose: () => void }) {
+function GarmentPicker({ body, onClose }: { body?: string; onClose: () => void }) {
   const { state } = useStore();
   const [q, setQ] = useState("");
+  const [fittingId, setFittingId] = useState<string | null>(null);
+  const [fitError, setFitError] = useState<string | null>(null);
   const alreadyIn = new Set(state.tryOn.map((t) => t.garmentId));
   const list = state.garments.filter(
     (g) => !alreadyIn.has(g.id) && (!q || `${g.name} ${g.category} ${g.color}`.toLowerCase().includes(q.toLowerCase())),
   );
+
+  async function addWithDetectedFit(garment: Garment) {
+    if (!body || !garment.imageUrl) {
+      actions.tryOnAdd(garment.id);
+      onClose();
+      return;
+    }
+    setFittingId(garment.id);
+    setFitError(null);
+    try {
+      const fit = await detectTryOnFit({
+        data: {
+          bodyDataUrl: body,
+          garmentDataUrl: garment.imageUrl,
+          category: garment.category,
+        },
+      });
+      actions.tryOnAdd(garment.id, fit);
+      onClose();
+    } catch (error) {
+      console.error(error);
+      setFitError("Não consegui detectar o corpo. A peça foi encaixada pelo modo padrão.");
+      actions.tryOnAdd(garment.id);
+      onClose();
+    } finally {
+      setFittingId(null);
+    }
+  }
   useEffect(() => { document.body.style.overflow = "hidden"; return () => { document.body.style.overflow = ""; }; }, []);
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm animate-fade-in-slow">
@@ -284,17 +315,24 @@ function GarmentPicker({ onClose }: { onClose: () => void }) {
         {state.garments.length === 0 && (
           <p className="mt-6 text-center text-sm text-muted-foreground">Cadastre peças no armário para começar a provar.</p>
         )}
+        {fitError && <p className="mt-3 text-xs text-destructive">{fitError}</p>}
         <div className="mt-4 grid grid-cols-3 gap-2">
           {list.map((g) => (
             <button
               key={g.id}
-              onClick={() => { actions.tryOnAdd(g.id); onClose(); }}
-              className="group aspect-square overflow-hidden rounded-2xl bg-muted p-2"
+              onClick={() => void addWithDetectedFit(g)}
+              disabled={fittingId !== null}
+              className="group relative aspect-square overflow-hidden rounded-2xl bg-muted p-2 disabled:opacity-60"
             >
               {g.imageUrl ? (
                 <img src={g.imageUrl} className="h-full w-full object-contain" alt={g.name} />
               ) : (
                 <div className="flex h-full items-center justify-center font-display text-2xl text-muted-foreground">{g.name.slice(0,1)}</div>
+              )}
+              {fittingId === g.id && (
+                <span className="absolute inset-0 flex flex-col items-center justify-center gap-1 bg-background/80 text-[9px] uppercase tracking-[0.16em]">
+                  <Sparkles size={16} className="animate-pulse" /> Detectando corpo
+                </span>
               )}
             </button>
           ))}
