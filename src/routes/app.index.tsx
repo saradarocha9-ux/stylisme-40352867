@@ -35,12 +35,22 @@ function Wardrobe() {
             <p className="text-[10px] uppercase tracking-[0.24em] text-muted-foreground">Seu armário</p>
           </div>
         </div>
-        {state.profile.plan === "free" && (
-          <Link to="/app/premium" className="flex items-center gap-1 rounded-full border border-border px-3 py-1.5 text-xs">
-            <Crown size={12} className="text-gold" /> Premium
-          </Link>
-        )}
+        <div className="flex items-center gap-2">
+          <StreakCard gamify={state.gamify} compact />
+          {state.profile.plan === "free" && (
+            <Link to="/app/premium" className="press flex items-center gap-1 rounded-full border border-border px-3 py-1.5 text-xs">
+              <Crown size={12} className="text-gold" /> Premium
+            </Link>
+          )}
+        </div>
       </header>
+
+      {state.garments.length > 0 && (
+        <div className="mt-6 animate-rise">
+          <StreakCard gamify={state.gamify} />
+        </div>
+      )}
+
 
       <div className="mt-6 flex items-center gap-2 rounded-full border border-border bg-card px-4 py-3 shadow-soft">
         <Search size={16} className="text-muted-foreground" />
