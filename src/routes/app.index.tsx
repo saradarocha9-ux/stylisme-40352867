@@ -4,6 +4,7 @@ import { Plus, Search, Heart, Trash2, Crown } from "lucide-react";
 import { useStore, actions, type Category } from "@/lib/store";
 import { Logo } from "@/components/Logo";
 import { AddGarmentSheet } from "@/components/AddGarmentSheet";
+import { StreakCard } from "@/components/StreakCard";
 
 export const Route = createFileRoute("/app/")({
   component: Wardrobe,
