@@ -22,11 +22,18 @@ export const detectTryOnFit = createServerFn({ method: "POST" })
     const key = process.env.LOVABLE_API_KEY;
     if (!key) throw new Error("Encaixe inteligente indisponível.");
 
-    const prompt = `Atue como um sistema de visão computacional para provador virtual. A IMAGEM 1 é a pessoa e a IMAGEM 2 é uma peça recortada, sem fundo, da categoria "${data.category}".
-Analise os pixels visíveis das duas imagens. Na pessoa, localize ombros, axilas, cintura, quadril, joelhos e tornozelos. Na peça, considere sua modelagem, proporção original e limites visíveis. Calcule a CAIXA LIMITE em que a peça inteira cabe SEM ALTERAR SUA PROPORÇÃO, alinhando suas aberturas e costuras aos pontos anatômicos correspondentes.
-Regras: camiseta/camisa/blusa deve ter a largura real entre as extremidades das mangas e começar nos ombros; casaco começa nos ombros; calça deve ter a largura do quadril e começar na cintura; shorts e saia começam na cintura; vestido começa nos ombros; sapato cobre os pés. A largura retornada deve ser a largura FINAL da peça sobre o corpo, e não a largura de uma caixa aproximada. Nunca use um slot genérico e nunca cubra o rosto.
-Responda SOMENTE JSON válido: {"x":0.5,"y":0.4,"width":0.35,"height":0.3,"rotation":0,"confidence":0.9}.
-x e y são o CENTRO da caixa; width e height são os limites máximos da caixa preservando a proporção original da IMAGEM 2. Todos são frações de 0 a 1 relativas à IMAGEM 1 inteira. rotation é em graus, entre -15 e 15.`;
+    const prompt = `Você é um sistema de visão computacional para sobreposição de roupa em uma foto, não um gerador de imagem. A IMAGEM 1 é a pessoa e a IMAGEM 2 é a peça já recortada e sem margens transparentes, da categoria "${data.category}".
+
+Primeiro localize na IMAGEM 1 os pontos anatômicos visíveis: ombro esquerdo/direito, axilas, cintura, quadril, joelhos, tornozelos e pés. Depois identifique na IMAGEM 2 as aberturas e extremidades reais da peça. Posicione a peça sobre os pontos correspondentes sem cobrir o rosto e SEM deformar sua proporção original.
+
+O resultado deve descrever a caixa VISUAL FINAL da peça sobre a pessoa:
+- camiseta/camisa/blusa/casaco: borda superior sobre os ombros; largura externa das mangas coerente com braços e ombros; barra no tronco;
+- vestido: parte superior nos ombros e cintura da peça na cintura da pessoa;
+- calça/shorts/saia: cós exatamente na cintura/quadril; pernas alinhadas às pernas;
+- sapato: centralizado sobre os pés, nunca nos tornozelos ou canelas.
+
+Não use posições médias, presets ou slots. Meça esta pessoa e esta peça específicas. Faça uma checagem final: top, bottom, left e right da caixa devem coincidir com a anatomia correspondente. Retorne SOMENTE um objeto JSON, sem markdown: {"x":0.5,"y":0.4,"width":0.35,"height":0.3,"rotation":0,"confidence":0.9}.
+x e y são o CENTRO visual da peça. width e height são frações da largura e altura totais da IMAGEM 1 e representam a caixa final preservando a proporção da IMAGEM 2. rotation vai de -15 a 15 graus.`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -66,6 +73,7 @@ x e y são o CENTRO da caixa; width e height são os limites máximos da caixa p
     const confidence = Number(fit.confidence);
 
     if (![x, y, width, height].every(Number.isFinite)) throw new Error("Encaixe inválido.");
+    if (confidence < 0.45) throw new Error("Não foi possível localizar o corpo com segurança. Use uma foto de corpo inteiro, de frente e bem iluminada.");
     return {
       x: Math.min(1, Math.max(0, x)),
       y: Math.min(1, Math.max(0, y)),

@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { useMemo, useRef, useState, useEffect, useCallback } from "react";
 import { Plus, User as UserIcon, X, RotateCcw, Move, Check, Sparkles } from "lucide-react";
 import { useStore, actions, type TryOnItem, type Garment } from "@/lib/store";
@@ -49,6 +50,7 @@ function TryOnPage() {
     setBodyBusy(true);
     try {
       const url = await removeImageBackground(f);
+      actions.tryOnClear();
       actions.updateProfile({ bodyPhotoUrl: url });
     } catch (e) {
       console.error(e);
@@ -234,7 +236,13 @@ function TryOnPage() {
 function FittedGarment({
   item, garment, rect, adjust,
 }: { item: TryOnItem; garment: Garment; rect: Rect; adjust: boolean }) {
-  const width = rect.width * 0.4 * item.scale;
+  const [aspectRatio, setAspectRatio] = useState<number | null>(null);
+  const sizeMultiplier = item.autoScale && item.autoScale > 0 ? item.scale / item.autoScale : 1;
+  const widthLimit = rect.width * 0.4 * item.scale;
+  const heightLimit = item.autoHeight ? rect.height * item.autoHeight * sizeMultiplier : undefined;
+  const width = aspectRatio && heightLimit
+    ? Math.min(widthLimit, heightLimit * aspectRatio)
+    : widthLimit;
 
   function onPointerDown(e: React.PointerEvent) {
     if (!adjust) return;
@@ -275,6 +283,12 @@ function FittedGarment({
         src={garment.imageUrl}
         alt={garment.name}
         draggable={false}
+        onLoad={(event) => {
+          const image = event.currentTarget;
+          if (image.naturalWidth > 0 && image.naturalHeight > 0) {
+            setAspectRatio(image.naturalWidth / image.naturalHeight);
+          }
+        }}
         className="block h-auto w-full select-none"
         style={{ filter: "drop-shadow(0 6px 12px rgba(0,0,0,0.12))" }}
       />
@@ -285,6 +299,7 @@ function FittedGarment({
 
 function GarmentPicker({ body, onClose }: { body?: string; onClose: () => void }) {
   const { state } = useStore();
+  const detectFit = useServerFn(detectTryOnFit);
   const [q, setQ] = useState("");
   const [fittingId, setFittingId] = useState<string | null>(null);
   const [fitError, setFitError] = useState<string | null>(null);
@@ -302,7 +317,7 @@ function GarmentPicker({ body, onClose }: { body?: string; onClose: () => void }
     setFittingId(garment.id);
     setFitError(null);
     try {
-      const fit = await detectTryOnFit({
+      const fit = await detectFit({
         data: {
           bodyDataUrl: body,
           garmentDataUrl: garment.imageUrl,
@@ -314,9 +329,7 @@ function GarmentPicker({ body, onClose }: { body?: string; onClose: () => void }
       onClose();
     } catch (error) {
       console.error(error);
-      setFitError("Não consegui detectar o corpo. A peça foi encaixada pelo modo padrão.");
-      actions.tryOnAdd(garment.id);
-      onClose();
+      setFitError(error instanceof Error ? error.message : "Não consegui detectar o corpo e a peça. Tente outra foto.");
     } finally {
       setFittingId(null);
     }
