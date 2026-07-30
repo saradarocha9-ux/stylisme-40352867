@@ -39,6 +39,7 @@ Regras obrigatórias:
 - produza caimento fisicamente plausível, com dobras, tensão, volume, oclusões e sombras de contato naturais;
 - respeite a sobreposição correta entre peças e partes do corpo; mãos, cabelo e acessórios originais devem permanecer à frente quando for fisicamente correto;
 - não afine, alargue, alongue ou altere o corpo; não estique a roupa como adesivo; não invente novas peças;
+- cada peça enviada deve aparecer UMA ÚNICA VEZ, vestida no corpo: é proibido duplicar, repetir, espelhar ou mostrar cópias da mesma peça soltas, ao lado, no fundo ou em miniatura;
 - mantenha a mesma resolução e proporção vertical da foto-base;
 - retorne uma única imagem final, sem texto, comparação, moldura ou colagem.`;
 
