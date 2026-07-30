@@ -42,31 +42,29 @@ export const generateVirtualTryOn = createServerFn({ method: "POST" })
     const garmentList = orderedGarments
       .map((garment, index) => `${index + 1}. ${garment.name} — ${garment.category}${garment.material ? `, ${garment.material}` : ""}`)
       .join("\n");
-    const prompt = `Edite localmente a primeira fotografia para criar um provador virtual realista. A primeira imagem é a FOTO-BASE imutável; as imagens seguintes são as peças exatas que devem ser vestidas nela.
+    const prompt = `Você faz edição local de fotografia para um provador virtual realista. As primeiras ${orderedGarments.length} imagem(ns) são apenas FOTOS DE CATÁLOGO das peças (referência de cor, corte e textura). A ÚLTIMA imagem é a FOTO-BASE: é ela, e somente ela, que deve ser editada e devolvida.
 
-PEÇAS:
+PEÇAS (na ordem em que foram enviadas):
 ${garmentList}
 
 Regras obrigatórias:
-- preserve pixel a pixel todo o fundo original da FOTO-BASE; não remova, clareie, substitua, recorte, estenda ou transforme o fundo em branco;
-- mantenha exatamente as dimensões, proporção, enquadramento e câmera da FOTO-BASE;
-- a caixa ocupada pela pessoa deve permanecer na mesma posição e com exatamente a mesma altura e largura: não diminua, amplie, desloque ou reenquadre a pessoa;
+- devolva a FOTO-BASE editada: mesmas dimensões, mesma proporção, mesmo enquadramento, mesma câmera e mesmo fundo, pixel a pixel;
+- a pessoa deve continuar exatamente do mesmo tamanho e na mesma posição da FOTO-BASE: nunca reduza, afaste, recentralize ou reenquadre a pessoa;
+- é ESTRITAMENTE PROIBIDO colar, sobrepor ou exibir as fotos de catálogo na imagem final: elas não podem aparecer flutuando, ampliadas, no fundo, em miniatura, ao lado ou como colagem. Cada peça só pode existir vestida no corpo da pessoa, uma única vez;
+- nunca use a proporção, o fundo ou o enquadramento das fotos de catálogo como base da imagem final;
 - preserve exatamente rosto, cabelo, pele, identidade, corpo, curvas, pose, mãos, pernas e pés;
-- vista somente as peças enviadas, preservando fielmente cor, estampa, textura, material, gola, mangas, costuras, botões, barras e proporções de cada produto;
-- adapte cada peça à anatomia correspondente sem exagerar seu tamanho: cós de saia/calça na cintura ou quadril, barra no comprimento natural, ombros de blazer exatamente sobre os ombros da pessoa;
+- reproduza fielmente cor, estampa, textura, material, gola, mangas, costuras, botões e barras de cada peça, em escala anatômica correta: cós na cintura ou quadril, barra no comprimento natural, ombros exatamente sobre os ombros da pessoa;
 - produza caimento fisicamente plausível, com dobras, tensão, volume, oclusões e sombras de contato naturais;
-- respeite esta ordem física de camadas, de dentro para fora: vestido ou parte de baixo; camiseta/camisa/blusa; casaco/blazer; acessórios. Uma saia ou calça NUNCA pode cobrir um blazer/casaco na região do tronco. O blazer fica visualmente por cima da cintura e do topo da saia, exceto se estiver claramente aberto;
-- mãos, cabelo e acessórios originais devem permanecer à frente quando for fisicamente correto;
-- não afine, alargue, alongue ou altere o corpo; não estique a roupa como adesivo; não invente novas peças;
-- cada peça enviada deve aparecer UMA ÚNICA VEZ, vestida no corpo: é proibido duplicar, repetir, espelhar ou mostrar cópias da mesma peça soltas, ao lado, no fundo ou em miniatura;
-- mantenha a mesma resolução e proporção vertical da foto-base;
-- retorne uma única imagem final, sem texto, comparação, moldura ou colagem.`;
+- respeite esta ordem física de camadas, de dentro para fora: vestido ou parte de baixo; camiseta/camisa/blusa; casaco/blazer; acessórios. Uma saia ou calça NUNCA cobre um blazer/casaco no tronco;
+- não afine, alargue, alongue ou altere o corpo; não estique a roupa como adesivo; não invente peças novas;
+- retorne uma única imagem final, sem texto, moldura, comparação ou colagem.`;
 
     const content: Array<Record<string, unknown>> = [
       { type: "text", text: prompt },
-      { type: "image_url", image_url: { url: data.bodyDataUrl } },
       ...orderedGarments.map((garment) => ({ type: "image_url", image_url: { url: garment.dataUrl } })),
+      { type: "image_url", image_url: { url: data.bodyDataUrl } },
     ];
+
 
     type GatewayPayload = {
       data?: Array<{ b64_json?: string; url?: string }>;

@@ -5,6 +5,8 @@ import { Plus, User as UserIcon, X, RotateCcw, Sparkles } from "lucide-react";
 import { useStore, actions, slotOf, type Garment } from "@/lib/store";
 import { generateVirtualTryOn } from "@/lib/virtual-tryon.functions";
 import { track } from "@/lib/track";
+import { resizeDataUrl, imageAspect } from "@/lib/image-resize";
+
 import { ShareButton } from "@/components/ShareButton";
 
 export const Route = createFileRoute("/app/looks")({
@@ -67,17 +69,28 @@ function TryOnPage() {
     setTryOnBusy(true);
     setTryOnError(null);
     try {
-      const result = await createTryOn({
-        data: {
-          bodyDataUrl: base,
-          garments: valid.map((garment) => ({
-            dataUrl: garment.imageUrl as string,
-            name: garment.name,
-            category: garment.category,
-            material: garment.material,
-          })),
-        },
-      });
+      // A foto do corpo entra grande e as peças entram pequenas: quando a peça
+      // chega maior que a pessoa, o modelo devolve a roupa gigante ao fundo.
+      const baseImage = await resizeDataUrl(base, 1280);
+      const baseAspect = await imageAspect(baseImage);
+      const payloadGarments = await Promise.all(
+        valid.map(async (garment) => ({
+          dataUrl: await resizeDataUrl(garment.imageUrl as string, 384),
+          name: garment.name,
+          category: garment.category,
+          material: garment.material,
+        })),
+      );
+
+      let result = await createTryOn({ data: { bodyDataUrl: baseImage, garments: payloadGarments } });
+      // Se o resultado voltar com proporção diferente da foto original, a peça
+      // virou o enquadramento principal: refaz uma vez.
+      if (baseAspect) {
+        const resultAspect = await imageAspect(result.imageUrl);
+        if (resultAspect && Math.abs(resultAspect - baseAspect) / baseAspect > 0.12) {
+          result = await createTryOn({ data: { bodyDataUrl: baseImage, garments: payloadGarments } });
+        }
+      }
       setGeneratedUrl(result.imageUrl);
     } catch (error) {
       setTryOnError(error instanceof Error ? error.message : "Não foi possível vestir as peças.");
@@ -86,6 +99,7 @@ function TryOnPage() {
       setTryOnBusy(false);
     }
   }
+
 
   async function addGarment(garment: Garment) {
     initialLookRendered.current = true;
