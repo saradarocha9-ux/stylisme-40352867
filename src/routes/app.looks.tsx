@@ -5,7 +5,7 @@ import { Plus, User as UserIcon, X, RotateCcw, Sparkles } from "lucide-react";
 import { useStore, actions, slotOf, type Garment } from "@/lib/store";
 import { generateVirtualTryOn } from "@/lib/virtual-tryon.functions";
 import { track } from "@/lib/track";
-import { resizeDataUrl, imageAspect } from "@/lib/image-resize";
+import { resizeDataUrl } from "@/lib/image-resize";
 
 import { ShareButton } from "@/components/ShareButton";
 
