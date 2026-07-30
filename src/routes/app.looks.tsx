@@ -217,11 +217,11 @@ function TryOnPage() {
       {body && state.tryOn.length > 0 && (
         <ShareButton
           kind="tryon"
-          bodyUrl={body}
+          bodyUrl={generatedUrl ?? body}
           caption="Meu look"
           label="Compartilhar meu look"
           className="mt-4 w-full sheen"
-          pieces={items
+          pieces={(generatedUrl ? [] : items)
             .map((t) => {
               const g = state.garments.find((x) => x.id === t.garmentId);
               return g?.imageUrl
