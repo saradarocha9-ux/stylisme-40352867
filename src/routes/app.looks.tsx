@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useMemo, useRef, useState, useEffect } from "react";
 import { Plus, User as UserIcon, X, RotateCcw, Sparkles } from "lucide-react";
-import { useStore, actions, type Garment } from "@/lib/store";
+import { useStore, actions, slotOf, type Garment } from "@/lib/store";
 import { removeImageBackground } from "@/lib/bg-removal";
 import { generateVirtualTryOn } from "@/lib/virtual-tryon.functions";
 import { track } from "@/lib/track";
@@ -85,7 +85,7 @@ function TryOnPage() {
       const found = state.garments.find((candidate) => candidate.id === item.garmentId);
       return found ? [found] : [];
     });
-    const next = [...current.filter((item) => item.category !== garment.category), garment];
+    const next = [...current.filter((item) => slotOf(item.category) !== slotOf(garment.category)), garment];
     await renderGarments(next);
     actions.tryOnAdd(garment.id);
     track("tryon");
@@ -113,7 +113,12 @@ function TryOnPage() {
         <div className="flex gap-2">
           {state.tryOn.length > 0 && (
             <button
-              onClick={() => { if (confirm("Limpar o provador?")) actions.tryOnClear(); }}
+              onClick={() => {
+                if (confirm("Limpar o provador?")) {
+                  actions.tryOnClear();
+                  setGeneratedUrl(null);
+                }
+              }}
               className="rounded-full border border-border p-2.5 text-muted-foreground"
               aria-label="Limpar"
             >
