@@ -1,10 +1,12 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useRef, useState } from "react";
-import { Camera, Loader2, Sparkles, RefreshCw, Palette as PaletteIcon, Ban, Gem, Shirt, ShoppingBag, Check, Minus, X } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Camera, Loader2, Sparkles, RefreshCw, Palette as PaletteIcon, Ban, Gem, Shirt, ShoppingBag, Check, Minus, X, History, Trash2, Eye } from "lucide-react";
 import { toast } from "sonner";
 import { useStore, actions, type Garment } from "@/lib/store";
 import { analyzeColorPalette, type ColorAnalysis } from "@/lib/color-ai.functions";
 import { recommendFromPalette, type PaletteRecommendation } from "@/lib/palette-looks.functions";
+import { savePaletteAnalysis, listPaletteAnalyses, deletePaletteAnalysis, type SavedAnalysis } from "@/lib/palette-history.functions";
+
 
 
 export const Route = createFileRoute("/app/palette")({
