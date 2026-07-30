@@ -92,12 +92,16 @@ Regras obrigatórias:
         if (match) return match[0];
       }
       if (Array.isArray(raw)) {
-        for (const part of raw as Array<Record<string, any>>) {
-          const url = part?.image_url?.url ?? part?.url;
+        for (const part of raw as Array<Record<string, unknown>>) {
+          const imageUrl = part.image_url as { url?: unknown } | undefined;
+          const inlineDataSnake = part.inline_data as { data?: unknown; mime_type?: unknown } | undefined;
+          const inlineDataCamel = part.inlineData as { data?: unknown; mimeType?: unknown } | undefined;
+          const url = imageUrl?.url ?? part.url;
           if (typeof url === "string" && url.startsWith("data:image/")) return url;
-          const b64 = part?.inline_data?.data ?? part?.inlineData?.data ?? part?.b64_json;
+          const b64 = inlineDataSnake?.data ?? inlineDataCamel?.data ?? part.b64_json;
           if (typeof b64 === "string" && b64.length > 100) {
-            const mime = part?.inline_data?.mime_type ?? part?.inlineData?.mimeType ?? "image/png";
+            const rawMime = inlineDataSnake?.mime_type ?? inlineDataCamel?.mimeType;
+            const mime = typeof rawMime === "string" ? rawMime : "image/png";
             return `data:${mime};base64,${b64}`;
           }
         }
