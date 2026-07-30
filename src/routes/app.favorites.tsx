@@ -2,6 +2,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { Heart } from "lucide-react";
 import { useStore } from "@/lib/store";
+import { SponsoredAd } from "@/components/SponsoredAd";
+
 
 export const Route = createFileRoute("/app/favorites")({
   component: FavPage,
