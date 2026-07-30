@@ -169,7 +169,58 @@ export function useStore() {
   return { state, update };
 }
 
+/* ---------------- Gamificação ---------------- */
+
+export const XP_TABLE = {
+  garment: 15,
+  look: 25,
+  tryon: 20,
+  palette: 60,
+  ai: 10,
+  share: 40,
+} as const;
+
+export interface Achievement {
+  id: string;
+  title: string;
+  desc: string;
+  emoji: string;
+  test: (s: AppState) => boolean;
+}
+
+export const ACHIEVEMENTS: Achievement[] = [
+  { id: "first-piece", title: "Primeira peça", desc: "Cadastre 1 roupa", emoji: "👕", test: (s) => s.garments.length >= 1 },
+  { id: "closet-10", title: "Armário montado", desc: "10 peças cadastradas", emoji: "🧺", test: (s) => s.garments.length >= 10 },
+  { id: "closet-30", title: "Guarda-roupa dos sonhos", desc: "30 peças cadastradas", emoji: "🏛️", test: (s) => s.garments.length >= 30 },
+  { id: "first-look", title: "Estilista iniciante", desc: "Crie o primeiro look", emoji: "✨", test: (s) => s.looks.length >= 1 },
+  { id: "looks-10", title: "Coleção autoral", desc: "10 looks criados", emoji: "🎨", test: (s) => s.looks.length >= 10 },
+  { id: "palette", title: "Cores reveladas", desc: "Descubra sua cartela", emoji: "🌈", test: (s) => !!s.profile.colorAnalysis },
+  { id: "mirror", title: "Provador aberto", desc: "Experimente uma peça", emoji: "🪞", test: (s) => s.tryOn.length >= 1 },
+  { id: "streak-3", title: "Ritmo de estilo", desc: "3 dias seguidos", emoji: "🔥", test: (s) => s.gamify.streak >= 3 },
+  { id: "streak-7", title: "Semana impecável", desc: "7 dias seguidos", emoji: "⚡", test: (s) => s.gamify.streak >= 7 },
+  { id: "streak-30", title: "Ícone de moda", desc: "30 dias seguidos", emoji: "👑", test: (s) => s.gamify.streak >= 30 },
+];
+
+export const LEVELS = [
+  { min: 0, name: "Iniciante" },
+  { min: 150, name: "Antenada" },
+  { min: 400, name: "Estilosa" },
+  { min: 800, name: "Stylist" },
+  { min: 1500, name: "Ícone" },
+  { min: 3000, name: "Lenda" },
+];
+
+export function levelOf(xp: number) {
+  let idx = 0;
+  LEVELS.forEach((l, i) => { if (xp >= l.min) idx = i; });
+  const current = LEVELS[idx];
+  const next = LEVELS[idx + 1];
+  const progress = next ? (xp - current.min) / (next.min - current.min) : 1;
+  return { level: idx + 1, name: current.name, next, progress: Math.min(1, Math.max(0, progress)) };
+}
+
 export const actions = {
+
   addGarment(g: Omit<Garment, "id" | "createdAt" | "favorite" | "wearCount">) {
     const s = read();
     const garment: Garment = {
