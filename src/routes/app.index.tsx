@@ -83,7 +83,10 @@ function Wardrobe() {
         </div>
       </div>
 
+      <SponsoredAd placement="wardrobe" className="mt-6" />
+
       <div className="mt-6 grid grid-cols-2 gap-3">
+
         <button
           onClick={() => { tap(); setAdding(true); }}
           className="press aspect-[3/4] rounded-2xl border-2 border-dashed border-border flex flex-col items-center justify-center gap-2 text-muted-foreground hover:text-foreground hover:border-foreground transition"
