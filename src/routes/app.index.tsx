@@ -5,6 +5,7 @@ import { useStore, actions, type Category } from "@/lib/store";
 import { Logo } from "@/components/Logo";
 import { AddGarmentSheet } from "@/components/AddGarmentSheet";
 import { StreakCard } from "@/components/StreakCard";
+import { tap } from "@/lib/haptics";
 
 export const Route = createFileRoute("/app/")({
   component: Wardrobe,
