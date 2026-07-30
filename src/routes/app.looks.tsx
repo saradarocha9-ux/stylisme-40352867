@@ -214,7 +214,9 @@ function FittedGarment({
   item, garment, rect, adjust,
 }: { item: TryOnItem; garment: Garment; rect: Rect; adjust: boolean }) {
   const width = rect.width * 0.4 * item.scale;
-  const height = item.height ? rect.height * item.height : undefined;
+  const height = item.height
+    ? rect.height * item.height * (item.scale / (item.autoScale ?? item.scale))
+    : undefined;
 
   function onPointerDown(e: React.PointerEvent) {
     if (!adjust) return;

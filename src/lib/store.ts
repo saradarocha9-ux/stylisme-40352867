@@ -73,6 +73,7 @@ export interface TryOnItem {
   autoScale?: number;
   height?: number; // fração da altura da foto do corpo
   autoHeight?: number;
+  autoRotation?: number;
 }
 
 interface AppState {
@@ -225,6 +226,7 @@ export const actions = {
           autoY: detectedFit.y,
           autoScale: detectedFit.width / 0.4,
           autoHeight: detectedFit.height,
+          autoRotation: detectedFit.rotation ?? 0,
         }
       : fallback;
     // Substitui peças que ocupam o mesmo lugar no corpo (ex.: duas calças).
@@ -254,10 +256,12 @@ export const actions = {
             y: t.autoY ?? fit.y,
             scale: t.autoScale ?? fit.scale,
             height: t.autoHeight,
+            rotation: t.autoRotation ?? fit.rotation,
             autoX: t.autoX,
             autoY: t.autoY,
             autoScale: t.autoScale,
             autoHeight: t.autoHeight,
+            autoRotation: t.autoRotation,
           }
         : t),
     });
