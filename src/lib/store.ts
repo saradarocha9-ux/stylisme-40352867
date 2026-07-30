@@ -59,6 +59,9 @@ export interface Profile {
   language: "pt-BR" | "en-US";
   notifications: boolean;
   theme: "light" | "dark" | "system";
+  facePhotoUrl?: string;
+  colorAnalysis?: import("./color-ai.functions").ColorAnalysis;
+  colorAnalyzedAt?: number;
 }
 
 export interface TryOnItem {
