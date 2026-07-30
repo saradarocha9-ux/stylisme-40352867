@@ -104,11 +104,18 @@ function TryOnPage() {
       .filter((item) => item.garmentId !== garmentId)
       .flatMap((item) => {
         const found = state.garments.find((candidate) => candidate.id === item.garmentId);
-        return found ? [found] : [];
+        return found?.imageUrl ? [found] : [];
       });
     actions.tryOnRemove(garmentId);
-    try { await renderGarments(remaining); } catch { /* erro já exibido */ }
+    setTryOnError(null);
+    if (remaining.length === 0) {
+      setGeneratedUrl(null);
+      return;
+    }
+    // Sempre refaz a partir da foto original, para a peça removida sumir de verdade.
+    try { await renderGarments(remaining, body); } catch { /* erro já exibido */ }
   }
+
 
   return (
     <div className="px-5 pt-8">
