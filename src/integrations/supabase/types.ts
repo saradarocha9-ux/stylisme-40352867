@@ -14,6 +14,48 @@ export type Database = {
   }
   public: {
     Tables: {
+      color_analyses: {
+        Row: {
+          analysis: Json
+          chroma: string
+          contrast: string
+          created_at: string
+          depth: string
+          id: string
+          season: string
+          season_family: string
+          thumbnail: string | null
+          undertone: string
+          user_id: string
+        }
+        Insert: {
+          analysis: Json
+          chroma?: string
+          contrast?: string
+          created_at?: string
+          depth?: string
+          id?: string
+          season: string
+          season_family?: string
+          thumbnail?: string | null
+          undertone?: string
+          user_id: string
+        }
+        Update: {
+          analysis?: Json
+          chroma?: string
+          contrast?: string
+          created_at?: string
+          depth?: string
+          id?: string
+          season?: string
+          season_family?: string
+          thumbnail?: string | null
+          undertone?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
