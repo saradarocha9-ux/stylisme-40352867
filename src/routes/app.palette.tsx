@@ -42,6 +42,7 @@ function PalettePage() {
   const { state } = useStore();
   const inputRef = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState(false);
+  const [historyKey, setHistoryKey] = useState(0);
   const photo = state.profile.facePhotoUrl;
   const result = state.profile.colorAnalysis;
 
@@ -54,6 +55,14 @@ function PalettePage() {
       const analysis: ColorAnalysis = await analyzeColorPalette({ data: { dataUrl } });
       actions.updateProfile({ colorAnalysis: analysis, colorAnalyzedAt: Date.now() });
       toast.success(`Sua cartela: ${analysis.season}`);
+      try {
+        const thumbnail = await fileToResizedDataUrl(file, 220);
+        await savePaletteAnalysis({ data: { analysis, thumbnail } });
+        setHistoryKey((k) => k + 1);
+      } catch (err) {
+        console.error("[palette] histórico", err);
+        toast.error("Análise pronta, mas não consegui salvar no histórico.");
+      }
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Não consegui analisar a foto.");
     } finally {
@@ -61,6 +70,7 @@ function PalettePage() {
       if (inputRef.current) inputRef.current.value = "";
     }
   }
+
 
   return (
     <div className="px-5 pt-8">
