@@ -88,6 +88,7 @@ function TryOnPage() {
   }
 
   async function addGarment(garment: Garment) {
+    initialLookRendered.current = true;
     const current = items.flatMap((item) => {
       const found = state.garments.find((candidate) => candidate.id === item.garmentId);
       return found ? [found] : [];
