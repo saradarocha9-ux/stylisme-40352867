@@ -68,6 +68,9 @@ export interface TryOnItem {
   scale: number; // 1 = 40% of canvas width
   rotation: number; // deg
   z: number;
+  autoX?: number;
+  autoY?: number;
+  autoScale?: number;
 }
 
 interface AppState {
@@ -203,11 +206,22 @@ export const actions = {
     const s = read();
     write({ ...s, profile: { ...s.profile, ...patch } });
   },
-  tryOnAdd(garmentId: string) {
+  tryOnAdd(garmentId: string, detectedFit?: { x: number; y: number; width: number }) {
     const s = read();
     if (s.tryOn.find((t) => t.garmentId === garmentId)) return;
     const g = s.garments.find((x) => x.id === garmentId);
-    const fit = fitFor(g?.category);
+    const fallback = fitFor(g?.category);
+    const fit = detectedFit
+      ? {
+          ...fallback,
+          x: detectedFit.x,
+          y: detectedFit.y,
+          scale: detectedFit.width / 0.4,
+          autoX: detectedFit.x,
+          autoY: detectedFit.y,
+          autoScale: detectedFit.width / 0.4,
+        }
+      : fallback;
     // Substitui peças que ocupam o mesmo lugar no corpo (ex.: duas calças).
     const tryOn = s.tryOn.filter((t) => {
       const other = s.garments.find((x) => x.id === t.garmentId);
@@ -225,7 +239,21 @@ export const actions = {
     const s = read();
     const g = s.garments.find((x) => x.id === garmentId);
     const fit = fitFor(g?.category);
-    write({ ...s, tryOn: s.tryOn.map((t) => t.garmentId === garmentId ? { garmentId, ...fit } : t) });
+    write({
+      ...s,
+      tryOn: s.tryOn.map((t) => t.garmentId === garmentId
+        ? {
+            garmentId,
+            ...fit,
+            x: t.autoX ?? fit.x,
+            y: t.autoY ?? fit.y,
+            scale: t.autoScale ?? fit.scale,
+            autoX: t.autoX,
+            autoY: t.autoY,
+            autoScale: t.autoScale,
+          }
+        : t),
+    });
   },
 
   tryOnRemove(garmentId: string) {
