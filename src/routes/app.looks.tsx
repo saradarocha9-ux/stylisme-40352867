@@ -5,7 +5,7 @@ import { Plus, User as UserIcon, X, RotateCcw, Sparkles } from "lucide-react";
 import { useStore, actions, slotOf, type Garment } from "@/lib/store";
 import { generateVirtualTryOn } from "@/lib/virtual-tryon.functions";
 import { track } from "@/lib/track";
-import { resizeDataUrl, imageAspect } from "@/lib/image-resize";
+import { resizeDataUrl } from "@/lib/image-resize";
 
 import { ShareButton } from "@/components/ShareButton";
 
@@ -69,28 +69,20 @@ function TryOnPage() {
     setTryOnBusy(true);
     setTryOnError(null);
     try {
-      // A foto do corpo entra grande e as peças entram pequenas: quando a peça
+      // A foto do corpo entra maior e as peças entram pequenas: quando a peça
       // chega maior que a pessoa, o modelo devolve a roupa gigante ao fundo.
-      const baseImage = await resizeDataUrl(base, 1280);
-      const baseAspect = await imageAspect(baseImage);
+      // Tamanhos enxutos para o upload e a geração ficarem abaixo de 10s.
+      const baseImage = await resizeDataUrl(base, 896);
       const payloadGarments = await Promise.all(
         valid.map(async (garment) => ({
-          dataUrl: await resizeDataUrl(garment.imageUrl as string, 384),
+          dataUrl: await resizeDataUrl(garment.imageUrl as string, 256),
           name: garment.name,
           category: garment.category,
           material: garment.material,
         })),
       );
 
-      let result = await createTryOn({ data: { bodyDataUrl: baseImage, garments: payloadGarments } });
-      // Se o resultado voltar com proporção diferente da foto original, a peça
-      // virou o enquadramento principal: refaz uma vez.
-      if (baseAspect) {
-        const resultAspect = await imageAspect(result.imageUrl);
-        if (resultAspect && Math.abs(resultAspect - baseAspect) / baseAspect > 0.12) {
-          result = await createTryOn({ data: { bodyDataUrl: baseImage, garments: payloadGarments } });
-        }
-      }
+      const result = await createTryOn({ data: { bodyDataUrl: baseImage, garments: payloadGarments } });
       setGeneratedUrl(result.imageUrl);
     } catch (error) {
       setTryOnError(error instanceof Error ? error.message : "Não foi possível vestir as peças.");

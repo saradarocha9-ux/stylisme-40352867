@@ -108,11 +108,12 @@ Regras obrigatórias:
     };
 
     const callGateway = async () => {
+      // Modelo flash: mesma qualidade de encaixe com resposta em poucos segundos.
       const response = await fetch("https://ai.gateway.lovable.dev/v1/images/generations", {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
         body: JSON.stringify({
-          model: "google/gemini-3-pro-image",
+          model: "google/gemini-3.1-flash-image",
           messages: [{ role: "user", content }],
           modalities: ["image", "text"],
         }),
@@ -128,8 +129,8 @@ Regras obrigatórias:
       return extractImage((await response.json()) as GatewayPayload);
     };
 
-    let imageUrl = await callGateway();
-    if (!imageUrl) imageUrl = await callGateway();
+    // Uma única tentativa: repetir a chamada dobrava o tempo de espera.
+    const imageUrl = await callGateway();
     if (!imageUrl) {
       throw new Error("O provador não conseguiu gerar a imagem desta vez. Use uma foto de corpo inteiro, nítida e de frente, e tente novamente.");
     }
