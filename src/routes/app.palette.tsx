@@ -1,9 +1,11 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useRef, useState } from "react";
-import { Camera, Loader2, Sparkles, RefreshCw, Palette as PaletteIcon, Ban, Gem } from "lucide-react";
+import { Camera, Loader2, Sparkles, RefreshCw, Palette as PaletteIcon, Ban, Gem, Shirt, ShoppingBag, Check, Minus, X } from "lucide-react";
 import { toast } from "sonner";
-import { useStore, actions } from "@/lib/store";
+import { useStore, actions, type Garment } from "@/lib/store";
 import { analyzeColorPalette, type ColorAnalysis } from "@/lib/color-ai.functions";
+import { recommendFromPalette, type PaletteRecommendation } from "@/lib/palette-looks.functions";
+
 
 export const Route = createFileRoute("/app/palette")({
   component: PalettePage,
