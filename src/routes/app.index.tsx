@@ -4,6 +4,8 @@ import { Plus, Search, Heart, Trash2, Crown } from "lucide-react";
 import { useStore, actions, type Category } from "@/lib/store";
 import { Logo } from "@/components/Logo";
 import { AddGarmentSheet } from "@/components/AddGarmentSheet";
+import { StreakCard } from "@/components/StreakCard";
+import { tap } from "@/lib/haptics";
 
 export const Route = createFileRoute("/app/")({
   component: Wardrobe,
@@ -35,12 +37,22 @@ function Wardrobe() {
             <p className="text-[10px] uppercase tracking-[0.24em] text-muted-foreground">Seu armário</p>
           </div>
         </div>
-        {state.profile.plan === "free" && (
-          <Link to="/app/premium" className="flex items-center gap-1 rounded-full border border-border px-3 py-1.5 text-xs">
-            <Crown size={12} className="text-gold" /> Premium
-          </Link>
-        )}
+        <div className="flex items-center gap-2">
+          <StreakCard gamify={state.gamify} compact />
+          {state.profile.plan === "free" && (
+            <Link to="/app/premium" className="press flex items-center gap-1 rounded-full border border-border px-3 py-1.5 text-xs">
+              <Crown size={12} className="text-gold" /> Premium
+            </Link>
+          )}
+        </div>
       </header>
+
+      {state.garments.length > 0 && (
+        <div className="mt-6 animate-rise">
+          <StreakCard gamify={state.gamify} />
+        </div>
+      )}
+
 
       <div className="mt-6 flex items-center gap-2 rounded-full border border-border bg-card px-4 py-3 shadow-soft">
         <Search size={16} className="text-muted-foreground" />
@@ -73,22 +85,27 @@ function Wardrobe() {
 
       <div className="mt-6 grid grid-cols-2 gap-3">
         <button
-          onClick={() => setAdding(true)}
-          className="aspect-[3/4] rounded-2xl border-2 border-dashed border-border flex flex-col items-center justify-center gap-2 text-muted-foreground hover:text-foreground hover:border-foreground transition"
+          onClick={() => { tap(); setAdding(true); }}
+          className="press aspect-[3/4] rounded-2xl border-2 border-dashed border-border flex flex-col items-center justify-center gap-2 text-muted-foreground hover:text-foreground hover:border-foreground transition"
         >
-          <Plus size={22} strokeWidth={1.5} />
+          <Plus size={22} strokeWidth={1.5} className="animate-float" />
           <span className="text-xs uppercase tracking-[0.2em]">Adicionar</span>
         </button>
 
-        {filtered.map((g) => (
-          <div key={g.id} className="group relative aspect-[3/4] overflow-hidden rounded-2xl bg-card shadow-soft">
+        {filtered.map((g, i) => (
+          <div
+            key={g.id}
+            style={{ animationDelay: `${Math.min(i, 8) * 45}ms` }}
+            className="group press relative aspect-[3/4] animate-rise overflow-hidden rounded-2xl bg-card shadow-soft"
+          >
             {g.imageUrl ? (
-              <img src={g.imageUrl} alt={g.name} className="h-full w-full object-cover" />
+              <img src={g.imageUrl} alt={g.name} loading="lazy" decoding="async" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
             ) : (
               <div className="flex h-full w-full items-center justify-center bg-muted">
                 <span className="font-display text-3xl text-muted-foreground">{g.name.slice(0, 1)}</span>
               </div>
             )}
+
             <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-3 text-white">
               <p className="truncate text-sm font-medium">{g.name}</p>
               <p className="text-[10px] uppercase tracking-widest opacity-80">{g.category} · {g.color}</p>

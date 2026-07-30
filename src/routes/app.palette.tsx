@@ -6,6 +6,8 @@ import { useStore, actions, type Garment } from "@/lib/store";
 import { analyzeColorPalette, type ColorAnalysis } from "@/lib/color-ai.functions";
 import { recommendFromPalette, type PaletteRecommendation } from "@/lib/palette-looks.functions";
 import { savePaletteAnalysis, listPaletteAnalyses, deletePaletteAnalysis, type SavedAnalysis } from "@/lib/palette-history.functions";
+import { track } from "@/lib/track";
+import { ShareButton } from "@/components/ShareButton";
 
 
 
@@ -56,6 +58,7 @@ function PalettePage() {
       actions.updateProfile({ facePhotoUrl: dataUrl });
       const analysis: ColorAnalysis = await analyzeColorPalette({ data: { dataUrl } });
       actions.updateProfile({ colorAnalysis: analysis, colorAnalyzedAt: Date.now() });
+      track("palette");
       toast.success(`Sua cartela: ${analysis.season}`);
       try {
         const thumbnail = await fileToResizedDataUrl(file, 220);
@@ -140,6 +143,14 @@ function PalettePage() {
       )}
 
       {result && <Result data={result} />}
+      {result && (
+        <div className="mt-5 flex flex-col items-center gap-2 rounded-3xl border border-border bg-card p-5 text-center shadow-soft animate-rise">
+          <p className="font-display text-xl">Mostre sua cartela</p>
+          <p className="text-xs text-muted-foreground">Gere um card lindo pronto para os stories.</p>
+          <ShareButton kind="palette" analysis={result} className="mt-2 sheen" label="Compartilhar minha cartela" />
+        </div>
+      )}
+
       {result && <Recommendations analysis={result} garments={state.garments} />}
       <HistorySection refreshKey={historyKey} />
       <div className="h-8" />

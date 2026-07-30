@@ -79,12 +79,21 @@ export interface TryOnItem {
   autoRotation?: number;
 }
 
+export interface Gamify {
+  xp: number;
+  streak: number;
+  best: number;
+  lastActive: string; // yyyy-mm-dd
+  unlocked: string[];
+}
+
 interface AppState {
   garments: Garment[];
   looks: Look[];
   plans: Plan[];
   profile: Profile;
   tryOn: TryOnItem[];
+  gamify: Gamify;
 }
 
 const KEY = "stylisme:v1";
@@ -99,12 +108,15 @@ const defaultProfile: Profile = {
   theme: "system",
 };
 
+const defaultGamify: Gamify = { xp: 0, streak: 0, best: 0, lastActive: "", unlocked: [] };
+
 const initial: AppState = {
   garments: [],
   looks: [],
   plans: [],
   profile: defaultProfile,
   tryOn: [],
+  gamify: defaultGamify,
 };
 
 
@@ -120,11 +132,13 @@ function read(): AppState {
       plans: parsed.plans ?? [],
       profile: { ...defaultProfile, ...(parsed.profile ?? {}) },
       tryOn: parsed.tryOn ?? [],
+      gamify: { ...defaultGamify, ...(parsed.gamify ?? {}) },
     };
   } catch {
     return initial;
   }
 }
+
 
 function write(state: AppState) {
   if (typeof window === "undefined") return;
@@ -155,7 +169,58 @@ export function useStore() {
   return { state, update };
 }
 
+/* ---------------- Gamificação ---------------- */
+
+export const XP_TABLE = {
+  garment: 15,
+  look: 25,
+  tryon: 20,
+  palette: 60,
+  ai: 10,
+  share: 40,
+} as const;
+
+export interface Achievement {
+  id: string;
+  title: string;
+  desc: string;
+  emoji: string;
+  test: (s: AppState) => boolean;
+}
+
+export const ACHIEVEMENTS: Achievement[] = [
+  { id: "first-piece", title: "Primeira peça", desc: "Cadastre 1 roupa", emoji: "👕", test: (s) => s.garments.length >= 1 },
+  { id: "closet-10", title: "Armário montado", desc: "10 peças cadastradas", emoji: "🧺", test: (s) => s.garments.length >= 10 },
+  { id: "closet-30", title: "Guarda-roupa dos sonhos", desc: "30 peças cadastradas", emoji: "🏛️", test: (s) => s.garments.length >= 30 },
+  { id: "first-look", title: "Estilista iniciante", desc: "Crie o primeiro look", emoji: "✨", test: (s) => s.looks.length >= 1 },
+  { id: "looks-10", title: "Coleção autoral", desc: "10 looks criados", emoji: "🎨", test: (s) => s.looks.length >= 10 },
+  { id: "palette", title: "Cores reveladas", desc: "Descubra sua cartela", emoji: "🌈", test: (s) => !!s.profile.colorAnalysis },
+  { id: "mirror", title: "Provador aberto", desc: "Experimente uma peça", emoji: "🪞", test: (s) => s.tryOn.length >= 1 },
+  { id: "streak-3", title: "Ritmo de estilo", desc: "3 dias seguidos", emoji: "🔥", test: (s) => s.gamify.streak >= 3 },
+  { id: "streak-7", title: "Semana impecável", desc: "7 dias seguidos", emoji: "⚡", test: (s) => s.gamify.streak >= 7 },
+  { id: "streak-30", title: "Ícone de moda", desc: "30 dias seguidos", emoji: "👑", test: (s) => s.gamify.streak >= 30 },
+];
+
+export const LEVELS = [
+  { min: 0, name: "Iniciante" },
+  { min: 150, name: "Antenada" },
+  { min: 400, name: "Estilosa" },
+  { min: 800, name: "Stylist" },
+  { min: 1500, name: "Ícone" },
+  { min: 3000, name: "Lenda" },
+];
+
+export function levelOf(xp: number) {
+  let idx = 0;
+  LEVELS.forEach((l, i) => { if (xp >= l.min) idx = i; });
+  const current = LEVELS[idx];
+  const next = LEVELS[idx + 1];
+  const progress = next ? (xp - current.min) / (next.min - current.min) : 1;
+  return { level: idx + 1, name: current.name, next, progress: Math.min(1, Math.max(0, progress)) };
+}
+
 export const actions = {
+
   addGarment(g: Omit<Garment, "id" | "createdAt" | "favorite" | "wearCount">) {
     const s = read();
     const garment: Garment = {
@@ -284,7 +349,28 @@ export const actions = {
     write({ ...s, tryOn: s.tryOn.map((t) => t.garmentId === garmentId ? { ...t, z } : t) });
   },
 
+  /** Registra atividade: soma XP, atualiza sequência diária e desbloqueia conquistas. */
+  track(event: keyof typeof XP_TABLE) {
+    const s = read();
+    const today = new Date().toISOString().slice(0, 10);
+    const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+    const g = s.gamify;
+    let streak = g.streak;
+    if (g.lastActive !== today) streak = g.lastActive === yesterday ? g.streak + 1 : 1;
+    const xp = g.xp + XP_TABLE[event];
+    const next: AppState = {
+      ...s,
+      gamify: { ...g, xp, streak, best: Math.max(g.best, streak), lastActive: today },
+    };
+    const unlocked = new Set(next.gamify.unlocked);
+    ACHIEVEMENTS.forEach((a) => { if (a.test(next)) unlocked.add(a.id); });
+    next.gamify.unlocked = [...unlocked];
+    write(next);
+    return { newlyUnlocked: next.gamify.unlocked.filter((id) => !g.unlocked.includes(id)), streak, xp };
+  },
+
   exportData(): string {
+
     return JSON.stringify(read(), null, 2);
   },
   wipe() {

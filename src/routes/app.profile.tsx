@@ -2,7 +2,9 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Crown, Settings, LogOut, ChevronRight, User as UserIcon, CreditCard, BarChart3 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useStore } from "@/lib/store";
+import { useStore, ACHIEVEMENTS } from "@/lib/store";
+import { StreakCard } from "@/components/StreakCard";
+import { Achievements } from "@/components/Achievements";
 import { useSubscription } from "@/hooks/use-subscription";
 
 export const Route = createFileRoute("/app/profile")({
@@ -51,6 +53,18 @@ function ProfilePage() {
         <Stat label="Favoritos" value={favCount} />
         <Stat label="Dias" value={days} />
       </div>
+
+      <div className="mt-6 animate-rise">
+        <StreakCard gamify={state.gamify} />
+      </div>
+
+      <div className="mt-6">
+        <p className="mb-3 text-[10px] uppercase tracking-[0.24em] text-muted-foreground">
+          Conquistas · {state.gamify.unlocked.length}/{ACHIEVEMENTS.length}
+        </p>
+        <Achievements unlocked={state.gamify.unlocked} />
+      </div>
+
 
       {!isPremium && (
         <Link to="/app/premium" className="mt-6 flex items-center justify-between rounded-3xl bg-premium p-5 text-white shadow-lift">
