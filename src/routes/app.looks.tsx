@@ -4,6 +4,7 @@ import { Plus, User as UserIcon, X, RotateCcw, Move, Check, Sparkles } from "luc
 import { useStore, actions, type TryOnItem, type Garment } from "@/lib/store";
 import { removeImageBackground } from "@/lib/bg-removal";
 import { detectTryOnFit } from "@/lib/tryon-ai.functions";
+import { track } from "@/lib/track";
 
 export const Route = createFileRoute("/app/looks")({
   component: TryOnPage,
@@ -289,6 +290,7 @@ function GarmentPicker({ body, onClose }: { body?: string; onClose: () => void }
         },
       });
       actions.tryOnAdd(garment.id, fit);
+      track("tryon");
       onClose();
     } catch (error) {
       console.error(error);

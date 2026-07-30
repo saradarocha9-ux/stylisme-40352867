@@ -2,9 +2,9 @@ import { useState } from "react";
 import { Loader2, Share2 } from "lucide-react";
 import { toast } from "sonner";
 import { renderPaletteCard, renderLookCard, shareBlob } from "@/lib/share-card";
-import { actions } from "@/lib/store";
 import type { ColorAnalysis } from "@/lib/color-ai.functions";
 import { tap } from "@/lib/haptics";
+import { track } from "@/lib/track";
 
 type Props =
   | { kind: "palette"; analysis: ColorAnalysis; className?: string; label?: string }
@@ -26,7 +26,7 @@ export function ShareButton(props: Props) {
           ? `Descobri minha cartela de cores: ${props.analysis.season} ✨ Faça a sua no Stylisme.`
           : `Meu look de hoje pelo Stylisme ✨`;
       const res = await shareBlob(blob, "stylisme.png", text);
-      actions.track("share");
+      track("share");
       toast.success(res === "shared" ? "Pronto para postar!" : "Card salvo na galeria/downloads");
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Não consegui gerar o card");

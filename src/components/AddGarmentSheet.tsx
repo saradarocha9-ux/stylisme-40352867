@@ -3,6 +3,7 @@ import { X, Upload, Sparkles, Wand2 } from "lucide-react";
 import { actions, type Category, type Occasion, type Season } from "@/lib/store";
 import { removeImageBackground, fileToDataUrl } from "@/lib/bg-removal";
 import { analyzeGarment } from "@/lib/garment-ai.functions";
+import { track } from "@/lib/track";
 
 const CATEGORIES: Category[] = ["Camiseta", "Camisa", "Blusa", "Vestido", "Saia", "Calça", "Shorts", "Casaco", "Sapato", "Acessório"];
 const OCCASIONS: Occasion[] = ["Trabalho", "Faculdade", "Casual", "Festa", "Casamento", "Viagem", "Evento", "Academia", "Praia", "Jantar"];
@@ -90,6 +91,7 @@ export function AddGarmentSheet({ onClose }: { onClose: () => void }) {
       seasons,
       imageUrl,
     });
+    track("garment");
     onClose();
   }
 

@@ -6,6 +6,7 @@ import { useStore, actions, type Garment } from "@/lib/store";
 import { analyzeColorPalette, type ColorAnalysis } from "@/lib/color-ai.functions";
 import { recommendFromPalette, type PaletteRecommendation } from "@/lib/palette-looks.functions";
 import { savePaletteAnalysis, listPaletteAnalyses, deletePaletteAnalysis, type SavedAnalysis } from "@/lib/palette-history.functions";
+import { track } from "@/lib/track";
 
 
 
@@ -56,6 +57,7 @@ function PalettePage() {
       actions.updateProfile({ facePhotoUrl: dataUrl });
       const analysis: ColorAnalysis = await analyzeColorPalette({ data: { dataUrl } });
       actions.updateProfile({ colorAnalysis: analysis, colorAnalyzedAt: Date.now() });
+      track("palette");
       toast.success(`Sua cartela: ${analysis.season}`);
       try {
         const thumbnail = await fileToResizedDataUrl(file, 220);
