@@ -47,26 +47,63 @@ Regras obrigatórias:
       { type: "image_url", image_url: { url: data.bodyDataUrl } },
       ...data.garments.map((garment) => ({ type: "image_url", image_url: { url: garment.dataUrl } })),
     ];
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "Lovable-API-Key": key },
-      body: JSON.stringify({
-        model: "google/gemini-3.1-flash-image",
-        messages: [{ role: "user", content }],
-        modalities: ["image", "text"],
-      }),
-    });
 
-    if (!response.ok) {
-      if (response.status === 429) throw new Error("Muitas provas seguidas. Aguarde um instante e tente novamente.");
-      if (response.status === 402) throw new Error("Créditos de IA esgotados.");
-      throw new Error("Não foi possível gerar o caimento das peças.");
-    }
-
-    const payload = (await response.json()) as {
-      choices?: Array<{ message?: { images?: Array<{ image_url?: { url?: string } }> } }>;
+    type GatewayPayload = {
+      choices?: Array<{
+        message?: {
+          content?: unknown;
+          images?: Array<{ image_url?: { url?: string } }>;
+        };
+      }>;
     };
-    const imageUrl = payload.choices?.[0]?.message?.images?.[0]?.image_url?.url;
-    if (!imageUrl?.startsWith("data:image/")) throw new Error("O provador não retornou uma imagem válida.");
+
+    const extractImage = (payload: GatewayPayload): string | null => {
+      const message = payload.choices?.[0]?.message;
+      const direct = message?.images?.[0]?.image_url?.url;
+      if (typeof direct === "string" && direct.startsWith("data:image/")) return direct;
+      const raw = message?.content;
+      if (typeof raw === "string") {
+        const match = raw.match(/data:image\/[a-zA-Z+]+;base64,[A-Za-z0-9+/=]+/);
+        if (match) return match[0];
+      }
+      if (Array.isArray(raw)) {
+        for (const part of raw as Array<Record<string, any>>) {
+          const url = part?.image_url?.url ?? part?.url;
+          if (typeof url === "string" && url.startsWith("data:image/")) return url;
+          const b64 = part?.inline_data?.data ?? part?.inlineData?.data ?? part?.b64_json;
+          if (typeof b64 === "string" && b64.length > 100) {
+            const mime = part?.inline_data?.mime_type ?? part?.inlineData?.mimeType ?? "image/png";
+            return `data:${mime};base64,${b64}`;
+          }
+        }
+      }
+      return null;
+    };
+
+    const callGateway = async () => {
+      const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
+        body: JSON.stringify({
+          model: "google/gemini-3.1-flash-image",
+          messages: [{ role: "user", content }],
+          modalities: ["image", "text"],
+        }),
+      });
+
+      if (!response.ok) {
+        if (response.status === 429) throw new Error("Muitas provas seguidas. Aguarde um instante e tente novamente.");
+        if (response.status === 402) throw new Error("Créditos de IA esgotados.");
+        throw new Error("Não foi possível gerar o caimento das peças.");
+      }
+
+      return extractImage((await response.json()) as GatewayPayload);
+    };
+
+    let imageUrl = await callGateway();
+    if (!imageUrl) imageUrl = await callGateway();
+    if (!imageUrl) {
+      throw new Error("O provador não conseguiu gerar a imagem desta vez. Use uma foto de corpo inteiro, nítida e de frente, e tente novamente.");
+    }
     return { imageUrl };
   });
