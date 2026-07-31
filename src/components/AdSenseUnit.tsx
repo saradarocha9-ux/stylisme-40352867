@@ -55,8 +55,20 @@ export function AdSenseUnit({ className, onUnavailable }: Props) {
   const [mounted, setMounted] = useState(false);
   const [filled, setFilled] = useState(false);
   const [hidden, setHidden] = useState(false);
+  const cbRef = useRef(onUnavailable);
+  cbRef.current = onUnavailable;
 
-  useEffect(() => setMounted(true), []);
+  useEffect(() => {
+    // AdSense só é servido em domínios aprovados na sua conta. Em preview /
+    // localhost o Google devolve espaço vazio, então nem carregamos o script.
+    const host = window.location.hostname;
+    const allowed = !/localhost|127\.0\.0\.1|lovableproject\.com|\.lovable\.app$/.test(host);
+    if (!allowed) {
+      cbRef.current?.();
+      return;
+    }
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (!mounted || pushed.current) return;
@@ -68,7 +80,7 @@ export function AdSenseUnit({ className, onUnavailable }: Props) {
     const fail = () => {
       if (!alive) return;
       setHidden(true);
-      onUnavailable?.();
+      cbRef.current?.();
     };
 
     void loadAdSenseScript().then((ok) => {
@@ -85,7 +97,9 @@ export function AdSenseUnit({ className, onUnavailable }: Props) {
 
       const check = () => {
         const status = el.getAttribute("data-ad-status");
-        if (status === "filled" || el.clientHeight > 30) {
+        // Só consideramos preenchido quando o Google confirma E existe criativo.
+        const iframe = el.querySelector("iframe");
+        if (status === "filled" && iframe && iframe.clientHeight > 30) {
           setFilled(true);
           return true;
         }
@@ -104,7 +118,7 @@ export function AdSenseUnit({ className, onUnavailable }: Props) {
       // Sem resposta do Google (bloqueador de anúncios, rede): remove o espaço.
       timer = setTimeout(() => {
         if (!check()) fail();
-      }, 5000);
+      }, 4000);
     });
 
     return () => {
@@ -112,7 +126,7 @@ export function AdSenseUnit({ className, onUnavailable }: Props) {
       observer?.disconnect();
       if (timer) clearTimeout(timer);
     };
-  }, [mounted, onUnavailable]);
+  }, [mounted]);
 
   if (!mounted || hidden || !ADSENSE.client || !ADSENSE.slot) return null;
 
