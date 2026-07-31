@@ -40,6 +40,8 @@ function loadAdSenseScript(): Promise<boolean> {
 
 interface Props {
   className?: string;
+  /** ID do bloco de anúncio (data-ad-slot). Padrão: bloco global. */
+  slot?: string;
   /** Chamado quando o anúncio não pôde ser exibido (bloqueado, sem preenchimento, erro). */
   onUnavailable?: () => void;
 }
@@ -51,7 +53,8 @@ interface Props {
  * cliente, já que o script do Google altera a tag <ins>) e some sozinho se o
  * anúncio não for preenchido — assim nunca sobra espaço em branco na tela.
  */
-export function AdSenseUnit({ className, onUnavailable }: Props) {
+export function AdSenseUnit({ className, slot, onUnavailable }: Props) {
+  const adSlot = slot || ADSENSE.slot;
   const ref = useRef<HTMLModElement>(null);
   const pushed = useRef(false);
   const [mounted, setMounted] = useState(false);
