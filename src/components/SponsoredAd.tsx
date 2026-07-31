@@ -18,80 +18,8 @@ interface Props {
 
 /** Chip patrocinado discreto no canto da tela. Oculto para assinantes Premium. */
 export function SponsoredAd({ placement, category, className }: Props) {
-  const { isPremium, loading } = useSubscription();
-  const { data } = useQuery({
-    queryKey: ["ads"],
-    queryFn: fetchAds,
-    staleTime: 5 * 60_000,
-  });
-  const [dismissed, setDismissed] = useState(false);
-  const [adsenseFailed, setAdsenseFailed] = useState(false);
-
-  const ad = useMemo<AdCampaign | null>(() => {
-    if (!data?.length) return null;
-    const pool = category ? data.filter((a) => a.category === category) : data;
-    const list = pool.length ? pool : data;
-    // Rotação ponderada por prioridade.
-    const weighted = list.flatMap((a) => Array(Math.max(1, a.priority)).fill(a) as AdCampaign[]);
-    return weighted[Math.floor(Math.random() * weighted.length)] ?? null;
-  }, [data, category]);
-
-  const ref = useRef<HTMLDivElement>(null);
-  const [seen, setSeen] = useState(false);
-
-  useEffect(() => {
-    if (!ad || seen || !ref.current) return;
-    const el = ref.current;
-    const io = new IntersectionObserver(
-      (entries) => {
-        if (entries.some((e) => e.isIntersecting)) {
-          setSeen(true);
-          void trackAd(ad, "impression", placement);
-          io.disconnect();
-        }
-      },
-      { threshold: 0.5 },
-    );
-    io.observe(el);
-    return () => io.disconnect();
-  }, [ad, seen, placement]);
-
-  // App nativo: banner do AdMob no rodapé (some para Premium).
-  const native = isNativeApp();
-  useEffect(() => {
-    if (!native) return;
-    if (loading) return;
-    if (isPremium || dismissed) {
-      void hideAdMobBanner();
-      return;
-    }
-    void showAdMobBanner();
-    return () => { void hideAdMobBanner(); };
-  }, [native, loading, isPremium, dismissed]);
-
-  if (loading || isPremium || dismissed) return null;
-  // No nativo o AdMob já desenha o banner por cima da webview.
-  if (native) return null;
-
-  if (isAdSenseConfigured && !adsenseFailed) {
-    return (
-      <div
-        className={
-          "fixed inset-x-0 bottom-0 z-30 flex pointer-events-none animate-rise " + (className ?? "")
-        }
-      >
-        <div className="mx-auto w-full max-w-md px-4 pb-24 pt-4 pointer-events-auto">
-          <AdSenseUnit
-            // Remonta o <ins> ao trocar de rota, para cada rota pedir o seu bloco.
-            key={placement}
-            slot={adSlotFor(placement)}
-            className="overflow-hidden rounded-2xl"
-            onUnavailable={() => setAdsenseFailed(true)}
-          />
-        </div>
-      </div>
-    );
-  }
+  return null;
+}
 
   if (!ad) return null;
 
