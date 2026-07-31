@@ -135,7 +135,7 @@ export function AdSenseUnit({ className, slot, onUnavailable }: Props) {
     };
   }, [mounted]);
 
-  if (!mounted || hidden || !ADSENSE.client || !ADSENSE.slot) return null;
+  if (!mounted || hidden || !ADSENSE.client || !adSlot) return null;
 
   return (
     <ins
@@ -144,7 +144,7 @@ export function AdSenseUnit({ className, slot, onUnavailable }: Props) {
       // Sem altura mínima antes de preencher → zero espaço em branco.
       style={{ display: "block", width: "100%", minHeight: filled ? 60 : 0 }}
       data-ad-client={ADSENSE.client}
-      data-ad-slot={ADSENSE.slot}
+      data-ad-slot={adSlot}
       data-ad-format="auto"
       data-full-width-responsive="true"
     />
