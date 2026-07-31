@@ -1,4 +1,4 @@
-import { createFileRoute, Outlet, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { BottomNav } from "@/components/BottomNav";
 import { useSession } from "@/hooks/use-session";
@@ -8,6 +8,18 @@ import { SponsoredAd } from "@/components/SponsoredAd";
 export const Route = createFileRoute("/app")({
   component: AppLayout,
 });
+
+/** Cada rota do app tem o seu placement (e, por consequência, o seu bloco AdSense). */
+const PLACEMENTS: Record<string, string> = {
+  "/app": "app-armario",
+  "/app/looks": "app-looks",
+  "/app/ai": "app-ai",
+  "/app/palette": "app-palette",
+  "/app/favorites": "app-favorites",
+  "/app/stats": "app-stats",
+  "/app/profile": "app-profile",
+};
+
 
 function AppLayout() {
   const { session, loading } = useSession();
