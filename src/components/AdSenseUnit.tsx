@@ -59,10 +59,12 @@ export function AdSenseUnit({ className, onUnavailable }: Props) {
   cbRef.current = onUnavailable;
 
   useEffect(() => {
-    // AdSense só é servido em domínios aprovados na sua conta. Em preview /
-    // localhost o Google devolve espaço vazio, então nem carregamos o script.
+    // O AdSense só entrega anúncios em domínios aprovados na sua conta
+    // (ex.: stylisme.company). Em outros domínios ele responde vazio e o
+    // componente some sozinho, deixando o chip patrocinado no lugar.
     const host = window.location.hostname;
-    const allowed = !/localhost|127\.0\.0\.1|lovableproject\.com|\.lovable\.app$/.test(host);
+    // Tentamos servir em qualquer domínio real (só pulamos em localhost).
+    const allowed = !/^(localhost|127\.0\.0\.1)$/.test(host);
     if (!allowed) {
       cbRef.current?.();
       return;
