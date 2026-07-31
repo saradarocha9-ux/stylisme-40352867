@@ -56,7 +56,17 @@ export function AdSenseUnit({ className, onUnavailable }: Props) {
   const [filled, setFilled] = useState(false);
   const [hidden, setHidden] = useState(false);
 
-  useEffect(() => setMounted(true), []);
+  useEffect(() => {
+    // AdSense só é servido em domínios aprovados na sua conta. Em preview /
+    // localhost o Google devolve espaço vazio, então nem carregamos o script.
+    const host = window.location.hostname;
+    const allowed = !/localhost|127\.0\.0\.1|lovableproject\.com|\.lovable\.app$/.test(host);
+    if (!allowed) {
+      onUnavailable?.();
+      return;
+    }
+    setMounted(true);
+  }, [onUnavailable]);
 
   useEffect(() => {
     if (!mounted || pushed.current) return;
@@ -85,7 +95,9 @@ export function AdSenseUnit({ className, onUnavailable }: Props) {
 
       const check = () => {
         const status = el.getAttribute("data-ad-status");
-        if (status === "filled" || el.clientHeight > 30) {
+        // Só consideramos preenchido quando o Google confirma E existe criativo.
+        const iframe = el.querySelector("iframe");
+        if (status === "filled" && iframe && iframe.clientHeight > 30) {
           setFilled(true);
           return true;
         }
@@ -104,7 +116,7 @@ export function AdSenseUnit({ className, onUnavailable }: Props) {
       // Sem resposta do Google (bloqueador de anúncios, rede): remove o espaço.
       timer = setTimeout(() => {
         if (!check()) fail();
-      }, 5000);
+      }, 4000);
     });
 
     return () => {
