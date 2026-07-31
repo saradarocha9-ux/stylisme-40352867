@@ -11,7 +11,7 @@
  */
 
 export const ADMOB = {
-  appId: "ca-app-pub-9364980465425949~8747201165",
+  appId: "ca-app-pub-9364980465425949~2081307777",
   bannerUnitId: "ca-app-pub-9364980465425949/8455144434",
   /** IDs oficiais de teste do Google — use em desenvolvimento. */
   testBannerUnitId: "ca-app-pub-3940256099942544/6300978111",
