@@ -25,7 +25,7 @@ export function AdSenseUnit({ className }: { className?: string }) {
       style={{ display: "block", minHeight: 60 }}
       data-ad-client={ADSENSE.client}
       data-ad-slot={ADSENSE.slot}
-      data-ad-format="horizontal"
+      data-ad-format="auto"
       data-full-width-responsive="true"
     />
   );

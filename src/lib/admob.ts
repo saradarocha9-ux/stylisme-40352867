@@ -18,10 +18,10 @@ export const ADMOB = {
 } as const;
 
 export const ADSENSE = {
-  /** Ex.: "ca-pub-9364980465425949" (conta AdSense aprovada). */
-  client: "",
+  /** Conta AdSense aprovada. */
+  client: "ca-pub-9364980465425949",
   /** ID numérico do bloco de anúncio criado no AdSense. */
-  slot: "",
+  slot: "1539060916",
 } as const;
 
 export const isAdSenseConfigured = Boolean(ADSENSE.client && ADSENSE.slot);
