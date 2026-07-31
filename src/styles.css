@@ -102,17 +102,32 @@
   * {
     border-color: var(--color-border);
   }
+  html {
+    scroll-behavior: smooth;
+    -webkit-tap-highlight-color: transparent;
+  }
   html, body {
     font-family: var(--font-sans);
     background-color: var(--color-background);
     color: var(--color-foreground);
     -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    overscroll-behavior-y: none;
   }
   h1, h2, h3, .font-display {
     font-family: var(--font-serif);
     font-weight: 500;
     letter-spacing: -0.01em;
   }
+  img {
+    content-visibility: auto;
+  }
+  ::selection {
+    background: color-mix(in oklab, var(--gold) 40%, transparent);
+  }
+  /* Scrollbar discreta */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 999px; }
 }
 
 @utility shadow-soft { box-shadow: var(--shadow-soft); }
@@ -121,13 +136,32 @@
 @utility bg-gold { background-image: var(--gradient-gold); }
 @utility text-gold { color: var(--color-gold); }
 
+/* Textos com acabamento dourado */
+@utility text-gilded {
+  background-image: var(--gradient-gold);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+/* Listas longas: só pinta o que está visível */
+@utility cv-auto {
+  content-visibility: auto;
+  contain-intrinsic-size: 320px;
+}
+
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
+}
+
 @keyframes fade-in-slow {
-  from { opacity: 0; transform: translateY(6px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; transform: translate3d(0, 6px, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
 }
 @keyframes logo-in {
-  0% { opacity: 0; transform: scale(0.94); }
-  100% { opacity: 1; transform: scale(1); }
+  0% { opacity: 0; transform: scale3d(0.94, 0.94, 1); }
+  100% { opacity: 1; transform: scale3d(1, 1, 1); }
 }
 @keyframes shimmer {
   0% { background-position: -200% 0; }
@@ -139,51 +173,66 @@
 
 /* ---------- Polimento visual / micro-interações ---------- */
 @keyframes rise {
-  from { opacity: 0; transform: translateY(14px) scale(0.98); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
+  from { opacity: 0; transform: translate3d(0, 14px, 0) scale3d(0.98, 0.98, 1); }
+  to { opacity: 1; transform: translate3d(0, 0, 0) scale3d(1, 1, 1); }
 }
 @keyframes pop {
-  0% { transform: scale(0.8); opacity: 0; }
-  60% { transform: scale(1.06); opacity: 1; }
-  100% { transform: scale(1); }
+  0% { transform: scale3d(0.8, 0.8, 1); opacity: 0; }
+  60% { transform: scale3d(1.06, 1.06, 1); opacity: 1; }
+  100% { transform: scale3d(1, 1, 1); }
 }
 @keyframes aurora-move {
-  0% { transform: translate3d(-10%, -10%, 0) rotate(0deg); }
-  50% { transform: translate3d(10%, 8%, 0) rotate(180deg); }
-  100% { transform: translate3d(-10%, -10%, 0) rotate(360deg); }
+  0% { transform: translate3d(-8%, -8%, 0) rotate(0deg); }
+  50% { transform: translate3d(8%, 6%, 0) rotate(180deg); }
+  100% { transform: translate3d(-8%, -8%, 0) rotate(360deg); }
 }
 @keyframes float-slow {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-8px); }
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50% { transform: translate3d(0, -8px, 0); }
 }
 @keyframes sheen {
-  0% { transform: translateX(-120%); }
-  100% { transform: translateX(220%); }
+  0% { transform: translate3d(-120%, 0, 0); }
+  100% { transform: translate3d(220%, 0, 0); }
 }
 
 @utility animate-rise { animation: rise 0.5s cubic-bezier(0.22, 1, 0.36, 1) both; }
 @utility animate-pop { animation: pop 0.45s cubic-bezier(0.22, 1, 0.36, 1) both; }
 @utility animate-float { animation: float-slow 5s ease-in-out infinite; }
 
-/* Fundo aurora suave para cartões premium/heros */
+/*
+ * Fundo aurora suave. O blur é aplicado num elemento estático (barato)
+ * e só a camada interna se move — nada de reprocessar filtro por frame.
+ */
 @utility aurora {
-  background-image:
-    radial-gradient(40% 40% at 20% 20%, oklch(0.82 0.09 80 / 0.55), transparent 70%),
-    radial-gradient(40% 40% at 80% 30%, oklch(0.7 0.08 320 / 0.35), transparent 70%),
-    radial-gradient(50% 50% at 50% 90%, oklch(0.75 0.09 210 / 0.35), transparent 70%);
-  animation: aurora-move 18s ease-in-out infinite;
-  filter: blur(6px);
+  overflow: hidden;
+  isolation: isolate;
+  &::before {
+    content: "";
+    position: absolute;
+    inset: -25%;
+    background-image:
+      radial-gradient(40% 40% at 20% 20%, oklch(0.82 0.09 80 / 0.55), transparent 70%),
+      radial-gradient(40% 40% at 80% 30%, oklch(0.7 0.08 320 / 0.35), transparent 70%),
+      radial-gradient(50% 50% at 50% 90%, oklch(0.75 0.09 210 / 0.35), transparent 70%);
+    filter: blur(14px);
+    will-change: transform;
+    transform: translateZ(0);
+    animation: aurora-move 22s linear infinite;
+  }
 }
 
 /* Brilho passando em botões/cards de destaque */
 @utility sheen {
   position: relative;
   overflow: hidden;
+  isolation: isolate;
   &::after {
     content: "";
     position: absolute;
     inset: 0;
+    pointer-events: none;
     background: linear-gradient(100deg, transparent 30%, oklch(1 0 0 / 0.35) 50%, transparent 70%);
+    will-change: transform;
     animation: sheen 3.2s ease-in-out infinite;
   }
 }
@@ -191,7 +240,13 @@
 /* Feedback de toque */
 @utility press {
   transition: transform 0.18s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.18s ease, opacity 0.18s ease;
-  &:active { transform: scale(0.96); }
+  &:active { transform: scale3d(0.96, 0.96, 1); }
+}
+
+/* Elevação suave no hover, sem custo de layout */
+@utility lift {
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.3s ease;
+  &:hover { transform: translate3d(0, -3px, 0); box-shadow: var(--shadow-lift); }
 }
 
 @utility glass {
@@ -206,6 +261,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
   *, *::before, *::after {
     animation-duration: 0.001ms !important;
     animation-iteration-count: 1 !important;

@@ -65,16 +65,16 @@ function Wardrobe() {
         />
       </div>
 
-      <div className="mt-4 -mx-5 overflow-x-auto">
+      <div className="mt-4 -mx-5 overflow-x-auto no-scrollbar">
         <div className="flex gap-2 px-5">
           {CATEGORIES.map((c) => (
             <button
               key={c}
               onClick={() => setCat(c)}
               className={
-                "shrink-0 rounded-full border px-4 py-1.5 text-xs transition " +
+                "press shrink-0 rounded-full border px-4 py-1.5 text-xs transition " +
                 (cat === c
-                  ? "border-foreground bg-foreground text-primary-foreground"
+                  ? "border-foreground bg-foreground text-primary-foreground shadow-soft"
                   : "border-border text-muted-foreground hover:text-foreground")
               }
             >
@@ -98,10 +98,10 @@ function Wardrobe() {
           <div
             key={g.id}
             style={{ animationDelay: `${Math.min(i, 8) * 45}ms` }}
-            className="group press relative aspect-[3/4] animate-rise overflow-hidden rounded-2xl bg-card shadow-soft"
+            className="group press lift cv-auto relative aspect-[3/4] animate-rise overflow-hidden rounded-2xl bg-card shadow-soft"
           >
             {g.imageUrl ? (
-              <img src={g.imageUrl} alt={g.name} loading="lazy" decoding="async" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+              <img src={g.imageUrl} alt={g.name} loading="lazy" decoding="async" className="h-full w-full object-cover transition-transform duration-500 will-change-transform group-hover:scale-105" />
             ) : (
               <div className="flex h-full w-full items-center justify-center bg-muted">
                 <span className="font-display text-3xl text-muted-foreground">{g.name.slice(0, 1)}</span>
@@ -113,15 +113,15 @@ function Wardrobe() {
               <p className="text-[10px] uppercase tracking-widest opacity-80">{g.category} · {g.color}</p>
             </div>
             <button
-              onClick={() => actions.toggleGarmentFav(g.id)}
-              className="absolute right-2 top-2 rounded-full bg-white/80 p-1.5 backdrop-blur"
+              onClick={() => { tap(); actions.toggleGarmentFav(g.id); }}
+              className="press absolute right-2 top-2 rounded-full bg-white/80 p-1.5 backdrop-blur"
               aria-label="Favoritar"
             >
               <Heart size={14} className={g.favorite ? "fill-red-500 text-red-500" : "text-foreground"} />
             </button>
             <button
               onClick={() => { if (confirm(`Remover "${g.name}"?`)) actions.removeGarment(g.id); }}
-              className="absolute left-2 top-2 rounded-full bg-white/80 p-1.5 opacity-0 backdrop-blur group-hover:opacity-100 transition"
+              className="press absolute left-2 top-2 rounded-full bg-white/80 p-1.5 opacity-0 backdrop-blur transition group-hover:opacity-100 focus-visible:opacity-100"
               aria-label="Remover"
             >
               <Trash2 size={14} className="text-destructive" />

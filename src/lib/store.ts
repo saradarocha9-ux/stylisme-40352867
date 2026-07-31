@@ -1,6 +1,6 @@
 // Lightweight client-side persistence for the first iteration.
 // Backend (Firebase/Stripe/AI) plugs in later behind these same helpers.
-import { useEffect, useState, useCallback } from "react";
+import { useCallback, useSyncExternalStore } from "react";
 
 export type Category =
   | "Camiseta" | "Camisa" | "Blusa" | "Vestido" | "Saia"
@@ -120,7 +120,14 @@ const initial: AppState = {
 };
 
 
-function read(): AppState {
+/**
+ * Cache em memória + listeners: evita reparsear o JSON (com imagens base64)
+ * a cada render/evento, que era a principal causa de travamento.
+ */
+let cache: AppState | null = null;
+const listeners = new Set<() => void>();
+
+function parseStored(): AppState {
   if (typeof window === "undefined") return initial;
   try {
     const raw = localStorage.getItem(KEY);
@@ -139,31 +146,69 @@ function read(): AppState {
   }
 }
 
+function read(): AppState {
+  if (typeof window === "undefined") return initial;
+  if (!cache) cache = parseStored();
+  return cache;
+}
+
+let persistTimer: ReturnType<typeof setTimeout> | null = null;
+function schedulePersist() {
+  if (typeof window === "undefined") return;
+  if (persistTimer) clearTimeout(persistTimer);
+  persistTimer = setTimeout(() => {
+    persistTimer = null;
+    try {
+      localStorage.setItem(KEY, JSON.stringify(cache));
+    } catch {
+      /* quota */
+    }
+  }, 180);
+}
+
+function emit() {
+  listeners.forEach((l) => l());
+}
 
 function write(state: AppState) {
+  cache = state;
   if (typeof window === "undefined") return;
-  localStorage.setItem(KEY, JSON.stringify(state));
-  window.dispatchEvent(new CustomEvent("stylisme:update"));
+  schedulePersist();
+  emit();
+}
+
+function subscribe(listener: () => void) {
+  listeners.add(listener);
+  return () => {
+    listeners.delete(listener);
+  };
+}
+
+if (typeof window !== "undefined") {
+  window.addEventListener("storage", (e) => {
+    if (e.key && e.key !== KEY) return;
+    cache = parseStored();
+    emit();
+  });
+  // Garante que nada se perca ao fechar/ocultar a aba.
+  window.addEventListener("pagehide", () => {
+    if (persistTimer && cache) {
+      clearTimeout(persistTimer);
+      persistTimer = null;
+      try {
+        localStorage.setItem(KEY, JSON.stringify(cache));
+      } catch {
+        /* quota */
+      }
+    }
+  });
 }
 
 export function useStore() {
-  const [state, setState] = useState<AppState>(initial);
-
-  useEffect(() => {
-    setState(read());
-    const onUpdate = () => setState(read());
-    window.addEventListener("stylisme:update", onUpdate);
-    window.addEventListener("storage", onUpdate);
-    return () => {
-      window.removeEventListener("stylisme:update", onUpdate);
-      window.removeEventListener("storage", onUpdate);
-    };
-  }, []);
+  const state = useSyncExternalStore(subscribe, read, () => initial);
 
   const update = useCallback((mutator: (s: AppState) => AppState) => {
-    const next = mutator(read());
-    write(next);
-    setState(next);
+    write(mutator(read()));
   }, []);
 
   return { state, update };
