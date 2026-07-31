@@ -6,6 +6,8 @@ import { fetchAds, trackAd, type AdCampaign } from "@/lib/ads";
 import { useSubscription } from "@/hooks/use-subscription";
 import { tap } from "@/lib/haptics";
 import { affiliateLink } from "@/lib/affiliate";
+import { AdSenseUnit } from "@/components/AdSenseUnit";
+import { hideAdMobBanner, isAdSenseConfigured, isNativeApp, showAdMobBanner } from "@/lib/admob";
 
 interface Props {
   placement: string;
@@ -53,7 +55,38 @@ export function SponsoredAd({ placement, category, className }: Props) {
     return () => io.disconnect();
   }, [ad, seen, placement]);
 
-  if (loading || isPremium || !ad || dismissed) return null;
+  // App nativo: banner do AdMob no rodapé (some para Premium).
+  const native = isNativeApp();
+  useEffect(() => {
+    if (!native) return;
+    if (loading) return;
+    if (isPremium || dismissed) {
+      void hideAdMobBanner();
+      return;
+    }
+    void showAdMobBanner();
+    return () => { void hideAdMobBanner(); };
+  }, [native, loading, isPremium, dismissed]);
+
+  if (loading || isPremium || dismissed) return null;
+  // No nativo o AdMob já desenha o banner por cima da webview.
+  if (native) return null;
+
+  if (isAdSenseConfigured) {
+    return (
+      <div
+        className={
+          "fixed inset-x-0 bottom-0 z-30 flex pointer-events-none animate-rise " + (className ?? "")
+        }
+      >
+        <div className="mx-auto w-full max-w-md px-4 pb-24 pt-4 pointer-events-auto">
+          <AdSenseUnit className="overflow-hidden rounded-2xl" />
+        </div>
+      </div>
+    );
+  }
+
+  if (!ad) return null;
 
   return (
     <div
