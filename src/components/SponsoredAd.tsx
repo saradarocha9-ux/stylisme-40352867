@@ -7,7 +7,7 @@ import { useSubscription } from "@/hooks/use-subscription";
 import { tap } from "@/lib/haptics";
 import { affiliateLink } from "@/lib/affiliate";
 import { AdSenseUnit } from "@/components/AdSenseUnit";
-import { hideAdMobBanner, isAdSenseConfigured, isNativeApp, showAdMobBanner } from "@/lib/admob";
+import { adSlotFor, hideAdMobBanner, isAdSenseConfigured, isNativeApp, showAdMobBanner } from "@/lib/admob";
 
 interface Props {
   placement: string;
@@ -82,6 +82,9 @@ export function SponsoredAd({ placement, category, className }: Props) {
       >
         <div className="mx-auto w-full max-w-md px-4 pb-24 pt-4 pointer-events-auto">
           <AdSenseUnit
+            // Remonta o <ins> ao trocar de rota, para cada rota pedir o seu bloco.
+            key={placement}
+            slot={adSlotFor(placement)}
             className="overflow-hidden rounded-2xl"
             onUnavailable={() => setAdsenseFailed(true)}
           />

@@ -20,9 +20,29 @@ export const ADMOB = {
 export const ADSENSE = {
   /** Conta AdSense aprovada. */
   client: "ca-pub-9364980465425949",
-  /** ID numérico do bloco de anúncio criado no AdSense. */
+  /** Bloco padrão (usado quando a rota não tem bloco dedicado). */
   slot: "1539060916",
+  /**
+   * Blocos dedicados por rota/placement.
+   * Crie um bloco no AdSense (Anúncios → Por bloco) e cole o ID numérico aqui.
+   * Enquanto estiver vazio, a rota usa o bloco padrão acima.
+   */
+  slots: {
+    "app-armario": "",
+    "app-looks": "",
+    "app-ai": "",
+    "app-palette": "",
+    "app-favorites": "",
+    "app-stats": "",
+    "app-profile": "",
+  } as Record<string, string>,
 } as const;
+
+/** Resolve o ID do bloco para um placement, com fallback para o bloco padrão. */
+export function adSlotFor(placement?: string) {
+  if (placement && ADSENSE.slots[placement]) return ADSENSE.slots[placement];
+  return ADSENSE.slot;
+}
 
 export const isAdSenseConfigured = Boolean(ADSENSE.client && ADSENSE.slot);
 
