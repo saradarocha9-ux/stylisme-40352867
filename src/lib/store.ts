@@ -1,6 +1,6 @@
 // Lightweight client-side persistence for the first iteration.
 // Backend (Firebase/Stripe/AI) plugs in later behind these same helpers.
-import { useEffect, useState, useCallback } from "react";
+import { useCallback, useSyncExternalStore } from "react";
 
 export type Category =
   | "Camiseta" | "Camisa" | "Blusa" | "Vestido" | "Saia"
