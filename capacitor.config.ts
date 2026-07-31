@@ -11,7 +11,7 @@
  *            android:value="ca-app-pub-9364980465425949~8747201165"/>
  * No iOS, em Info.plist: GADApplicationIdentifier = mesmo App ID.
  */
-const config: CapacitorConfig = {
+const config = {
   appId: "company.stylisme.app",
   appName: "Stylisme",
   webDir: "dist",
