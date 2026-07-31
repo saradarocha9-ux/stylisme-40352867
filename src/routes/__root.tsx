@@ -109,16 +109,8 @@ function RootShell({ children }: { children: ReactNode }) {
     <html lang="en">
       <head>
         <HeadContent />
-        <script
-          id="google-adsense-js"
-          async
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9364980465425949"
-          crossOrigin="anonymous"
-        />
       </head>
       <body suppressHydrationWarning>
-        {/* Wrapper estável: o AdSense injeta <ins> direto no <body>, o que
-            quebraria a hidratação sem este contêiner próprio do app. */}
         <div id="app-root">{children}</div>
         <Scripts />
       </body>
