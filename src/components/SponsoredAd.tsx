@@ -6,6 +6,8 @@ import { fetchAds, trackAd, type AdCampaign } from "@/lib/ads";
 import { useSubscription } from "@/hooks/use-subscription";
 import { tap } from "@/lib/haptics";
 import { affiliateLink } from "@/lib/affiliate";
+import { AdSenseUnit } from "@/components/AdSenseUnit";
+import { hideAdMobBanner, isAdSenseConfigured, isNativeApp, showAdMobBanner } from "@/lib/admob";
 
 interface Props {
   placement: string;
