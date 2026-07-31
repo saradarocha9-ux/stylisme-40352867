@@ -25,6 +25,7 @@ export function SponsoredAd({ placement, category, className }: Props) {
     staleTime: 5 * 60_000,
   });
   const [dismissed, setDismissed] = useState(false);
+  const [adsenseFailed, setAdsenseFailed] = useState(false);
 
   const ad = useMemo<AdCampaign | null>(() => {
     if (!data?.length) return null;
@@ -72,7 +73,7 @@ export function SponsoredAd({ placement, category, className }: Props) {
   // No nativo o AdMob já desenha o banner por cima da webview.
   if (native) return null;
 
-  if (isAdSenseConfigured) {
+  if (isAdSenseConfigured && !adsenseFailed) {
     return (
       <div
         className={
@@ -80,7 +81,10 @@ export function SponsoredAd({ placement, category, className }: Props) {
         }
       >
         <div className="mx-auto w-full max-w-md px-4 pb-24 pt-4 pointer-events-auto">
-          <AdSenseUnit className="overflow-hidden rounded-2xl" />
+          <AdSenseUnit
+            className="overflow-hidden rounded-2xl"
+            onUnavailable={() => setAdsenseFailed(true)}
+          />
         </div>
       </div>
     );
