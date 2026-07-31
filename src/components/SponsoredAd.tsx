@@ -1,5 +1,7 @@
+import { useEffect } from "react";
 import { Link } from "@tanstack/react-router";
 import { Crown } from "lucide-react";
+import { hideAdMobBanner, isNativeApp, showAdMobBanner } from "@/lib/admob";
 
 interface Props {
   placement: string;
@@ -7,8 +9,18 @@ interface Props {
   className?: string;
 }
 
-/** Anúncios desativados. */
+/**
+ * Anúncios: desativados na web. No app nativo (Capacitor) exibe o banner AdMob.
+ */
 export function SponsoredAd(_props: Props) {
+  useEffect(() => {
+    if (!isNativeApp()) return;
+    void showAdMobBanner();
+    return () => {
+      void hideAdMobBanner();
+    };
+  }, []);
+
   return null;
 }
 
