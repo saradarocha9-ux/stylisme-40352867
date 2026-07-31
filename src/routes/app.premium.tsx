@@ -7,9 +7,8 @@ import { createCheckout } from "@/lib/stripe.functions";
 import { useSubscription } from "@/hooks/use-subscription";
 
 export const Route = createFileRoute("/app/premium")({
-  validateSearch: (s: Record<string, unknown>) => ({
-    checkout: s.checkout === "cancelled" ? "cancelled" : undefined,
-  }),
+  validateSearch: (s: Record<string, unknown>): { checkout?: "cancelled" } =>
+    s.checkout === "cancelled" ? { checkout: "cancelled" } : {},
   component: PremiumPage,
 });
 
