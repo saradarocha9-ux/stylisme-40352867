@@ -116,8 +116,10 @@ function RootShell({ children }: { children: ReactNode }) {
           crossOrigin="anonymous"
         />
       </head>
-      <body>
-        {children}
+      <body suppressHydrationWarning>
+        {/* Wrapper estável: o AdSense injeta <ins> direto no <body>, o que
+            quebraria a hidratação sem este contêiner próprio do app. */}
+        <div id="app-root">{children}</div>
         <Scripts />
       </body>
     </html>
