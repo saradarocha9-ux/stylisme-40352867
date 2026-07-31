@@ -1,4 +1,5 @@
-import type { CapacitorConfig } from "@capacitor/cli";
+
+
 
 /**
  * Configuração do app nativo (Android/iOS).
