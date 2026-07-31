@@ -7,6 +7,8 @@ const SCRIPT_ID = "google-adsense-js";
 function loadAdSenseScript(): Promise<boolean> {
   if (typeof window === "undefined") return Promise.resolve(false);
   const w = window as unknown as { adsbygoogle?: unknown[] };
+  // Script já disponível (injetado no <head> do site).
+  if (Array.isArray(w.adsbygoogle)) return Promise.resolve(true);
   const existing = document.getElementById(SCRIPT_ID) as HTMLScriptElement | null;
   if (existing) {
     if (existing.dataset.loaded === "true") return Promise.resolve(true);

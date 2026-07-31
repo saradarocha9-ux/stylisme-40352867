@@ -97,9 +97,17 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         href: "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Inter:wght@300;400;500;600&display=swap",
       },
     ],
-    // O script do AdSense é carregado sob demanda pelo componente AdSenseUnit
-    // (evita divergência de HTML na hidratação).
-    scripts: [],
+    // Script do Google AdSense no <head> — necessário para a verificação do
+    // site pelo Google e para servir anúncios. A tag <ins> continua sendo
+    // renderizada só no cliente pelo componente AdSenseUnit.
+    scripts: [
+      {
+        id: "google-adsense-js",
+        async: true,
+        crossOrigin: "anonymous",
+        src: "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9364980465425949",
+      },
+    ],
   }),
   shellComponent: RootShell,
   component: RootComponent,
