@@ -47,7 +47,7 @@ function AppLayout() {
         <Outlet />
       </div>
       <BottomNav />
-      <SponsoredAd placement="app-corner" />
+      <SponsoredAd key={placement} placement={placement} />
     </div>
   );
 }
