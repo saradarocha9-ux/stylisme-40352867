@@ -55,6 +55,8 @@ export function AdSenseUnit({ className, onUnavailable }: Props) {
   const [mounted, setMounted] = useState(false);
   const [filled, setFilled] = useState(false);
   const [hidden, setHidden] = useState(false);
+  const cbRef = useRef(onUnavailable);
+  cbRef.current = onUnavailable;
 
   useEffect(() => {
     // AdSense só é servido em domínios aprovados na sua conta. Em preview /
@@ -62,11 +64,11 @@ export function AdSenseUnit({ className, onUnavailable }: Props) {
     const host = window.location.hostname;
     const allowed = !/localhost|127\.0\.0\.1|lovableproject\.com|\.lovable\.app$/.test(host);
     if (!allowed) {
-      onUnavailable?.();
+      cbRef.current?.();
       return;
     }
     setMounted(true);
-  }, [onUnavailable]);
+  }, []);
 
   useEffect(() => {
     if (!mounted || pushed.current) return;
@@ -78,7 +80,7 @@ export function AdSenseUnit({ className, onUnavailable }: Props) {
     const fail = () => {
       if (!alive) return;
       setHidden(true);
-      onUnavailable?.();
+      cbRef.current?.();
     };
 
     void loadAdSenseScript().then((ok) => {
@@ -124,7 +126,7 @@ export function AdSenseUnit({ className, onUnavailable }: Props) {
       observer?.disconnect();
       if (timer) clearTimeout(timer);
     };
-  }, [mounted, onUnavailable]);
+  }, [mounted]);
 
   if (!mounted || hidden || !ADSENSE.client || !ADSENSE.slot) return null;
 
