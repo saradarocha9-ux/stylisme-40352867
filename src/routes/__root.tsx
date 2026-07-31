@@ -97,6 +97,15 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         href: "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Inter:wght@300;400;500;600&display=swap",
       },
     ],
+    scripts: ADSENSE.client
+      ? [
+          {
+            async: true,
+            crossOrigin: "anonymous",
+            src: `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE.client}`,
+          },
+        ]
+      : [],
   }),
   shellComponent: RootShell,
   component: RootComponent,
