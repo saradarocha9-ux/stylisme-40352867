@@ -24,6 +24,8 @@ const PLACEMENTS: Record<string, string> = {
 function AppLayout() {
   const { session, loading } = useSession();
   const navigate = useNavigate();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const placement = PLACEMENTS[pathname.replace(/(.)\/$/, "$1")] ?? "app-corner";
 
   useEffect(() => {
     if (!loading && !session) navigate({ to: "/auth" });
