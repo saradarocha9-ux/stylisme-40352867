@@ -16,7 +16,7 @@ const OCC: Occasion[] = ["Trabalho", "Faculdade", "Casual", "Festa", "Casamento"
 const STY: Style[] = ["Elegante", "Minimalista", "Streetwear", "Casual", "Fashionista", "Vintage", "Romântico", "Esportivo"];
 const FREE_DAILY_LIMIT = 3;
 
-interface Msg { role: "ai" | "user"; text: string; options?: string[][] }
+interface Msg { role: "ai" | "user"; text: string; options?: string[][]; labels?: { title: string; why: string }[] }
 
 function todayKey() {
   return "stylisme:ai:" + new Date().toISOString().slice(0, 10);
