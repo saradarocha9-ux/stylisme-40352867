@@ -1,4 +1,4 @@
-import logoAsset from "@/assets/stylisme-logo.png.asset.json";
+import logoAsset from "@/assets/stylisme-logo-v2.png.asset.json";
 
 export function Logo({ size = 96, className = "" }: { size?: number; className?: string }) {
   return (
