@@ -1,9 +1,12 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { Wand2, Send, Sparkles, Crown } from "lucide-react";
+import { useServerFn } from "@tanstack/react-start";
+import { Wand2, Send, Sparkles, Crown, Loader2 } from "lucide-react";
 import { useStore, actions, generateLook, type Occasion, type Style } from "@/lib/store";
+import { generateSmartLooks } from "@/lib/look-ai.functions";
 import { useSubscription } from "@/hooks/use-subscription";
 import { track } from "@/lib/track";
+
 
 export const Route = createFileRoute("/app/ai")({
   component: AiPage,
