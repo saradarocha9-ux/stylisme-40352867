@@ -8,12 +8,8 @@ import logoAsset from "@/assets/stylisme-logo-v3.png.asset.json";
 const W = 1080;
 const H = 1920;
 
-const FAMILY_COLORS: Record<string, [string, string, string]> = {
-  Primavera: ["#FFE6C2", "#FF9A8B", "#7ED9A7"],
-  Verão: ["#E8EEFB", "#CBD7F5", "#E7C6DE"],
-  Outono: ["#F4E2CC", "#E0A05A", "#7C8C4B"],
-  Inverno: ["#151B2E", "#3B2450", "#2E8B8B"],
-};
+
+
 
 function loadImage(src: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
