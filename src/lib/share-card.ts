@@ -3,6 +3,7 @@
  * prontos para Instagram / TikTok / WhatsApp.
  */
 import type { ColorAnalysis } from "./color-ai.functions";
+import logoAsset from "@/assets/stylisme-logo-v3.png.asset.json";
 
 const W = 1080;
 const H = 1920;
@@ -50,16 +51,12 @@ function base(ctx: CanvasRenderingContext2D, colors: [string, string, string], d
   ctx.fillRect(0, 0, W, H);
 }
 
-function footer(ctx: CanvasRenderingContext2D, ink: string) {
-  ctx.textAlign = "center";
-  ctx.fillStyle = ink;
-  ctx.globalAlpha = 0.75;
-  ctx.font = "500 30px Inter, sans-serif";
-  ctx.fillText("STYLISME · INTELIGÊNCIA PARA O SEU ARMÁRIO", W / 2, H - 118);
-  ctx.globalAlpha = 0.55;
-  ctx.font = "400 26px Inter, sans-serif";
-  ctx.fillText("stylisme.lovable.app", W / 2, H - 68);
-  ctx.globalAlpha = 1;
+async function footer(ctx: CanvasRenderingContext2D, _ink?: string) {
+  const logo = await loadImage(logoAsset.url).catch(() => null);
+  if (!logo) return;
+  const size = 190;
+  const ratio = logo.height / logo.width;
+  ctx.drawImage(logo, (W - size) / 2, H - 120 - size * ratio, size, size * ratio);
 }
 
 function toBlob(canvas: HTMLCanvasElement): Promise<Blob> {
@@ -137,7 +134,7 @@ export async function renderPaletteCard(a: ColorAnalysis): Promise<Blob> {
     ctx.fillText(value, x + boxW / 2, boxY + 112);
   });
 
-  footer(ctx, ink);
+  await footer(ctx, ink);
   return toBlob(canvas);
 }
 
@@ -159,7 +156,7 @@ export async function renderLookCard(opts: {
   ctx.fillStyle = ink;
   ctx.globalAlpha = 0.6;
   ctx.font = "500 30px Inter, sans-serif";
-  ctx.fillText("MEU LOOK DE HOJE", W / 2, 200);
+  ctx.fillText("MEU LOOK", W / 2, 200);
   ctx.globalAlpha = 1;
   ctx.font = "500 96px 'Cormorant Garamond', Georgia, serif";
   ctx.fillText(opts.title.slice(0, 22), W / 2, 320);
@@ -201,7 +198,7 @@ export async function renderLookCard(opts: {
     ctx.restore();
   });
 
-  footer(ctx, ink);
+  await footer(ctx, ink);
   return toBlob(canvas);
 }
 
@@ -239,7 +236,7 @@ export async function renderTryOnCard(opts: {
   ctx.fillStyle = ink;
   ctx.globalAlpha = 0.6;
   ctx.font = "500 30px Inter, sans-serif";
-  ctx.fillText("PROVEI NO STYLISME", W / 2, 170);
+  ctx.fillText("MEU LOOK", W / 2, 170);
   ctx.globalAlpha = 1;
   ctx.font = "500 92px 'Cormorant Garamond', Georgia, serif";
   ctx.fillText(opts.caption?.slice(0, 24) || "Meu look", W / 2, 275);
@@ -291,6 +288,6 @@ export async function renderTryOnCard(opts: {
   }
   ctx.restore();
 
-  footer(ctx, ink);
+  await footer(ctx, ink);
   return toBlob(canvas);
 }

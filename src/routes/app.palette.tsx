@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { Camera, Loader2, Sparkles, RefreshCw, Palette as PaletteIcon, Ban, Gem, Shirt, ShoppingBag, Check, Minus, X, History, Trash2, Eye } from "lucide-react";
+import { Camera, ImageIcon, Loader2, Sparkles, RefreshCw, Palette as PaletteIcon, Ban, Gem, Shirt, ShoppingBag, Check, Minus, X, History, Trash2, Eye } from "lucide-react";
 import { toast } from "sonner";
 import { useStore, actions, type Garment } from "@/lib/store";
 import { analyzeColorPalette, type ColorAnalysis } from "@/lib/color-ai.functions";
@@ -45,6 +45,7 @@ const familyGradient: Record<string, string> = {
 function PalettePage() {
   const { state } = useStore();
   const inputRef = useRef<HTMLInputElement>(null);
+  const galleryRef = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState(false);
   const [historyKey, setHistoryKey] = useState(0);
   const photo = state.profile.facePhotoUrl;
@@ -73,6 +74,7 @@ function PalettePage() {
     } finally {
       setLoading(false);
       if (inputRef.current) inputRef.current.value = "";
+      if (galleryRef.current) galleryRef.current.value = "";
     }
   }
 
@@ -90,6 +92,13 @@ function PalettePage() {
         type="file"
         accept="image/*"
         capture="user"
+        className="hidden"
+        onChange={(e) => onPick(e.target.files?.[0])}
+      />
+      <input
+        ref={galleryRef}
+        type="file"
+        accept="image/*"
         className="hidden"
         onChange={(e) => onPick(e.target.files?.[0])}
       />
@@ -120,15 +129,26 @@ function PalettePage() {
           <p className="text-xs text-muted-foreground">
             {loading ? "Analisando tonalidade, subtom e contraste…" : "A IA identifica sua estação de cor."}
           </p>
-          <button
-            type="button"
-            onClick={() => inputRef.current?.click()}
-            disabled={loading}
-            className="mt-2 inline-flex items-center gap-2 rounded-full bg-foreground px-4 py-2 text-[11px] uppercase tracking-[0.18em] text-primary-foreground disabled:opacity-50"
-          >
-            {result ? <RefreshCw size={12} /> : <Sparkles size={12} />}
-            {result ? "Refazer análise" : "Analisar"}
-          </button>
+          <div className="mt-2 flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => inputRef.current?.click()}
+              disabled={loading}
+              className="inline-flex items-center gap-2 rounded-full bg-foreground px-4 py-2 text-[11px] uppercase tracking-[0.18em] text-primary-foreground disabled:opacity-50"
+            >
+              <Camera size={12} />
+              Tirar foto
+            </button>
+            <button
+              type="button"
+              onClick={() => galleryRef.current?.click()}
+              disabled={loading}
+              className="inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-[11px] uppercase tracking-[0.18em] disabled:opacity-50"
+            >
+              {result ? <RefreshCw size={12} /> : <ImageIcon size={12} />}
+              Galeria
+            </button>
+          </div>
         </div>
       </div>
 
