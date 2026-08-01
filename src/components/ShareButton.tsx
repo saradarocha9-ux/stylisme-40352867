@@ -22,7 +22,7 @@ export function ShareButton(props: Props) {
     try {
       const blob =
         props.kind === "palette"
-          ? await renderPaletteCard(props.analysis)
+          ? await renderPaletteCard(props.analysis, props.photoUrl)
           : props.kind === "tryon"
             ? await renderTryOnCard({ bodyUrl: props.bodyUrl, pieces: props.pieces, caption: props.caption })
             : await renderLookCard({ title: props.title, subtitle: props.subtitle, images: props.images });
