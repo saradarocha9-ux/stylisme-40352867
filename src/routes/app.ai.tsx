@@ -43,10 +43,27 @@ function AiPage() {
     { role: "ai", text: "Olá, eu sou a Stylisme AI. Escolha ocasião e estilo, ou me diga o que você precisa vestir." },
   ]);
   const [input, setInput] = useState("");
+  const [loading, setLoading] = useState(false);
+  const smartLooks = useServerFn(generateSmartLooks);
 
   const remaining = isPremium ? Infinity : Math.max(0, FREE_DAILY_LIMIT - used);
 
-  function generate() {
+  function localOptions() {
+    const options: string[][] = [];
+    const seen = new Set<string>();
+    for (let i = 0; i < 24 && options.length < 3; i++) {
+      const ids = generateLook(state.garments, { occasion: occ, style, accessories });
+      if (ids.length < 2) continue;
+      const key = [...ids].sort().join("|");
+      if (seen.has(key)) continue;
+      seen.add(key);
+      options.push(ids);
+    }
+    return options;
+  }
+
+  async function generate() {
+    if (loading) return;
     if (!isPremium && remaining <= 0) {
       setMsgs((m) => [...m, { role: "ai", text: "Você atingiu o limite diário do plano Free (3 looks). Faça upgrade para IA ilimitada." }]);
       return;
@@ -55,34 +72,58 @@ function AiPage() {
       setMsgs((m) => [...m, { role: "ai", text: "Cadastre pelo menos 2 peças no seu armário para eu compor um look." }]);
       return;
     }
-    // Gera 3 opções distintas
-    const options: string[][] = [];
-    const seen = new Set<string>();
-    for (let i = 0; i < 18 && options.length < 3; i++) {
-      const ids = generateLook(state.garments, { occasion: occ, style, accessories });
-      if (!ids.length) continue;
-      const key = [...ids].sort().join("|");
-      if (seen.has(key)) continue;
-      seen.add(key);
-      options.push(ids);
+
+    setMsgs((m) => [...m, { role: "user", text: `Monte um look ${style ?? ""} ${occ ? `para ${occ}` : ""}`.trim() }]);
+    setLoading(true);
+
+    let options: string[][] = [];
+    let labels: { title: string; why: string }[] = [];
+    try {
+      const looks = await smartLooks({
+        data: {
+          garments: state.garments.map((g) => ({
+            id: g.id,
+            name: g.name,
+            category: g.category,
+            color: g.color,
+            material: g.material,
+            pattern: g.pattern,
+            occasions: g.occasions,
+            seasons: g.seasons,
+          })),
+          occasion: occ,
+          style,
+          accessories,
+          note: input.trim() || undefined,
+        },
+      });
+      options = looks.map((l) => l.garmentIds);
+      labels = looks.map((l) => ({ title: l.title, why: l.why }));
+    } catch (e) {
+      console.error(e);
+      options = localOptions();
+    } finally {
+      setLoading(false);
     }
+
     if (!options.length) {
-      setMsgs((m) => [...m, { role: "ai", text: "Não encontrei uma combinação com esses filtros. Tente sem filtros." }]);
+      setMsgs((m) => [...m, { role: "ai", text: "Não encontrei combinações coerentes com essas peças e filtros. Tente sem filtros ou cadastre mais peças." }]);
       return;
     }
     if (!isPremium) setUsed(bumpUsed());
     setMsgs((m) => [
       ...m,
-      { role: "user", text: `Monte um look ${style ?? ""} ${occ ? `para ${occ}` : ""}`.trim() },
       {
         role: "ai",
         text: options.length === 1
-          ? "Consegui montar 1 opção com as peças do seu armário. Toque para provar."
-          : `Montei ${options.length} opções de look. Escolha uma para provar.`,
+          ? "Consegui montar 1 look coerente com o seu armário. Toque para provar."
+          : `Montei ${options.length} looks combinando formalidade, tecido e estação. Escolha um para provar.`,
         options,
+        labels,
       },
     ]);
   }
+
 
   function chooseOption(ids: string[]) {
     actions.tryOnClear();
