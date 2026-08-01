@@ -180,7 +180,9 @@ function AiPage() {
                     onClick={() => chooseOption(ids)}
                     className="rounded-2xl bg-card p-2 text-left shadow-soft transition active:scale-[0.98]"
                   >
-                    <p className="px-1 text-[9px] uppercase tracking-[0.2em] text-muted-foreground">Opção {k + 1}</p>
+                    <p className="px-1 text-[9px] uppercase tracking-[0.2em] text-muted-foreground">
+                      {m.labels?.[k]?.title ?? `Opção ${k + 1}`}
+                    </p>
                     <div className="mt-1 grid grid-cols-2 gap-1">
                       {ids.slice(0, 4).map((id) => {
                         const g = state.garments.find((x) => x.id === id);
@@ -193,7 +195,11 @@ function AiPage() {
                         );
                       })}
                     </div>
-                    <p className="mt-1.5 px-1 text-[10px] text-muted-foreground">{ids.length} peças · provar</p>
+                    {m.labels?.[k]?.why ? (
+                      <p className="mt-1.5 line-clamp-3 px-1 text-[10px] leading-snug text-muted-foreground">{m.labels[k].why}</p>
+                    ) : null}
+                    <p className="mt-1 px-1 text-[10px] text-muted-foreground">{ids.length} peças · provar</p>
+
                   </button>
                 ))}
               </div>
