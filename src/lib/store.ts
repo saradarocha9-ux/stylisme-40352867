@@ -425,8 +425,43 @@ export const actions = {
   },
 };
 
-// Very small "IA" fallback while backend AI is not connected.
-// Picks garments matching occasion & style, with sensible slot coverage.
+// Fallback local (usado se a IA estiver indisponível).
+// Regras de coerência: formalidade, material e estação precisam bater.
+const FORMAL_WORDS = ["renda", "cetim", "seda", "alfaiataria", "alfaiataria", "veludo", "tule", "chiffon", "social", "blazer", "salto", "scarpin"];
+const SPORT_WORDS = ["couro", "moletom", "jeans", "denim", "tênis", "tenis", "esportiv", "dry", "lycra", "nylon", "biker", "jaqueta"];
+
+function formality(g: Garment): number {
+  const t = `${g.name} ${g.material ?? ""} ${g.pattern ?? ""}`.toLowerCase();
+  let f = 0;
+  if (FORMAL_WORDS.some((w) => t.includes(w))) f += 2;
+  if (SPORT_WORDS.some((w) => t.includes(w))) f -= 2;
+  if (g.category === "Vestido") f += 1;
+  if (g.category === "Shorts" || g.category === "Camiseta") f -= 1;
+  if (g.occasions.includes("Academia") || g.occasions.includes("Praia")) f -= 2;
+  if (g.occasions.includes("Casamento") || g.occasions.includes("Festa") || g.occasions.includes("Trabalho")) f += 1;
+  return Math.max(-3, Math.min(3, f));
+}
+
+function seasonsClash(a: Garment, b: Garment): boolean {
+  const winter = (g: Garment) => g.seasons.includes("Inverno") && !g.seasons.includes("Verão");
+  const summer = (g: Garment) => g.seasons.includes("Verão") && !g.seasons.includes("Inverno");
+  return (winter(a) && summer(b)) || (summer(a) && winter(b));
+}
+
+function isPatterned(g: Garment): boolean {
+  const p = (g.pattern ?? "").toLowerCase();
+  return !!p && !["liso", "lisa", "sólido", "solido", "none", ""].includes(p);
+}
+
+function fits(g: Garment, chosen: Garment[]): boolean {
+  return chosen.every(
+    (c) =>
+      Math.abs(formality(g) - formality(c)) <= 2 &&
+      !seasonsClash(g, c) &&
+      !(isPatterned(g) && isPatterned(c))
+  );
+}
+
 export function generateLook(
   garments: Garment[],
   opts: { occasion?: Occasion; style?: Style; require?: string[]; exclude?: string[]; accessories?: boolean }
@@ -443,24 +478,35 @@ export function generateLook(
     })
     .sort((a, b) => b.score - a.score);
 
-  const pickBy = (fn: (g: Garment) => boolean) => scored.find((s) => fn(s.g))?.g;
-
   const chosen: Garment[] = [];
-  const top = pickBy((g) => ["Camiseta", "Camisa", "Blusa"].includes(g.category));
-  const bottom = pickBy((g) => ["Calça", "Saia", "Shorts"].includes(g.category));
-  const dress = pickBy((g) => g.category === "Vestido");
-  const shoe = pickBy((g) => g.category === "Sapato");
-  const coat = pickBy((g) => g.category === "Casaco");
-  const acc = pickBy((g) => g.category === "Acessório");
+  const pickBy = (fn: (g: Garment) => boolean) =>
+    scored.find((s) => fn(s.g) && fits(s.g, chosen))?.g;
 
-  if (dress && (!top || !bottom)) chosen.push(dress);
-  else {
-    if (top) chosen.push(top);
+  const top = pickBy((g) => ["Camiseta", "Camisa", "Blusa"].includes(g.category));
+  const dress = pickBy((g) => g.category === "Vestido");
+
+  if (dress && !top) {
+    chosen.push(dress);
+  } else if (top) {
+    chosen.push(top);
+    const bottom = pickBy((g) => ["Calça", "Saia", "Shorts"].includes(g.category));
     if (bottom) chosen.push(bottom);
+    else if (dress && fits(dress, [])) {
+      chosen.length = 0;
+      chosen.push(dress);
+    }
+  } else if (dress) {
+    chosen.push(dress);
   }
+
+  const shoe = pickBy((g) => g.category === "Sapato");
   if (shoe) chosen.push(shoe);
+  const coat = pickBy((g) => g.category === "Casaco");
   if (coat && Math.random() > 0.5) chosen.push(coat);
-  if (opts.accessories !== false && acc) chosen.push(acc);
+  if (opts.accessories !== false) {
+    const acc = pickBy((g) => g.category === "Acessório");
+    if (acc) chosen.push(acc);
+  }
 
   // Ensure required pieces are included
   opts.require?.forEach((id) => {
@@ -472,6 +518,7 @@ export function generateLook(
 
   return chosen.map((c) => c.id);
 }
+
 
 // ===== Encaixe automático das peças no corpo (o usuário não ajusta nada) =====
 export type BodySlot = "top" | "bottom" | "dress" | "outer" | "shoes" | "acc";

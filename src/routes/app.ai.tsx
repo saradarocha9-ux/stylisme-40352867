@@ -1,9 +1,12 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { Wand2, Send, Sparkles, Crown } from "lucide-react";
+import { useServerFn } from "@tanstack/react-start";
+import { Wand2, Send, Sparkles, Crown, Loader2 } from "lucide-react";
 import { useStore, actions, generateLook, type Occasion, type Style } from "@/lib/store";
+import { generateSmartLooks } from "@/lib/look-ai.functions";
 import { useSubscription } from "@/hooks/use-subscription";
 import { track } from "@/lib/track";
+
 
 export const Route = createFileRoute("/app/ai")({
   component: AiPage,
@@ -13,7 +16,7 @@ const OCC: Occasion[] = ["Trabalho", "Faculdade", "Casual", "Festa", "Casamento"
 const STY: Style[] = ["Elegante", "Minimalista", "Streetwear", "Casual", "Fashionista", "Vintage", "Romântico", "Esportivo"];
 const FREE_DAILY_LIMIT = 3;
 
-interface Msg { role: "ai" | "user"; text: string; options?: string[][] }
+interface Msg { role: "ai" | "user"; text: string; options?: string[][]; labels?: { title: string; why: string }[] }
 
 function todayKey() {
   return "stylisme:ai:" + new Date().toISOString().slice(0, 10);
@@ -40,10 +43,27 @@ function AiPage() {
     { role: "ai", text: "Olá, eu sou a Stylisme AI. Escolha ocasião e estilo, ou me diga o que você precisa vestir." },
   ]);
   const [input, setInput] = useState("");
+  const [loading, setLoading] = useState(false);
+  const smartLooks = useServerFn(generateSmartLooks);
 
   const remaining = isPremium ? Infinity : Math.max(0, FREE_DAILY_LIMIT - used);
 
-  function generate() {
+  function localOptions() {
+    const options: string[][] = [];
+    const seen = new Set<string>();
+    for (let i = 0; i < 24 && options.length < 3; i++) {
+      const ids = generateLook(state.garments, { occasion: occ, style, accessories });
+      if (ids.length < 2) continue;
+      const key = [...ids].sort().join("|");
+      if (seen.has(key)) continue;
+      seen.add(key);
+      options.push(ids);
+    }
+    return options;
+  }
+
+  async function generate() {
+    if (loading) return;
     if (!isPremium && remaining <= 0) {
       setMsgs((m) => [...m, { role: "ai", text: "Você atingiu o limite diário do plano Free (3 looks). Faça upgrade para IA ilimitada." }]);
       return;
@@ -52,34 +72,58 @@ function AiPage() {
       setMsgs((m) => [...m, { role: "ai", text: "Cadastre pelo menos 2 peças no seu armário para eu compor um look." }]);
       return;
     }
-    // Gera 3 opções distintas
-    const options: string[][] = [];
-    const seen = new Set<string>();
-    for (let i = 0; i < 18 && options.length < 3; i++) {
-      const ids = generateLook(state.garments, { occasion: occ, style, accessories });
-      if (!ids.length) continue;
-      const key = [...ids].sort().join("|");
-      if (seen.has(key)) continue;
-      seen.add(key);
-      options.push(ids);
+
+    setMsgs((m) => [...m, { role: "user", text: `Monte um look ${style ?? ""} ${occ ? `para ${occ}` : ""}`.trim() }]);
+    setLoading(true);
+
+    let options: string[][] = [];
+    let labels: { title: string; why: string }[] = [];
+    try {
+      const looks = await smartLooks({
+        data: {
+          garments: state.garments.map((g) => ({
+            id: g.id,
+            name: g.name,
+            category: g.category,
+            color: g.color,
+            material: g.material,
+            pattern: g.pattern,
+            occasions: g.occasions,
+            seasons: g.seasons,
+          })),
+          occasion: occ,
+          style,
+          accessories,
+          note: input.trim() || undefined,
+        },
+      });
+      options = looks.map((l) => l.garmentIds);
+      labels = looks.map((l) => ({ title: l.title, why: l.why }));
+    } catch (e) {
+      console.error(e);
+      options = localOptions();
+    } finally {
+      setLoading(false);
     }
+
     if (!options.length) {
-      setMsgs((m) => [...m, { role: "ai", text: "Não encontrei uma combinação com esses filtros. Tente sem filtros." }]);
+      setMsgs((m) => [...m, { role: "ai", text: "Não encontrei combinações coerentes com essas peças e filtros. Tente sem filtros ou cadastre mais peças." }]);
       return;
     }
     if (!isPremium) setUsed(bumpUsed());
     setMsgs((m) => [
       ...m,
-      { role: "user", text: `Monte um look ${style ?? ""} ${occ ? `para ${occ}` : ""}`.trim() },
       {
         role: "ai",
         text: options.length === 1
-          ? "Consegui montar 1 opção com as peças do seu armário. Toque para provar."
-          : `Montei ${options.length} opções de look. Escolha uma para provar.`,
+          ? "Consegui montar 1 look coerente com o seu armário. Toque para provar."
+          : `Montei ${options.length} looks combinando formalidade, tecido e estação. Escolha um para provar.`,
         options,
+        labels,
       },
     ]);
   }
+
 
   function chooseOption(ids: string[]) {
     actions.tryOnClear();
@@ -136,7 +180,9 @@ function AiPage() {
                     onClick={() => chooseOption(ids)}
                     className="rounded-2xl bg-card p-2 text-left shadow-soft transition active:scale-[0.98]"
                   >
-                    <p className="px-1 text-[9px] uppercase tracking-[0.2em] text-muted-foreground">Opção {k + 1}</p>
+                    <p className="px-1 text-[9px] uppercase tracking-[0.2em] text-muted-foreground">
+                      {m.labels?.[k]?.title ?? `Opção ${k + 1}`}
+                    </p>
                     <div className="mt-1 grid grid-cols-2 gap-1">
                       {ids.slice(0, 4).map((id) => {
                         const g = state.garments.find((x) => x.id === id);
@@ -149,7 +195,11 @@ function AiPage() {
                         );
                       })}
                     </div>
-                    <p className="mt-1.5 px-1 text-[10px] text-muted-foreground">{ids.length} peças · provar</p>
+                    {m.labels?.[k]?.why ? (
+                      <p className="mt-1.5 line-clamp-3 px-1 text-[10px] leading-snug text-muted-foreground">{m.labels[k].why}</p>
+                    ) : null}
+                    <p className="mt-1 px-1 text-[10px] text-muted-foreground">{ids.length} peças · provar</p>
+
                   </button>
                 ))}
               </div>
@@ -177,9 +227,11 @@ function AiPage() {
           Incluir acessórios
         </label>
 
-        <button onClick={generate} className="mt-5 flex w-full items-center justify-center gap-2 rounded-full bg-foreground py-3.5 text-sm uppercase tracking-[0.24em] text-primary-foreground">
-          <Sparkles size={14} /> Gerar 3 looks
+        <button onClick={generate} disabled={loading} className="mt-5 flex w-full items-center justify-center gap-2 rounded-full bg-foreground py-3.5 text-sm uppercase tracking-[0.24em] text-primary-foreground disabled:opacity-60">
+          {loading ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
+          {loading ? "Combinando peças…" : "Gerar 3 looks"}
         </button>
+
       </section>
 
       <div className="mt-4 flex gap-2 rounded-full border border-border bg-card px-4 py-2.5 shadow-soft">
