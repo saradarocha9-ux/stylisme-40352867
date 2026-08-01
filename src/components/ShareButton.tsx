@@ -9,7 +9,7 @@ import { track } from "@/lib/track";
 export interface TryOnPiece { url: string; x: number; y: number; scale: number; rotation: number; z: number }
 
 type Props =
-  | { kind: "palette"; analysis: ColorAnalysis; className?: string; label?: string }
+  | { kind: "palette"; analysis: ColorAnalysis; photoUrl?: string | null; className?: string; label?: string }
   | { kind: "look"; title: string; subtitle?: string; images: string[]; className?: string; label?: string }
   | { kind: "tryon"; bodyUrl: string; pieces: TryOnPiece[]; caption?: string; className?: string; label?: string };
 
@@ -22,7 +22,7 @@ export function ShareButton(props: Props) {
     try {
       const blob =
         props.kind === "palette"
-          ? await renderPaletteCard(props.analysis)
+          ? await renderPaletteCard(props.analysis, props.photoUrl)
           : props.kind === "tryon"
             ? await renderTryOnCard({ bodyUrl: props.bodyUrl, pieces: props.pieces, caption: props.caption })
             : await renderLookCard({ title: props.title, subtitle: props.subtitle, images: props.images });

@@ -8,12 +8,8 @@ import logoAsset from "@/assets/stylisme-logo-v3.png.asset.json";
 const W = 1080;
 const H = 1920;
 
-const FAMILY_COLORS: Record<string, [string, string, string]> = {
-  Primavera: ["#FFE6C2", "#FF9A8B", "#7ED9A7"],
-  Verão: ["#E8EEFB", "#CBD7F5", "#E7C6DE"],
-  Outono: ["#F4E2CC", "#E0A05A", "#7C8C4B"],
-  Inverno: ["#151B2E", "#3B2450", "#2E8B8B"],
-};
+
+
 
 function loadImage(src: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
@@ -63,76 +59,80 @@ function toBlob(canvas: HTMLCanvasElement): Promise<Blob> {
   return new Promise((res) => canvas.toBlob((b) => res(b!), "image/png", 0.95));
 }
 
-/** Card da análise de coloração pessoal. */
-export async function renderPaletteCard(a: ColorAnalysis): Promise<Blob> {
+/** Card da análise de coloração pessoal: foto em cima, círculos de cor embaixo. */
+export async function renderPaletteCard(a: ColorAnalysis, photoUrl?: string | null): Promise<Blob> {
   const canvas = document.createElement("canvas");
   canvas.width = W;
   canvas.height = H;
   const ctx = canvas.getContext("2d")!;
-  const dark = a.seasonFamily === "Inverno";
-  base(ctx, FAMILY_COLORS[a.seasonFamily] ?? FAMILY_COLORS.Primavera, dark);
-  const ink = dark ? "#FFFFFF" : "#171412";
+  base(ctx, ["#F7F2EA", "#EFE6DA", "#E4D8C8"], false);
+  const ink = "#171412";
 
   ctx.textAlign = "center";
   ctx.fillStyle = ink;
-  ctx.globalAlpha = 0.6;
-  ctx.font = "500 30px Inter, sans-serif";
-  ctx.fillText("MINHA COLORAÇÃO PESSOAL", W / 2, 220);
-  ctx.globalAlpha = 1;
+  ctx.font = "500 92px 'Cormorant Garamond', Georgia, serif";
+  ctx.fillText("Minha paleta de cores", W / 2, 210);
 
-  ctx.font = "500 104px 'Cormorant Garamond', Georgia, serif";
-  const words = a.season.split(" ");
-  const line1 = words.slice(0, 1).join(" ");
-  const line2 = words.slice(1).join(" ");
-  ctx.fillText(line1, W / 2, 350);
-  if (line2) ctx.fillText(line2, W / 2, 460);
-
-  ctx.globalAlpha = 0.75;
-  ctx.font = "400 34px Inter, sans-serif";
-  ctx.fillText(a.subtitle.slice(0, 46), W / 2, line2 ? 530 : 420);
-  ctx.globalAlpha = 1;
-
-  // grade de cores 4x3
-  const cols = 4;
-  const size = 200;
-  const gap = 24;
-  const gridW = cols * size + (cols - 1) * gap;
-  const startX = (W - gridW) / 2;
-  const startY = 620;
-  a.palette.slice(0, 12).forEach((c, i) => {
-    const x = startX + (i % cols) * (size + gap);
-    const y = startY + Math.floor(i / cols) * (size + gap);
+  // foto da pessoa
+  const photo = photoUrl ? await loadImage(photoUrl).catch(() => null) : null;
+  const fx = 150;
+  const fy = 300;
+  const fw = W - fx * 2;
+  const fh = 780;
+  ctx.save();
+  ctx.shadowColor = "rgba(0,0,0,0.14)";
+  ctx.shadowBlur = 40;
+  ctx.shadowOffsetY = 16;
+  ctx.fillStyle = "#FFFFFF";
+  roundRect(ctx, fx, fy, fw, fh, 56);
+  ctx.fill();
+  ctx.restore();
+  if (photo) {
     ctx.save();
-    ctx.shadowColor = "rgba(0,0,0,0.18)";
-    ctx.shadowBlur = 24;
-    ctx.shadowOffsetY = 10;
+    roundRect(ctx, fx, fy, fw, fh, 56);
+    ctx.clip();
+    const s = Math.max(fw / photo.width, fh / photo.height);
+    const w = photo.width * s;
+    const h = photo.height * s;
+    ctx.drawImage(photo, fx + (fw - w) / 2, fy + (fh - h) / 2, w, h);
+    ctx.restore();
+  }
+
+  // estação
+  ctx.fillStyle = ink;
+  ctx.font = "500 72px 'Cormorant Garamond', Georgia, serif";
+  ctx.fillText(a.season, W / 2, fy + fh + 110);
+
+  // círculos de cor
+  const colors = a.palette.slice(0, 12);
+  const cols = 6;
+  const r = 62;
+  const gap = 32;
+  const rows = Math.ceil(colors.length / cols);
+  const gridW = cols * r * 2 + (cols - 1) * gap;
+  const startX = (W - gridW) / 2 + r;
+  const startY = fy + fh + 220;
+  colors.forEach((c, i) => {
+    const cx = startX + (i % cols) * (r * 2 + gap);
+    const cy = startY + Math.floor(i / cols) * (r * 2 + gap);
+    ctx.save();
+    ctx.shadowColor = "rgba(0,0,0,0.16)";
+    ctx.shadowBlur = 20;
+    ctx.shadowOffsetY = 8;
     ctx.fillStyle = c.hex;
-    roundRect(ctx, x, y, size, size, 36);
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
     ctx.fill();
     ctx.restore();
   });
 
-  // atributos
-  const attrs: [string, string][] = [
-    ["Subtom", a.undertone],
-    ["Contraste", a.contrast],
-    ["Intensidade", a.chroma],
-  ];
-  const boxY = startY + 3 * size + 2 * gap + 70;
-  const boxW = 300;
-  attrs.forEach(([label, value], i) => {
-    const x = (W - (boxW * 3 + gap * 2)) / 2 + i * (boxW + gap);
-    ctx.fillStyle = dark ? "rgba(255,255,255,0.12)" : "rgba(255,255,255,0.6)";
-    roundRect(ctx, x, boxY, boxW, 150, 32);
-    ctx.fill();
-    ctx.fillStyle = ink;
-    ctx.globalAlpha = 0.6;
-    ctx.font = "500 24px Inter, sans-serif";
-    ctx.fillText(label.toUpperCase(), x + boxW / 2, boxY + 58);
-    ctx.globalAlpha = 1;
-    ctx.font = "500 44px 'Cormorant Garamond', Georgia, serif";
-    ctx.fillText(value, x + boxW / 2, boxY + 112);
-  });
+  const afterGrid = startY + rows * (r * 2) + (rows - 1) * gap;
+
+  ctx.fillStyle = ink;
+  ctx.globalAlpha = 0.65;
+  ctx.font = "400 32px Inter, sans-serif";
+  ctx.fillText("Inteligência para o seu armário", W / 2, Math.max(afterGrid + 70, H - 360));
+  ctx.globalAlpha = 1;
 
   await footer(ctx, ink);
   return toBlob(canvas);
