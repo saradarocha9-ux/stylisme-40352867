@@ -45,7 +45,7 @@ function AppLayout() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="mx-auto max-w-md pb-28">
+      <div key={pathname} className="animate-page mx-auto max-w-md pb-28">
         <Outlet />
       </div>
       <BottomNav />
@@ -53,3 +53,4 @@ function AppLayout() {
     </div>
   );
 }
+
