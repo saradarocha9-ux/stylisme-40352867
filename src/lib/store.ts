@@ -140,7 +140,7 @@ const listeners = new Set<() => void>();
 function parseStored(): AppState {
   if (typeof window === "undefined") return initial;
   try {
-    const raw = localStorage.getItem(KEY);
+    const raw = localStorage.getItem(storeKey());
     if (!raw) return initial;
     const parsed = JSON.parse(raw) as Partial<AppState>;
     return {
@@ -169,7 +169,7 @@ function schedulePersist() {
   persistTimer = setTimeout(() => {
     persistTimer = null;
     try {
-      localStorage.setItem(KEY, JSON.stringify(cache));
+      localStorage.setItem(storeKey(), JSON.stringify(cache));
     } catch {
       /* quota */
     }
@@ -196,7 +196,7 @@ function subscribe(listener: () => void) {
 
 if (typeof window !== "undefined") {
   window.addEventListener("storage", (e) => {
-    if (e.key && e.key !== KEY) return;
+    if (e.key && e.key !== storeKey()) return;
     cache = parseStored();
     emit();
   });
@@ -206,7 +206,7 @@ if (typeof window !== "undefined") {
       clearTimeout(persistTimer);
       persistTimer = null;
       try {
-        localStorage.setItem(KEY, JSON.stringify(cache));
+        localStorage.setItem(storeKey(), JSON.stringify(cache));
       } catch {
         /* quota */
       }
@@ -430,7 +430,7 @@ export const actions = {
   },
   wipe() {
     if (typeof window === "undefined") return;
-    localStorage.removeItem(KEY);
+    localStorage.removeItem(storeKey());
     window.dispatchEvent(new CustomEvent("stylisme:update"));
   },
 };
