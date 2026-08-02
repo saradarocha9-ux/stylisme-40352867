@@ -343,8 +343,11 @@ function GarmentPicker({ body, busy, onSelect, onClose }: { body?: string; busy:
     }
   }
   useEffect(() => { document.body.style.overflow = "hidden"; return () => { document.body.style.overflow = ""; }; }, []);
-  return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm animate-fade-in-slow">
+  if (typeof document === "undefined") return null;
+  // Portal: a tela do app usa transform/will-change, o que prende elementos
+  // "fixed" dentro dela e jogava a folha para fora da área visível.
+  return createPortal(
+    <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm animate-fade-in-slow">
       <div className="flex w-full max-w-md max-h-[85dvh] flex-col overflow-hidden rounded-t-3xl sm:rounded-3xl bg-card shadow-lift">
         <div className="shrink-0 px-6 pt-6">
           <div className="flex items-center justify-between">
