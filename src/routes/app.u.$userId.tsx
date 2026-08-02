@@ -4,6 +4,7 @@ import { ArrowLeft, Heart, Loader2, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { listUserPosts, timeAgo, type FeedPost } from "@/lib/community";
+import { getProfile, type CloudProfile } from "@/lib/profile";
 
 export const Route = createFileRoute("/app/u/$userId")({
   head: () => ({
