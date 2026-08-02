@@ -2,6 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { ArrowLeft } from "lucide-react";
 import { useState } from "react";
 import { actions, useStore } from "@/lib/store";
+import { useTheme } from "@/lib/theme";
 
 export const Route = createFileRoute("/app/settings")({
   component: SettingsPage,
@@ -10,6 +11,7 @@ export const Route = createFileRoute("/app/settings")({
 function SettingsPage() {
   const { state } = useStore();
   const navigate = useNavigate();
+  const { theme, setTheme } = useTheme();
   const [name, setName] = useState(state.profile.name);
   const [email, setEmail] = useState(state.profile.email);
 
@@ -18,15 +20,9 @@ function SettingsPage() {
     alert("Dados salvos.");
   }
 
-  function toggleTheme(theme: "light" | "dark" | "system") {
-    actions.updateProfile({ theme });
-    const root = document.documentElement;
-    if (theme === "dark") root.classList.add("dark");
-    else if (theme === "light") root.classList.remove("dark");
-    else {
-      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-      root.classList.toggle("dark", prefersDark);
-    }
+  function pickTheme(t: "light" | "dark") {
+    setTheme(t);
+    actions.updateProfile({ theme: t });
   }
 
   function exportData() {
@@ -60,10 +56,10 @@ function SettingsPage() {
 
       <section className="mt-4 rounded-3xl bg-card p-5 shadow-soft">
         <p className="text-[10px] uppercase tracking-[0.22em] text-muted-foreground">Tema</p>
-        <div className="mt-3 grid grid-cols-3 gap-2">
-          {(["light", "dark", "system"] as const).map((t) => (
-            <button key={t} onClick={() => toggleTheme(t)} className={"rounded-full border py-2 text-xs capitalize " + (state.profile.theme === t ? "border-foreground bg-foreground text-primary-foreground" : "border-border")}>
-              {t === "light" ? "Claro" : t === "dark" ? "Escuro" : "Sistema"}
+        <div className="mt-3 grid grid-cols-2 gap-2">
+          {(["dark", "light"] as const).map((t) => (
+            <button key={t} onClick={() => pickTheme(t)} className={"rounded-full border py-2 text-xs " + (theme === t ? "border-foreground bg-foreground text-primary-foreground" : "border-border")}>
+              {t === "dark" ? "Preto" : "Branco"}
             </button>
           ))}
         </div>

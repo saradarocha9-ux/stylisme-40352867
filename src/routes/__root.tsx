@@ -81,7 +81,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { title: "Stylisme — Inteligência para o seu armário" },
       { name: "description", content: "Organize seu guarda-roupa digital, monte looks com IA e planeje seu estilo. Stylisme, moda com inteligência." },
       { name: "author", content: "Stylisme" },
-      { name: "theme-color", content: "#f4f0e6" },
+      { name: "theme-color", content: "#0b0a09" },
       { property: "og:title", content: "Stylisme — Inteligência para o seu armário" },
       { property: "og:description", content: "Guarda-roupa digital, avatar 2D, looks com IA e planejamento inteligente." },
       { property: "og:type", content: "website" },
@@ -106,9 +106,15 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" className="dark">
       <head>
         <HeadContent />
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "try{var t=localStorage.getItem('stylisme:theme');document.documentElement.classList.toggle('dark',t!=='light')}catch(e){}",
+          }}
+        />
       </head>
       <body suppressHydrationWarning>
         <div id="app-root">{children}</div>
