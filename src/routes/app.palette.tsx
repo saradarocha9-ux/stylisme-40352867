@@ -20,8 +20,10 @@ export const Route = createFileRoute("/app/palette")({
       { property: "og:title", content: "Paleta de Cores Pessoal | Stylisme" },
       { property: "og:description", content: "Descubra sua cartela de coloração pessoal a partir de uma foto do seu rosto." },
       { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://stylisme.company/app/palette" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
+    links: [{ rel: "canonical", href: "https://stylisme.company/app/palette" }],
   }),
 });
 

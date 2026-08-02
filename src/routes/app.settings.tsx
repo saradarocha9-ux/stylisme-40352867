@@ -5,6 +5,18 @@ import { actions, useStore } from "@/lib/store";
 import { useTheme } from "@/lib/theme";
 
 export const Route = createFileRoute("/app/settings")({
+  head: () => ({
+    meta: [
+      { title: "Configurações — Stylisme" },
+      { name: "description", content: "Ajuste tema, notificações e preferências do seu Stylisme." },
+      { property: "og:title", content: "Configurações — Stylisme" },
+      { property: "og:description", content: "Ajuste tema, notificações e preferências do seu Stylisme." },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://stylisme.company/app/settings" },
+      { name: "twitter:card", content: "summary" },
+    ],
+    links: [{ rel: "canonical", href: "https://stylisme.company/app/settings" }],
+  }),
   component: SettingsPage,
 });
 

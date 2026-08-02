@@ -5,6 +5,18 @@ import { useStore } from "@/lib/store";
 import { useSubscription } from "@/hooks/use-subscription";
 
 export const Route = createFileRoute("/app/stats")({
+  head: () => ({
+    meta: [
+      { title: "Estatísticas do guarda-roupa — Stylisme" },
+      { name: "description", content: "Descubra padrões de uso, peças mais vestidas e cores dominantes do seu armário." },
+      { property: "og:title", content: "Estatísticas do guarda-roupa — Stylisme" },
+      { property: "og:description", content: "Descubra padrões de uso, peças mais vestidas e cores dominantes do seu armário." },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://stylisme.company/app/stats" },
+      { name: "twitter:card", content: "summary" },
+    ],
+    links: [{ rel: "canonical", href: "https://stylisme.company/app/stats" }],
+  }),
   component: StatsPage,
 });
 

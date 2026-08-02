@@ -7,6 +7,18 @@ import { createCheckout } from "@/lib/stripe.functions";
 import { useSubscription } from "@/hooks/use-subscription";
 
 export const Route = createFileRoute("/app/premium")({
+  head: () => ({
+    meta: [
+      { title: "Stylisme Premium" },
+      { name: "description", content: "Looks ilimitados com IA, provador generativo e cartela de cores completa no Stylisme Premium." },
+      { property: "og:title", content: "Stylisme Premium" },
+      { property: "og:description", content: "Looks ilimitados com IA, provador generativo e cartela de cores completa no Stylisme Premium." },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://stylisme.company/app/premium" },
+      { name: "twitter:card", content: "summary" },
+    ],
+    links: [{ rel: "canonical", href: "https://stylisme.company/app/premium" }],
+  }),
   validateSearch: (s: Record<string, unknown>): { checkout?: "cancelled" } =>
     s.checkout === "cancelled" ? { checkout: "cancelled" } : {},
   component: PremiumPage,

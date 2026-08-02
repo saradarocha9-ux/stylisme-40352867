@@ -9,6 +9,18 @@ import { StreakCard } from "@/components/StreakCard";
 import { tap } from "@/lib/haptics";
 
 export const Route = createFileRoute("/app/")({
+  head: () => ({
+    meta: [
+      { title: "Meu armário digital — Stylisme" },
+      { name: "description", content: "Veja, filtre e organize todas as peças do seu guarda-roupa digital em um só lugar." },
+      { property: "og:title", content: "Meu armário digital — Stylisme" },
+      { property: "og:description", content: "Veja, filtre e organize todas as peças do seu guarda-roupa digital em um só lugar." },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://stylisme.company/app" },
+      { name: "twitter:card", content: "summary" },
+    ],
+    links: [{ rel: "canonical", href: "https://stylisme.company/app" }],
+  }),
   component: Wardrobe,
 });
 

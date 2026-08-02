@@ -6,6 +6,18 @@ import { openCustomerPortal } from "@/lib/stripe.functions";
 import { useSubscription, useRefreshSubscription } from "@/hooks/use-subscription";
 
 export const Route = createFileRoute("/app/subscription")({
+  head: () => ({
+    meta: [
+      { title: "Minha assinatura — Stylisme" },
+      { name: "description", content: "Gerencie seu plano Stylisme Premium, pagamentos e renovação." },
+      { property: "og:title", content: "Minha assinatura — Stylisme" },
+      { property: "og:description", content: "Gerencie seu plano Stylisme Premium, pagamentos e renovação." },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://stylisme.company/app/subscription" },
+      { name: "twitter:card", content: "summary" },
+    ],
+    links: [{ rel: "canonical", href: "https://stylisme.company/app/subscription" }],
+  }),
   validateSearch: (s: Record<string, unknown>) => ({
     checkout: s.checkout === "success" ? "success" : undefined,
   }),

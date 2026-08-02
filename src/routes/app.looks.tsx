@@ -17,8 +17,10 @@ export const Route = createFileRoute("/app/looks")({
       { property: "og:title", content: "Provador virtual | Stylisme" },
       { property: "og:description", content: "Experimente suas roupas com caimento inteligente no corpo." },
       { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://stylisme.company/app/looks" },
       { name: "twitter:card", content: "summary" },
     ],
+    links: [{ rel: "canonical", href: "https://stylisme.company/app/looks" }],
   }),
   component: TryOnPage,
 });
