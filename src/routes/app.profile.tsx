@@ -28,16 +28,20 @@ function ProfilePage() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [uid, setUid] = useState<string | null>(null);
+  const [cloud, setCloud] = useState<CloudProfile | null>(null);
   const { isPremium } = useSubscription();
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
       setEmail(data.user?.email ?? "");
       setUid(data.user?.id ?? null);
     });
+    getMyProfile().then(setCloud).catch(() => {});
   }, []);
   const p = state.profile;
   const days = Math.max(1, Math.floor((Date.now() - p.joinedAt) / 86400000));
   const favCount = state.garments.filter((g) => g.favorite).length + state.looks.filter((l) => l.favorite).length;
+  const displayName = cloud?.name || p.name;
+  const avatar = cloud?.avatarUrl ?? p.photoUrl;
 
   async function signOut() {
     await supabase.auth.signOut();
@@ -50,18 +54,34 @@ function ProfilePage() {
       <p className="text-[10px] uppercase tracking-[0.24em] text-muted-foreground">Você</p>
       <h1 className="font-display text-3xl">Perfil</h1>
 
-      <div className="mt-6 flex items-center gap-4 rounded-3xl bg-card p-5 shadow-soft">
-        <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-full bg-muted">
-          {p.photoUrl ? <img src={p.photoUrl} alt="" className="h-full w-full object-cover" /> : <UserIcon size={26} className="text-muted-foreground" strokeWidth={1.5} />}
+      <div className="mt-6 overflow-hidden rounded-3xl bg-card shadow-soft">
+        <div className="h-24 w-full bg-muted">
+          {cloud?.bannerUrl && <img src={cloud.bannerUrl} alt="Capa do perfil" className="h-full w-full object-cover" />}
         </div>
-        <div className="flex-1">
-          <p className="font-display text-xl">{p.name}</p>
+        <div className="px-5 pb-5">
+          <div className="-mt-9 flex items-end gap-4">
+            <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-full border-4 border-card bg-muted">
+              {avatar ? <img src={avatar} alt="" className="h-full w-full object-cover" /> : <UserIcon size={24} className="text-muted-foreground" strokeWidth={1.5} />}
+            </div>
+            <Link to="/app/edit-profile" className="press mb-1 ml-auto rounded-full border border-border px-4 py-1.5 text-[10px] uppercase tracking-[0.2em]">
+              Editar
+            </Link>
+          </div>
+          <p className="mt-3 font-display text-xl">{displayName}</p>
+          {cloud?.username && <p className="text-xs text-muted-foreground">@{cloud.username}</p>}
           <p className="text-xs text-muted-foreground">{email || "sem email"}</p>
-          <div className={"mt-1 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] uppercase tracking-[0.18em] " + (isPremium ? "bg-foreground text-primary-foreground" : "bg-muted text-muted-foreground")}>
+          {cloud?.bio && <p className="mt-2 text-sm">{cloud.bio}</p>}
+          {cloud?.link && (
+            <a href={cloud.link.startsWith("http") ? cloud.link : `https://${cloud.link}`} target="_blank" rel="noopener noreferrer" className="mt-1 block truncate text-xs underline">
+              {cloud.link}
+            </a>
+          )}
+          <div className={"mt-2 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] uppercase tracking-[0.18em] " + (isPremium ? "bg-foreground text-primary-foreground" : "bg-muted text-muted-foreground")}>
             <Crown size={10} /> {isPremium ? "Premium" : "Free"}
           </div>
         </div>
       </div>
+
 
       <div className="mt-4 grid grid-cols-4 gap-2 text-center">
         <Stat label="Roupas" value={state.garments.length} />
