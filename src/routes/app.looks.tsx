@@ -102,12 +102,19 @@ function TryOnPage() {
       return found ? [found] : [];
     });
     const kept = current.filter((item) => slotOf(item.category) !== slotOf(garment.category));
-    // Sempre parte da foto original. Reprocessar uma imagem já gerada encolhia
-    // a pessoa e ampliava peças a cada nova rodada.
-    await renderGarments([...kept, garment], body);
+    // A peça entra na lista na hora: antes ela só aparecia se a geração desse
+    // certo, e o clique parecia não fazer nada.
+    for (const item of current) {
+      if (slotOf(item.category) === slotOf(garment.category)) actions.tryOnRemove(item.id);
+    }
     actions.tryOnAdd(garment.id);
     track("tryon");
     setPicker(false);
+    // Sem foto do corpo não há o que gerar — a peça fica listada mesmo assim.
+    if (!body) return;
+    // Sempre parte da foto original. Reprocessar uma imagem já gerada encolhia
+    // a pessoa e ampliava peças a cada nova rodada.
+    await renderGarments([...kept, garment], body);
   }
 
 
@@ -297,7 +304,6 @@ function GarmentPicker({ body, busy, onSelect, onClose }: { body?: string; busy:
   );
 
   async function addWithDetectedFit(garment: Garment) {
-    if (!body || !garment.imageUrl) return;
     setFittingId(garment.id);
     setFitError(null);
     try {
@@ -325,13 +331,18 @@ function GarmentPicker({ body, busy, onSelect, onClose }: { body?: string; busy:
         {state.garments.length === 0 && (
           <p className="mt-6 text-center text-sm text-muted-foreground">Cadastre peças no armário para começar a provar.</p>
         )}
+        {!body && state.garments.length > 0 && (
+          <p className="mt-3 text-xs text-muted-foreground">
+            Envie uma foto sua de corpo inteiro para ver o caimento. As peças escolhidas já ficam salvas no provador.
+          </p>
+        )}
         {fitError && <p className="mt-3 text-xs text-destructive">{fitError}</p>}
         <div className="mt-4 grid grid-cols-3 gap-2">
           {list.map((g) => (
             <button
               key={g.id}
               onClick={() => void addWithDetectedFit(g)}
-              disabled={fittingId !== null || busy || !body}
+              disabled={fittingId !== null || busy}
               className="group relative aspect-square overflow-hidden rounded-2xl bg-muted p-2 disabled:opacity-60"
             >
               {g.imageUrl ? (
