@@ -388,6 +388,7 @@ function GarmentPicker({ body, busy, onSelect, onClose }: { body?: string; busy:
             </button>
           ))}
         </div>
+        </div>
       </div>
     </div>
   );
