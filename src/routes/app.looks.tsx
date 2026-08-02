@@ -102,12 +102,19 @@ function TryOnPage() {
       return found ? [found] : [];
     });
     const kept = current.filter((item) => slotOf(item.category) !== slotOf(garment.category));
-    // Sempre parte da foto original. Reprocessar uma imagem já gerada encolhia
-    // a pessoa e ampliava peças a cada nova rodada.
-    await renderGarments([...kept, garment], body);
+    // A peça entra na lista na hora: antes ela só aparecia se a geração desse
+    // certo, e o clique parecia não fazer nada.
+    for (const item of current) {
+      if (slotOf(item.category) === slotOf(garment.category)) actions.tryOnRemove(item.id);
+    }
     actions.tryOnAdd(garment.id);
     track("tryon");
     setPicker(false);
+    // Sem foto do corpo não há o que gerar — a peça fica listada mesmo assim.
+    if (!body) return;
+    // Sempre parte da foto original. Reprocessar uma imagem já gerada encolhia
+    // a pessoa e ampliava peças a cada nova rodada.
+    await renderGarments([...kept, garment], body);
   }
 
 
