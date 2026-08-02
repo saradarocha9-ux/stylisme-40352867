@@ -1,0 +1,19 @@
+{
+  "name": "Stylisme — Inteligência para o seu armário",
+  "short_name": "Stylisme",
+  "description": "Guarda-roupa digital com IA, provador virtual e cartela de cores pessoal.",
+  "id": "/",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F7F2EA",
+  "theme_color": "#0b0a09",
+  "lang": "pt-BR",
+  "categories": ["lifestyle", "shopping", "productivity"],
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
