@@ -27,9 +27,13 @@ function ProfilePage() {
   const { state } = useStore();
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
+  const [uid, setUid] = useState<string | null>(null);
   const { isPremium } = useSubscription();
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => setEmail(data.user?.email ?? ""));
+    supabase.auth.getUser().then(({ data }) => {
+      setEmail(data.user?.email ?? "");
+      setUid(data.user?.id ?? null);
+    });
   }, []);
   const p = state.profile;
   const days = Math.max(1, Math.floor((Date.now() - p.joinedAt) / 86400000));
