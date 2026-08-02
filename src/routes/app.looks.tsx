@@ -345,16 +345,19 @@ function GarmentPicker({ body, busy, onSelect, onClose }: { body?: string; busy:
   useEffect(() => { document.body.style.overflow = "hidden"; return () => { document.body.style.overflow = ""; }; }, []);
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm animate-fade-in-slow">
-      <div className="w-full max-w-md max-h-[80vh] overflow-y-auto rounded-t-3xl sm:rounded-3xl bg-card p-6 shadow-lift">
-        <div className="flex items-center justify-between">
-          <h2 className="font-display text-2xl">Escolher peça</h2>
-          <button onClick={onClose} className="rounded-full p-2 hover:bg-muted"><X size={18} /></button>
+      <div className="flex w-full max-w-md max-h-[85dvh] flex-col overflow-hidden rounded-t-3xl sm:rounded-3xl bg-card shadow-lift">
+        <div className="shrink-0 px-6 pt-6">
+          <div className="flex items-center justify-between">
+            <h2 className="font-display text-2xl">Escolher peça</h2>
+            <button onClick={onClose} className="rounded-full p-2 hover:bg-muted"><X size={18} /></button>
+          </div>
+          <input
+            value={q} onChange={(e) => setQ(e.target.value)}
+            placeholder="Buscar…"
+            className="mt-4 w-full rounded-full border border-border bg-background px-4 py-2.5 text-sm outline-none"
+          />
         </div>
-        <input
-          value={q} onChange={(e) => setQ(e.target.value)}
-          placeholder="Buscar…"
-          className="mt-4 w-full rounded-full border border-border bg-background px-4 py-2.5 text-sm outline-none"
-        />
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-6 pb-[calc(env(safe-area-inset-bottom)+1.5rem)]">
         {state.garments.length === 0 && (
           <p className="mt-6 text-center text-sm text-muted-foreground">Cadastre peças no armário para começar a provar.</p>
         )}
@@ -384,6 +387,7 @@ function GarmentPicker({ body, busy, onSelect, onClose }: { body?: string; busy:
               )}
             </button>
           ))}
+        </div>
         </div>
       </div>
     </div>
