@@ -17,8 +17,10 @@ export const Route = createFileRoute("/app/looks")({
       { property: "og:title", content: "Provador virtual | Stylisme" },
       { property: "og:description", content: "Experimente suas roupas com caimento inteligente no corpo." },
       { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://stylisme.company/app/looks" },
       { name: "twitter:card", content: "summary" },
     ],
+    links: [{ rel: "canonical", href: "https://stylisme.company/app/looks" }],
   }),
   component: TryOnPage,
 });
@@ -178,7 +180,7 @@ function TryOnPage() {
         {body ? (
           <img
             src={generatedUrl ?? body}
-            alt={generatedUrl ? "Resultado do provador virtual" : "Você"}
+            alt={generatedUrl ? "Resultado do provador virtual com as peças vestidas" : "Sua foto de corpo inteiro usada no provador virtual"}
             className="pointer-events-none absolute inset-0 h-full w-full object-contain"
           />
         ) : (

@@ -8,6 +8,18 @@ import { Achievements } from "@/components/Achievements";
 import { useSubscription } from "@/hooks/use-subscription";
 
 export const Route = createFileRoute("/app/profile")({
+  head: () => ({
+    meta: [
+      { title: "Perfil — Stylisme" },
+      { name: "description", content: "Seu perfil Stylisme: conquistas, sequência de uso, plano e preferências." },
+      { property: "og:title", content: "Perfil — Stylisme" },
+      { property: "og:description", content: "Seu perfil Stylisme: conquistas, sequência de uso, plano e preferências." },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://stylisme.company/app/profile" },
+      { name: "twitter:card", content: "summary" },
+    ],
+    links: [{ rel: "canonical", href: "https://stylisme.company/app/profile" }],
+  }),
   component: ProfilePage,
 });
 

@@ -5,6 +5,18 @@ import { useStore } from "@/lib/store";
 import { useSubscription } from "@/hooks/use-subscription";
 
 export const Route = createFileRoute("/app/stats")({
+  head: () => ({
+    meta: [
+      { title: "Estatísticas do guarda-roupa — Stylisme" },
+      { name: "description", content: "Descubra padrões de uso, peças mais vestidas e cores dominantes do seu armário." },
+      { property: "og:title", content: "Estatísticas do guarda-roupa — Stylisme" },
+      { property: "og:description", content: "Descubra padrões de uso, peças mais vestidas e cores dominantes do seu armário." },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://stylisme.company/app/stats" },
+      { name: "twitter:card", content: "summary" },
+    ],
+    links: [{ rel: "canonical", href: "https://stylisme.company/app/stats" }],
+  }),
   component: StatsPage,
 });
 
@@ -35,7 +47,7 @@ function StatsPage() {
     return (
       <div className="px-5 pt-8">
         <Link to="/app/profile" className="inline-flex items-center gap-1 text-xs uppercase tracking-[0.24em] text-muted-foreground">
-          <ArrowLeft size={14} /> Voltar
+          <ArrowLeft size={14} /> Voltar para o Armário
         </Link>
         <h1 className="mt-4 font-display text-3xl">Estatísticas</h1>
 
@@ -60,7 +72,7 @@ function StatsPage() {
   return (
     <div className="px-5 pt-8">
       <Link to="/app/profile" className="inline-flex items-center gap-1 text-xs uppercase tracking-[0.24em] text-muted-foreground">
-        <ArrowLeft size={14} /> Voltar
+        <ArrowLeft size={14} /> Voltar para o Armário
       </Link>
       <h1 className="mt-4 font-display text-3xl">Estatísticas</h1>
 

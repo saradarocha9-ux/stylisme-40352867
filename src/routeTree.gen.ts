@@ -9,10 +9,12 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AppRouteImport } from './routes/app'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppIndexRouteImport } from './routes/app.index'
+import { Route as GuiaMelhoresAppsDeGuardaRoupaRouteImport } from './routes/guia.melhores-apps-de-guarda-roupa'
 import { Route as AppSubscriptionRouteImport } from './routes/app.subscription'
 import { Route as AppStatsRouteImport } from './routes/app.stats'
 import { Route as AppSettingsRouteImport } from './routes/app.settings'
@@ -23,6 +25,11 @@ import { Route as AppLooksRouteImport } from './routes/app.looks'
 import { Route as AppFavoritesRouteImport } from './routes/app.favorites'
 import { Route as AppAiRouteImport } from './routes/app.ai'
 
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
@@ -43,6 +50,12 @@ const AppIndexRoute = AppIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AppRoute,
 } as any)
+const GuiaMelhoresAppsDeGuardaRoupaRoute =
+  GuiaMelhoresAppsDeGuardaRoupaRouteImport.update({
+    id: '/guia/melhores-apps-de-guarda-roupa',
+    path: '/guia/melhores-apps-de-guarda-roupa',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AppSubscriptionRoute = AppSubscriptionRouteImport.update({
   id: '/subscription',
   path: '/subscription',
@@ -93,6 +106,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/app': typeof AppRouteWithChildren
   '/auth': typeof AuthRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/app/ai': typeof AppAiRoute
   '/app/favorites': typeof AppFavoritesRoute
   '/app/looks': typeof AppLooksRoute
@@ -102,11 +116,13 @@ export interface FileRoutesByFullPath {
   '/app/settings': typeof AppSettingsRoute
   '/app/stats': typeof AppStatsRoute
   '/app/subscription': typeof AppSubscriptionRoute
+  '/guia/melhores-apps-de-guarda-roupa': typeof GuiaMelhoresAppsDeGuardaRoupaRoute
   '/app/': typeof AppIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/app/ai': typeof AppAiRoute
   '/app/favorites': typeof AppFavoritesRoute
   '/app/looks': typeof AppLooksRoute
@@ -116,6 +132,7 @@ export interface FileRoutesByTo {
   '/app/settings': typeof AppSettingsRoute
   '/app/stats': typeof AppStatsRoute
   '/app/subscription': typeof AppSubscriptionRoute
+  '/guia/melhores-apps-de-guarda-roupa': typeof GuiaMelhoresAppsDeGuardaRoupaRoute
   '/app': typeof AppIndexRoute
 }
 export interface FileRoutesById {
@@ -123,6 +140,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/app': typeof AppRouteWithChildren
   '/auth': typeof AuthRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/app/ai': typeof AppAiRoute
   '/app/favorites': typeof AppFavoritesRoute
   '/app/looks': typeof AppLooksRoute
@@ -132,6 +150,7 @@ export interface FileRoutesById {
   '/app/settings': typeof AppSettingsRoute
   '/app/stats': typeof AppStatsRoute
   '/app/subscription': typeof AppSubscriptionRoute
+  '/guia/melhores-apps-de-guarda-roupa': typeof GuiaMelhoresAppsDeGuardaRoupaRoute
   '/app/': typeof AppIndexRoute
 }
 export interface FileRouteTypes {
@@ -140,6 +159,7 @@ export interface FileRouteTypes {
     | '/'
     | '/app'
     | '/auth'
+    | '/sitemap.xml'
     | '/app/ai'
     | '/app/favorites'
     | '/app/looks'
@@ -149,11 +169,13 @@ export interface FileRouteTypes {
     | '/app/settings'
     | '/app/stats'
     | '/app/subscription'
+    | '/guia/melhores-apps-de-guarda-roupa'
     | '/app/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
+    | '/sitemap.xml'
     | '/app/ai'
     | '/app/favorites'
     | '/app/looks'
@@ -163,12 +185,14 @@ export interface FileRouteTypes {
     | '/app/settings'
     | '/app/stats'
     | '/app/subscription'
+    | '/guia/melhores-apps-de-guarda-roupa'
     | '/app'
   id:
     | '__root__'
     | '/'
     | '/app'
     | '/auth'
+    | '/sitemap.xml'
     | '/app/ai'
     | '/app/favorites'
     | '/app/looks'
@@ -178,6 +202,7 @@ export interface FileRouteTypes {
     | '/app/settings'
     | '/app/stats'
     | '/app/subscription'
+    | '/guia/melhores-apps-de-guarda-roupa'
     | '/app/'
   fileRoutesById: FileRoutesById
 }
@@ -185,10 +210,19 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AppRoute: typeof AppRouteWithChildren
   AuthRoute: typeof AuthRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  GuiaMelhoresAppsDeGuardaRoupaRoute: typeof GuiaMelhoresAppsDeGuardaRoupaRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth': {
       id: '/auth'
       path: '/auth'
@@ -216,6 +250,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/app/'
       preLoaderRoute: typeof AppIndexRouteImport
       parentRoute: typeof AppRoute
+    }
+    '/guia/melhores-apps-de-guarda-roupa': {
+      id: '/guia/melhores-apps-de-guarda-roupa'
+      path: '/guia/melhores-apps-de-guarda-roupa'
+      fullPath: '/guia/melhores-apps-de-guarda-roupa'
+      preLoaderRoute: typeof GuiaMelhoresAppsDeGuardaRoupaRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/app/subscription': {
       id: '/app/subscription'
@@ -315,6 +356,8 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AppRoute: AppRouteWithChildren,
   AuthRoute: AuthRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
+  GuiaMelhoresAppsDeGuardaRoupaRoute: GuiaMelhoresAppsDeGuardaRoupaRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

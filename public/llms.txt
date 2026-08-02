@@ -1,0 +1,17 @@
+# Stylisme
+
+> Inteligência para o seu armário: guarda-roupa digital com IA, provador virtual e cartela de cores pessoal.
+
+Stylisme é um app mobile-first que digitaliza seu guarda-roupa, remove o fundo das
+peças automaticamente, monta looks com IA e analisa sua coloração pessoal a partir
+de uma foto do rosto.
+
+## Pages
+
+- [Início](/): Apresentação do Stylisme.
+- [Guia: melhores apps de guarda-roupa digital](/guia/melhores-apps-de-guarda-roupa): Comparativo de apps de armário digital e onde o Stylisme se encaixa.
+- [Stylisme Premium](/app/premium): Recursos e planos do Stylisme Premium.
+
+## Optional
+
+- [Entrar](/auth): Acesso à conta.

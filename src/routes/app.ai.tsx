@@ -9,6 +9,18 @@ import { track } from "@/lib/track";
 
 
 export const Route = createFileRoute("/app/ai")({
+  head: () => ({
+    meta: [
+      { title: "Stylisme AI: looks gerados por IA" },
+      { name: "description", content: "Converse com a Stylisme AI e receba três opções de look montadas com as roupas do seu armário." },
+      { property: "og:title", content: "Stylisme AI: looks gerados por IA" },
+      { property: "og:description", content: "Converse com a Stylisme AI e receba três opções de look montadas com as roupas do seu armário." },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://stylisme.company/app/ai" },
+      { name: "twitter:card", content: "summary" },
+    ],
+    links: [{ rel: "canonical", href: "https://stylisme.company/app/ai" }],
+  }),
   component: AiPage,
 });
 

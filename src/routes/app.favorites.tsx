@@ -5,6 +5,18 @@ import { useStore } from "@/lib/store";
 
 
 export const Route = createFileRoute("/app/favorites")({
+  head: () => ({
+    meta: [
+      { title: "Favoritos — Stylisme" },
+      { name: "description", content: "Suas peças e looks favoritos salvos no Stylisme, sempre à mão." },
+      { property: "og:title", content: "Favoritos — Stylisme" },
+      { property: "og:description", content: "Suas peças e looks favoritos salvos no Stylisme, sempre à mão." },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://stylisme.company/app/favorites" },
+      { name: "twitter:card", content: "summary" },
+    ],
+    links: [{ rel: "canonical", href: "https://stylisme.company/app/favorites" }],
+  }),
   component: FavPage,
 });
 

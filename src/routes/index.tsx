@@ -18,8 +18,10 @@ export const Route = createFileRoute("/")({
         content: "Guarda-roupa digital, provador virtual, looks com IA e cartela de cores personalizada.",
       },
       { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://stylisme.company/" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
+    links: [{ rel: "canonical", href: "https://stylisme.company/" }],
   }),
   component: Splash,
 });

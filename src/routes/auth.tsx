@@ -6,6 +6,18 @@ import { Logo } from "@/components/Logo";
 import { Mail, Lock, User, ArrowRight } from "lucide-react";
 
 export const Route = createFileRoute("/auth")({
+  head: () => ({
+    meta: [
+      { title: "Entrar — Stylisme" },
+      { name: "description", content: "Acesse sua conta Stylisme para abrir seu guarda-roupa digital, seus looks e sua cartela de cores." },
+      { property: "og:title", content: "Entrar — Stylisme" },
+      { property: "og:description", content: "Acesse sua conta Stylisme para abrir seu guarda-roupa digital, seus looks e sua cartela de cores." },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://stylisme.company/auth" },
+      { name: "twitter:card", content: "summary" },
+    ],
+    links: [{ rel: "canonical", href: "https://stylisme.company/auth" }],
+  }),
   component: AuthPage,
 });
 
