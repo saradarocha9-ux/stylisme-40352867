@@ -86,7 +86,22 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:title", content: "Stylisme — Inteligência para o seu armário" },
       { property: "og:description", content: "Guarda-roupa digital, avatar 2D, looks com IA e planejamento inteligente." },
       { property: "og:type", content: "website" },
+      { property: "og:site_name", content: "Stylisme" },
       { name: "twitter:card", content: "summary_large_image" },
+    ],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Organization",
+          name: "Stylisme",
+          url: "https://stylisme.company/",
+          logo: "https://stylisme.company/favicon.png",
+          image: "https://stylisme.company/og-stylisme.jpg",
+          description: "Guarda-roupa digital com IA, provador virtual e cartela de cores pessoal.",
+        }),
+      },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
