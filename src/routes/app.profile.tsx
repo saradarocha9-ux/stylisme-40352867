@@ -114,6 +114,7 @@ function ProfilePage() {
       )}
 
       <div className="mt-6 overflow-hidden rounded-3xl bg-card shadow-soft">
+        <Row to="/app/edit-profile" icon={UserIcon} label="Personalizar perfil" />
         {uid && (
           <Link to="/app/u/$userId" params={{ userId: uid }} className="flex w-full items-center justify-between border-b border-border px-5 py-4 text-left">
             <div className="flex items-center gap-3">
