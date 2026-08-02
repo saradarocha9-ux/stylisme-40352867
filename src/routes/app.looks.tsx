@@ -301,6 +301,21 @@ function TryOnPage() {
 
 
       {picker && <GarmentPicker body={body} busy={tryOnBusy} onSelect={addGarment} onClose={() => setPicker(false)} />}
+
+      {publishing && body && (
+        <PublishLookSheet
+          imageDataUrl={generatedUrl ?? body}
+          authorName={state.profile.name}
+          authorAvatar={state.profile.photoUrl ?? null}
+          garments={items.flatMap((t) => {
+            const g = state.garments.find((x) => x.id === t.garmentId);
+            return g
+              ? [{ name: g.name, category: g.category, color: g.color, material: g.material, pattern: g.pattern }]
+              : [];
+          })}
+          onClose={() => setPublishing(false)}
+        />
+      )}
     </div>
   );
 }
