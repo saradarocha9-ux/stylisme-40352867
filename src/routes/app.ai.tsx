@@ -31,7 +31,8 @@ const FREE_DAILY_LIMIT = 3;
 interface Msg { role: "ai" | "user"; text: string; options?: string[][]; labels?: { title: string; why: string }[] }
 
 function todayKey() {
-  return "stylisme:ai:" + new Date().toISOString().slice(0, 10);
+  const uid = typeof window === "undefined" ? "" : (localStorage.getItem("stylisme:uid") || "guest");
+  return `stylisme:ai:${uid}:` + new Date().toISOString().slice(0, 10);
 }
 function usedToday(): number {
   if (typeof window === "undefined") return 0;
