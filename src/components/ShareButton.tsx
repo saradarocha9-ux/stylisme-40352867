@@ -46,7 +46,7 @@ export function ShareButton(props: Props) {
       onClick={go}
       disabled={busy}
       className={
-        "press inline-flex items-center justify-center gap-2 rounded-full bg-foreground px-5 py-3 text-sm text-primary-foreground shadow-lift disabled:opacity-60 " +
+        "press-gold inline-flex items-center justify-center gap-2 rounded-full bg-foreground px-5 py-3 text-sm text-primary-foreground shadow-lift disabled:opacity-60 " +
         (props.className ?? "")
       }
     >

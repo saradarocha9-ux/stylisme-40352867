@@ -219,7 +219,7 @@ function LookPostPage() {
         <button
           onClick={() => void compare()}
           disabled={matching || post.garments.length === 0}
-          className="press mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-foreground py-3 text-sm text-primary-foreground disabled:opacity-60"
+          className="press-gold mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-foreground py-3 text-sm text-primary-foreground disabled:opacity-60"
         >
           {matching ? <Loader2 size={16} className="animate-spin" /> : <Search size={16} />}
           {matching ? "Procurando no seu armário…" : "Procurar no meu armário"}

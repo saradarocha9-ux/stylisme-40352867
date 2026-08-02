@@ -126,7 +126,7 @@ export function PublishLookSheet({
         <button
           onClick={() => void submit()}
           disabled={busy || blocked}
-          className="press mt-6 flex w-full items-center justify-center gap-2 rounded-full bg-foreground py-3 text-sm text-primary-foreground disabled:opacity-60"
+          className="press-gold mt-6 flex w-full items-center justify-center gap-2 rounded-full bg-foreground py-3 text-sm text-primary-foreground disabled:opacity-60"
         >
           {busy ? <Loader2 size={16} className="animate-spin" /> : <Upload size={16} />}
           {busy ? "Publicando…" : "Publicar na comunidade"}
