@@ -6,6 +6,7 @@ import { useStore, ACHIEVEMENTS } from "@/lib/store";
 import { StreakCard } from "@/components/StreakCard";
 import { Achievements } from "@/components/Achievements";
 import { useSubscription } from "@/hooks/use-subscription";
+import { getMyProfile, type CloudProfile } from "@/lib/profile";
 
 export const Route = createFileRoute("/app/profile")({
   head: () => ({
