@@ -192,3 +192,20 @@ export function timeAgo(iso: string) {
   if (d < 7) return `${d} d`;
   return new Date(iso).toLocaleDateString("pt-BR");
 }
+
+export const FREE_DAILY_POSTS = 3;
+
+/** Quantos looks o usuário já publicou hoje (fuso local). */
+export async function countMyPostsToday(): Promise<number> {
+  const { data: auth } = await supabase.auth.getUser();
+  const me = auth.user?.id;
+  if (!me) return 0;
+  const start = new Date();
+  start.setHours(0, 0, 0, 0);
+  const { count } = await supabase
+    .from("look_posts")
+    .select("id", { count: "exact", head: true })
+    .eq("user_id", me)
+    .gte("created_at", start.toISOString());
+  return count ?? 0;
+}
