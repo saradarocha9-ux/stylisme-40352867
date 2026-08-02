@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useMemo, useRef, useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { Plus, User as UserIcon, X, RotateCcw, Sparkles, Users } from "lucide-react";
 import { useStore, actions, slotOf, type Garment } from "@/lib/store";
 import { generateVirtualTryOn } from "@/lib/virtual-tryon.functions";
