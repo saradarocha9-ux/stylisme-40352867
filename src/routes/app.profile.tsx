@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { Crown, Settings, LogOut, ChevronRight, User as UserIcon, CreditCard, BarChart3, Users } from "lucide-react";
+import { Crown, Settings, LogOut, ChevronRight, User as UserIcon, CreditCard, BarChart3, Users, HelpCircle, Lightbulb } from "lucide-react";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useStore, ACHIEVEMENTS } from "@/lib/store";
@@ -89,6 +89,8 @@ function ProfilePage() {
       )}
 
       <div className="mt-6 overflow-hidden rounded-3xl bg-card shadow-soft">
+        <Row to="/app/help" icon={HelpCircle} label="Central de Ajuda" />
+        <Row to="/app/ideas" icon={Lightbulb} label="Central de Ideias" />
         <Row to="/app/subscription" icon={CreditCard} label="Minha assinatura" />
         <Row to="/app/stats" icon={BarChart3} label="Estatísticas" />
         <Row to="/app/settings" icon={Settings} label="Configurações" />
