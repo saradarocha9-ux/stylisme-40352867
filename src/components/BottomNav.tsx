@@ -1,10 +1,11 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Shirt, UserSquare2, Wand2, Palette, User } from "lucide-react";
+import { Shirt, UserSquare2, Wand2, Palette, User, Compass } from "lucide-react";
 import { tap } from "@/lib/haptics";
 
 const items = [
   { to: "/app", label: "Armário", icon: Shirt },
   { to: "/app/looks", label: "Provador", icon: UserSquare2 },
+  { to: "/app/feed", label: "Feed", icon: Compass },
   { to: "/app/ai", label: "IA", icon: Wand2 },
   { to: "/app/palette", label: "Cores", icon: Palette },
   { to: "/app/profile", label: "Perfil", icon: User },
