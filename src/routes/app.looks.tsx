@@ -34,6 +34,7 @@ function TryOnPage() {
   const [tryOnBusy, setTryOnBusy] = useState(false);
   const [generatedUrl, setGeneratedUrl] = useState<string | null>(null);
   const [tryOnError, setTryOnError] = useState<string | null>(null);
+  const [publishing, setPublishing] = useState(false);
   const bodyRef = useRef<HTMLInputElement>(null);
   const initialLookRendered = useRef(false);
 
