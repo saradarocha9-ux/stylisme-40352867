@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { Crown, Settings, LogOut, ChevronRight, User as UserIcon, CreditCard, BarChart3, Users, HelpCircle, Lightbulb } from "lucide-react";
+import { Crown, Settings, LogOut, ChevronRight, User as UserIcon, CreditCard, BarChart3, Users, HelpCircle, Lightbulb, Images, PlusCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useStore, ACHIEVEMENTS } from "@/lib/store";
@@ -27,9 +27,13 @@ function ProfilePage() {
   const { state } = useStore();
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
+  const [uid, setUid] = useState<string | null>(null);
   const { isPremium } = useSubscription();
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => setEmail(data.user?.email ?? ""));
+    supabase.auth.getUser().then(({ data }) => {
+      setEmail(data.user?.email ?? "");
+      setUid(data.user?.id ?? null);
+    });
   }, []);
   const p = state.profile;
   const days = Math.max(1, Math.floor((Date.now() - p.joinedAt) / 86400000));
@@ -89,8 +93,25 @@ function ProfilePage() {
       )}
 
       <div className="mt-6 overflow-hidden rounded-3xl bg-card shadow-soft">
+        {uid && (
+          <Link to="/app/u/$userId" params={{ userId: uid }} className="flex w-full items-center justify-between border-b border-border px-5 py-4 text-left">
+            <div className="flex items-center gap-3">
+              <Images size={18} strokeWidth={1.5} />
+              <span className="text-sm">Meus looks publicados</span>
+            </div>
+            <ChevronRight size={16} className="text-muted-foreground" />
+          </Link>
+        )}
+        <Link to="/app/looks" className="flex w-full items-center justify-between border-b border-border px-5 py-4 text-left">
+          <div className="flex items-center gap-3">
+            <PlusCircle size={18} strokeWidth={1.5} />
+            <span className="text-sm">Criar look</span>
+          </div>
+          <ChevronRight size={16} className="text-muted-foreground" />
+        </Link>
         <Row to="/app/help" icon={HelpCircle} label="Central de Ajuda" />
         <Row to="/app/ideas" icon={Lightbulb} label="Central de Ideias" />
+
         <Row to="/app/subscription" icon={CreditCard} label="Minha assinatura" />
         <Row to="/app/stats" icon={BarChart3} label="Estatísticas" />
         <Row to="/app/settings" icon={Settings} label="Configurações" />

@@ -1,10 +1,11 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Shirt, UserSquare2, Wand2, Palette, User } from "lucide-react";
+import { Shirt, UserSquare2, Wand2, Palette, User, Compass } from "lucide-react";
 import { tap } from "@/lib/haptics";
 
 const items = [
   { to: "/app", label: "Armário", icon: Shirt },
   { to: "/app/looks", label: "Provador", icon: UserSquare2 },
+  { to: "/app/feed", label: "Feed", icon: Compass },
   { to: "/app/ai", label: "IA", icon: Wand2 },
   { to: "/app/palette", label: "Cores", icon: Palette },
   { to: "/app/profile", label: "Perfil", icon: User },
@@ -14,7 +15,7 @@ export function BottomNav() {
   const { location } = useRouterState();
   return (
     <nav className="fixed bottom-0 inset-x-0 z-40 border-t border-border bg-background/80 backdrop-blur-xl">
-      <div className="mx-auto max-w-md grid grid-cols-5">
+      <div className="mx-auto max-w-md grid grid-cols-6">
         {items.map(({ to, label, icon: Icon }) => {
           const active = location.pathname === to || (to !== "/app" && location.pathname.startsWith(to));
           return (

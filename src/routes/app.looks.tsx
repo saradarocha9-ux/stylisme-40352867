@@ -1,11 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useMemo, useRef, useState, useEffect } from "react";
-import { Plus, User as UserIcon, X, RotateCcw, Sparkles } from "lucide-react";
+import { Plus, User as UserIcon, X, RotateCcw, Sparkles, Users } from "lucide-react";
 import { useStore, actions, slotOf, type Garment } from "@/lib/store";
 import { generateVirtualTryOn } from "@/lib/virtual-tryon.functions";
 import { track } from "@/lib/track";
 import { resizeDataUrl } from "@/lib/image-resize";
+import { PublishLookSheet } from "@/components/PublishLookSheet";
 
 import { ShareButton } from "@/components/ShareButton";
 
@@ -33,6 +34,7 @@ function TryOnPage() {
   const [tryOnBusy, setTryOnBusy] = useState(false);
   const [generatedUrl, setGeneratedUrl] = useState<string | null>(null);
   const [tryOnError, setTryOnError] = useState<string | null>(null);
+  const [publishing, setPublishing] = useState(false);
   const bodyRef = useRef<HTMLInputElement>(null);
   const initialLookRendered = useRef(false);
 
@@ -261,22 +263,32 @@ function TryOnPage() {
       )}
 
       {body && state.tryOn.length > 0 && (
-        <ShareButton
-          kind="tryon"
-          bodyUrl={generatedUrl ?? body}
-          caption="Meu look"
-          label="Compartilhar meu look"
-          className="mt-4 w-full sheen"
-          pieces={(generatedUrl ? [] : items)
-            .map((t) => {
-              const g = state.garments.find((x) => x.id === t.garmentId);
-              return g?.imageUrl
-                ? { url: g.imageUrl, x: t.x, y: t.y, scale: t.scale, rotation: t.rotation, z: t.z }
-                : null;
-            })
-            .filter(Boolean) as { url: string; x: number; y: number; scale: number; rotation: number; z: number }[]}
-        />
+        <>
+          <ShareButton
+            kind="tryon"
+            bodyUrl={generatedUrl ?? body}
+            caption="Meu look"
+            label="Compartilhar meu look"
+            className="mt-4 w-full sheen"
+            pieces={(generatedUrl ? [] : items)
+              .map((t) => {
+                const g = state.garments.find((x) => x.id === t.garmentId);
+                return g?.imageUrl
+                  ? { url: g.imageUrl, x: t.x, y: t.y, scale: t.scale, rotation: t.rotation, z: t.z }
+                  : null;
+              })
+              .filter(Boolean) as { url: string; x: number; y: number; scale: number; rotation: number; z: number }[]}
+          />
+          <button
+            onClick={() => setPublishing(true)}
+            disabled={tryOnBusy}
+            className="press mt-3 flex w-full items-center justify-center gap-2 rounded-full border border-border py-3 text-xs uppercase tracking-[0.2em] disabled:opacity-60"
+          >
+            <Users size={14} /> Publicar na comunidade
+          </button>
+        </>
       )}
+
 
       {body && (
         <button
@@ -289,6 +301,21 @@ function TryOnPage() {
 
 
       {picker && <GarmentPicker body={body} busy={tryOnBusy} onSelect={addGarment} onClose={() => setPicker(false)} />}
+
+      {publishing && body && (
+        <PublishLookSheet
+          imageDataUrl={generatedUrl ?? body}
+          authorName={state.profile.name}
+          authorAvatar={state.profile.photoUrl ?? null}
+          garments={items.flatMap((t) => {
+            const g = state.garments.find((x) => x.id === t.garmentId);
+            return g
+              ? [{ name: g.name, category: g.category, color: g.color, material: g.material, pattern: g.pattern }]
+              : [];
+          })}
+          onClose={() => setPublishing(false)}
+        />
+      )}
     </div>
   );
 }

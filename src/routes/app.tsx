@@ -13,6 +13,8 @@ export const Route = createFileRoute("/app")({
 const PLACEMENTS: Record<string, string> = {
   "/app": "app-armario",
   "/app/looks": "app-looks",
+  "/app/feed": "app-feed",
+
   "/app/ai": "app-ai",
   "/app/palette": "app-palette",
   "/app/favorites": "app-favorites",

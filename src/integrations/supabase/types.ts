@@ -151,6 +151,74 @@ export type Database = {
         }
         Relationships: []
       }
+      look_likes: {
+        Row: {
+          created_at: string
+          post_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          post_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          post_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "look_likes_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "look_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      look_posts: {
+        Row: {
+          author_avatar: string | null
+          author_name: string
+          caption: string
+          category: string
+          created_at: string
+          garments: Json
+          id: string
+          image_path: string
+          likes_count: number
+          title: string
+          user_id: string
+        }
+        Insert: {
+          author_avatar?: string | null
+          author_name?: string
+          caption?: string
+          category?: string
+          created_at?: string
+          garments?: Json
+          id?: string
+          image_path: string
+          likes_count?: number
+          title: string
+          user_id: string
+        }
+        Update: {
+          author_avatar?: string | null
+          author_name?: string
+          caption?: string
+          category?: string
+          created_at?: string
+          garments?: Json
+          id?: string
+          image_path?: string
+          likes_count?: number
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
