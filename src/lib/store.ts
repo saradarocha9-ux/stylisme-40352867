@@ -96,7 +96,17 @@ interface AppState {
   gamify: Gamify;
 }
 
-const KEY = "stylisme:v1";
+const LEGACY_KEY = "stylisme:v1";
+const UID_KEY = "stylisme:uid";
+
+/** Usuário ativo: cada conta tem o seu próprio armazenamento local. */
+let currentUid: string | null =
+  typeof window === "undefined" ? null : (localStorage.getItem(UID_KEY) || null);
+
+function storeKey(uid: string | null = currentUid) {
+  return uid ? `stylisme:v1:${uid}` : "stylisme:v1:guest";
+}
+
 
 const defaultProfile: Profile = {
   name: "Você",
@@ -127,10 +137,52 @@ const initial: AppState = {
 let cache: AppState | null = null;
 const listeners = new Set<() => void>();
 
+/**
+ * Define a conta ativa. Cada usuário tem o seu próprio espaço local:
+ * ao trocar de conta o app carrega exatamente o que aquela conta deixou.
+ */
+export function setStoreUser(uid: string | null) {
+  if (typeof window === "undefined") return;
+  const prev = currentUid;
+  if (prev === uid) return;
+
+  // Garante que o que estava em memória seja salvo na conta anterior.
+  if (persistTimer) {
+    clearTimeout(persistTimer);
+    persistTimer = null;
+  }
+  if (cache) {
+    try {
+      localStorage.setItem(storeKey(prev), JSON.stringify(cache));
+    } catch { /* quota */ }
+  }
+
+  currentUid = uid;
+  try {
+    if (uid) localStorage.setItem(UID_KEY, uid);
+    else localStorage.removeItem(UID_KEY);
+  } catch { /* ignore */ }
+
+  // Migração única: dados antigos (sem conta) viram os dados da primeira conta.
+  if (uid) {
+    try {
+      const legacy = localStorage.getItem(LEGACY_KEY);
+      if (legacy && !localStorage.getItem(storeKey(uid))) {
+        localStorage.setItem(storeKey(uid), legacy);
+      }
+      localStorage.removeItem(LEGACY_KEY);
+    } catch { /* ignore */ }
+  }
+
+  cache = null;
+  emit();
+}
+
 function parseStored(): AppState {
+
   if (typeof window === "undefined") return initial;
   try {
-    const raw = localStorage.getItem(KEY);
+    const raw = localStorage.getItem(storeKey());
     if (!raw) return initial;
     const parsed = JSON.parse(raw) as Partial<AppState>;
     return {
@@ -159,7 +211,7 @@ function schedulePersist() {
   persistTimer = setTimeout(() => {
     persistTimer = null;
     try {
-      localStorage.setItem(KEY, JSON.stringify(cache));
+      localStorage.setItem(storeKey(), JSON.stringify(cache));
     } catch {
       /* quota */
     }
@@ -186,7 +238,7 @@ function subscribe(listener: () => void) {
 
 if (typeof window !== "undefined") {
   window.addEventListener("storage", (e) => {
-    if (e.key && e.key !== KEY) return;
+    if (e.key && e.key !== storeKey()) return;
     cache = parseStored();
     emit();
   });
@@ -196,7 +248,7 @@ if (typeof window !== "undefined") {
       clearTimeout(persistTimer);
       persistTimer = null;
       try {
-        localStorage.setItem(KEY, JSON.stringify(cache));
+        localStorage.setItem(storeKey(), JSON.stringify(cache));
       } catch {
         /* quota */
       }
@@ -420,7 +472,7 @@ export const actions = {
   },
   wipe() {
     if (typeof window === "undefined") return;
-    localStorage.removeItem(KEY);
+    localStorage.removeItem(storeKey());
     window.dispatchEvent(new CustomEvent("stylisme:update"));
   },
 };
