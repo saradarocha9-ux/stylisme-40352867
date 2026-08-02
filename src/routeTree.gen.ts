@@ -27,6 +27,7 @@ import { Route as AppHelpRouteImport } from './routes/app.help'
 import { Route as AppFeedRouteImport } from './routes/app.feed'
 import { Route as AppFavoritesRouteImport } from './routes/app.favorites'
 import { Route as AppAiRouteImport } from './routes/app.ai'
+import { Route as AppLookPostIdRouteImport } from './routes/app.look.$postId'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
@@ -119,6 +120,11 @@ const AppAiRoute = AppAiRouteImport.update({
   path: '/ai',
   getParentRoute: () => AppRoute,
 } as any)
+const AppLookPostIdRoute = AppLookPostIdRouteImport.update({
+  id: '/look/$postId',
+  path: '/look/$postId',
+  getParentRoute: () => AppRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -139,6 +145,7 @@ export interface FileRoutesByFullPath {
   '/app/subscription': typeof AppSubscriptionRoute
   '/guia/melhores-apps-de-guarda-roupa': typeof GuiaMelhoresAppsDeGuardaRoupaRoute
   '/app/': typeof AppIndexRoute
+  '/app/look/$postId': typeof AppLookPostIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -158,6 +165,7 @@ export interface FileRoutesByTo {
   '/app/subscription': typeof AppSubscriptionRoute
   '/guia/melhores-apps-de-guarda-roupa': typeof GuiaMelhoresAppsDeGuardaRoupaRoute
   '/app': typeof AppIndexRoute
+  '/app/look/$postId': typeof AppLookPostIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -179,6 +187,7 @@ export interface FileRoutesById {
   '/app/subscription': typeof AppSubscriptionRoute
   '/guia/melhores-apps-de-guarda-roupa': typeof GuiaMelhoresAppsDeGuardaRoupaRoute
   '/app/': typeof AppIndexRoute
+  '/app/look/$postId': typeof AppLookPostIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -201,6 +210,7 @@ export interface FileRouteTypes {
     | '/app/subscription'
     | '/guia/melhores-apps-de-guarda-roupa'
     | '/app/'
+    | '/app/look/$postId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -220,6 +230,7 @@ export interface FileRouteTypes {
     | '/app/subscription'
     | '/guia/melhores-apps-de-guarda-roupa'
     | '/app'
+    | '/app/look/$postId'
   id:
     | '__root__'
     | '/'
@@ -240,6 +251,7 @@ export interface FileRouteTypes {
     | '/app/subscription'
     | '/guia/melhores-apps-de-guarda-roupa'
     | '/app/'
+    | '/app/look/$postId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -378,6 +390,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAiRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/look/$postId': {
+      id: '/app/look/$postId'
+      path: '/look/$postId'
+      fullPath: '/app/look/$postId'
+      preLoaderRoute: typeof AppLookPostIdRouteImport
+      parentRoute: typeof AppRoute
+    }
   }
 }
 
@@ -395,6 +414,7 @@ interface AppRouteChildren {
   AppStatsRoute: typeof AppStatsRoute
   AppSubscriptionRoute: typeof AppSubscriptionRoute
   AppIndexRoute: typeof AppIndexRoute
+  AppLookPostIdRoute: typeof AppLookPostIdRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
@@ -411,6 +431,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppStatsRoute: AppStatsRoute,
   AppSubscriptionRoute: AppSubscriptionRoute,
   AppIndexRoute: AppIndexRoute,
+  AppLookPostIdRoute: AppLookPostIdRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
