@@ -115,9 +115,9 @@ export async function saveProfile(patch: {
   // Mantém os looks já publicados com o nome/foto atualizados.
   if (patch.name !== undefined || patch.avatar_url !== undefined) {
     const avatar = patch.avatar_url !== undefined ? await resolveImage(patch.avatar_url) : undefined;
-    const postPatch: Record<string, unknown> = {};
-    if (patch.name !== undefined) postPatch['author_name'] = patch.name;
-    if (avatar !== undefined) postPatch['author_avatar'] = avatar;
+    const postPatch: { author_name?: string; author_avatar?: string | null } = {};
+    if (patch.name !== undefined) postPatch.author_name = patch.name;
+    if (avatar !== undefined) postPatch.author_avatar = avatar;
     await supabase.from("look_posts").update(postPatch).eq("user_id", me);
   }
 }
