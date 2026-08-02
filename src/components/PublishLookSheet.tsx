@@ -1,8 +1,10 @@
-import { useState } from "react";
-import { X, Loader2, Upload } from "lucide-react";
+import { useEffect, useState } from "react";
+import { X, Loader2, Upload, Crown } from "lucide-react";
 import { toast } from "sonner";
 import { useNavigate } from "@tanstack/react-router";
-import { FEED_CATEGORIES, publishLook, type PostGarment } from "@/lib/community";
+import { FEED_CATEGORIES, publishLook, countMyPostsToday, FREE_DAILY_POSTS, type PostGarment } from "@/lib/community";
+import { useSubscription } from "@/hooks/use-subscription";
+import { Link } from "@tanstack/react-router";
 import { resizeDataUrl } from "@/lib/image-resize";
 import { tap } from "@/lib/haptics";
 import { track } from "@/lib/track";
@@ -25,11 +27,29 @@ export function PublishLookSheet({
   const [caption, setCaption] = useState("");
   const [category, setCategory] = useState<string>("geral");
   const [busy, setBusy] = useState(false);
+  const { isPremium } = useSubscription();
+  const [usedToday, setUsedToday] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (isPremium) return;
+    void countMyPostsToday().then(setUsedToday);
+  }, [isPremium]);
+
+  const remaining = isPremium ? Infinity : Math.max(0, FREE_DAILY_POSTS - (usedToday ?? 0));
+  const blocked = !isPremium && usedToday !== null && remaining <= 0;
 
   async function submit() {
     if (!title.trim()) {
       toast.error("Dê um nome ao seu look.");
       return;
+    }
+    if (!isPremium) {
+      const used = await countMyPostsToday();
+      setUsedToday(used);
+      if (used >= FREE_DAILY_POSTS) {
+        toast.error(`Limite diário do plano Free: ${FREE_DAILY_POSTS} looks por dia. Seja Premium para publicar sem limites.`);
+        return;
+      }
     }
     tap();
     setBusy(true);
@@ -45,6 +65,7 @@ export function PublishLookSheet({
         authorAvatar: authorAvatar ?? null,
       });
       track("share");
+      setUsedToday((n) => (n ?? 0) + 1);
       toast.success("Look publicado na comunidade!");
       onClose();
       navigate({ to: "/app/look/$postId", params: { postId: id } });
@@ -104,13 +125,25 @@ export function PublishLookSheet({
 
         <button
           onClick={() => void submit()}
-          disabled={busy}
+          disabled={busy || blocked}
           className="press mt-6 flex w-full items-center justify-center gap-2 rounded-full bg-foreground py-3 text-sm text-primary-foreground disabled:opacity-60"
         >
           {busy ? <Loader2 size={16} className="animate-spin" /> : <Upload size={16} />}
           {busy ? "Publicando…" : "Publicar na comunidade"}
         </button>
-        <p className="mt-2 text-center text-[10px] text-muted-foreground">Seu look ficará visível para toda a comunidade Stylisme.</p>
+        {isPremium ? (
+          <p className="mt-2 flex items-center justify-center gap-1 text-center text-[10px] text-muted-foreground">
+            <Crown size={10} className="text-gold" /> Premium · publicações ilimitadas
+          </p>
+        ) : blocked ? (
+          <Link to="/app/premium" onClick={onClose} className="mt-2 block text-center text-[10px] text-muted-foreground underline">
+            Limite diário atingido ({FREE_DAILY_POSTS}/{FREE_DAILY_POSTS}). Seja Premium para publicar sem limites.
+          </Link>
+        ) : (
+          <p className="mt-2 text-center text-[10px] text-muted-foreground">
+            {usedToday === null ? "Seu look ficará visível para toda a comunidade Stylisme." : `${remaining} de ${FREE_DAILY_POSTS} publicações restantes hoje.`}
+          </p>
+        )}
       </div>
     </div>
   );
