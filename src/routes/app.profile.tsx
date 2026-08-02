@@ -103,6 +103,18 @@ function Row({ to, onClick, icon: Icon, label, danger }: { to?: string; onClick?
 }
 
 
+function ExternalRow({ href, icon: Icon, label }: { href: string; icon: React.ElementType; label: string }) {
+  return (
+    <a href={href} target="_blank" rel="noopener noreferrer" className="flex w-full items-center justify-between border-b border-border px-5 py-4 text-left">
+      <div className="flex items-center gap-3">
+        <Icon size={18} strokeWidth={1.5} />
+        <span className="text-sm">{label}</span>
+      </div>
+      <ChevronRight size={16} className="text-muted-foreground" />
+    </a>
+  );
+}
+
 function Stat({ label, value }: { label: string; value: number }) {
   return (
     <div className="rounded-2xl bg-card p-3 shadow-soft">
