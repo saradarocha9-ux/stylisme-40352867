@@ -93,8 +93,25 @@ function ProfilePage() {
       )}
 
       <div className="mt-6 overflow-hidden rounded-3xl bg-card shadow-soft">
+        {uid && (
+          <Link to="/app/u/$userId" params={{ userId: uid }} className="flex w-full items-center justify-between border-b border-border px-5 py-4 text-left">
+            <div className="flex items-center gap-3">
+              <Images size={18} strokeWidth={1.5} />
+              <span className="text-sm">Meus looks publicados</span>
+            </div>
+            <ChevronRight size={16} className="text-muted-foreground" />
+          </Link>
+        )}
+        <Link to="/app/looks" className="flex w-full items-center justify-between border-b border-border px-5 py-4 text-left">
+          <div className="flex items-center gap-3">
+            <PlusCircle size={18} strokeWidth={1.5} />
+            <span className="text-sm">Criar look</span>
+          </div>
+          <ChevronRight size={16} className="text-muted-foreground" />
+        </Link>
         <Row to="/app/help" icon={HelpCircle} label="Central de Ajuda" />
         <Row to="/app/ideas" icon={Lightbulb} label="Central de Ideias" />
+
         <Row to="/app/subscription" icon={CreditCard} label="Minha assinatura" />
         <Row to="/app/stats" icon={BarChart3} label="Estatísticas" />
         <Row to="/app/settings" icon={Settings} label="Configurações" />
