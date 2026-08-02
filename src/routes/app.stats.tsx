@@ -47,7 +47,7 @@ function StatsPage() {
     return (
       <div className="px-5 pt-8">
         <Link to="/app/profile" className="inline-flex items-center gap-1 text-xs uppercase tracking-[0.24em] text-muted-foreground">
-          <ArrowLeft size={14} /> Voltar
+          <ArrowLeft size={14} /> Voltar para o Armário
         </Link>
         <h1 className="mt-4 font-display text-3xl">Estatísticas</h1>
 
@@ -72,7 +72,7 @@ function StatsPage() {
   return (
     <div className="px-5 pt-8">
       <Link to="/app/profile" className="inline-flex items-center gap-1 text-xs uppercase tracking-[0.24em] text-muted-foreground">
-        <ArrowLeft size={14} /> Voltar
+        <ArrowLeft size={14} /> Voltar para o Armário
       </Link>
       <h1 className="mt-4 font-display text-3xl">Estatísticas</h1>
 

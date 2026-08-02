@@ -14,6 +14,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AppRouteImport } from './routes/app'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppIndexRouteImport } from './routes/app.index'
+import { Route as GuiaMelhoresAppsDeGuardaRoupaRouteImport } from './routes/guia.melhores-apps-de-guarda-roupa'
 import { Route as AppSubscriptionRouteImport } from './routes/app.subscription'
 import { Route as AppStatsRouteImport } from './routes/app.stats'
 import { Route as AppSettingsRouteImport } from './routes/app.settings'
@@ -49,6 +50,12 @@ const AppIndexRoute = AppIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AppRoute,
 } as any)
+const GuiaMelhoresAppsDeGuardaRoupaRoute =
+  GuiaMelhoresAppsDeGuardaRoupaRouteImport.update({
+    id: '/guia/melhores-apps-de-guarda-roupa',
+    path: '/guia/melhores-apps-de-guarda-roupa',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AppSubscriptionRoute = AppSubscriptionRouteImport.update({
   id: '/subscription',
   path: '/subscription',
@@ -109,6 +116,7 @@ export interface FileRoutesByFullPath {
   '/app/settings': typeof AppSettingsRoute
   '/app/stats': typeof AppStatsRoute
   '/app/subscription': typeof AppSubscriptionRoute
+  '/guia/melhores-apps-de-guarda-roupa': typeof GuiaMelhoresAppsDeGuardaRoupaRoute
   '/app/': typeof AppIndexRoute
 }
 export interface FileRoutesByTo {
@@ -124,6 +132,7 @@ export interface FileRoutesByTo {
   '/app/settings': typeof AppSettingsRoute
   '/app/stats': typeof AppStatsRoute
   '/app/subscription': typeof AppSubscriptionRoute
+  '/guia/melhores-apps-de-guarda-roupa': typeof GuiaMelhoresAppsDeGuardaRoupaRoute
   '/app': typeof AppIndexRoute
 }
 export interface FileRoutesById {
@@ -141,6 +150,7 @@ export interface FileRoutesById {
   '/app/settings': typeof AppSettingsRoute
   '/app/stats': typeof AppStatsRoute
   '/app/subscription': typeof AppSubscriptionRoute
+  '/guia/melhores-apps-de-guarda-roupa': typeof GuiaMelhoresAppsDeGuardaRoupaRoute
   '/app/': typeof AppIndexRoute
 }
 export interface FileRouteTypes {
@@ -159,6 +169,7 @@ export interface FileRouteTypes {
     | '/app/settings'
     | '/app/stats'
     | '/app/subscription'
+    | '/guia/melhores-apps-de-guarda-roupa'
     | '/app/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -174,6 +185,7 @@ export interface FileRouteTypes {
     | '/app/settings'
     | '/app/stats'
     | '/app/subscription'
+    | '/guia/melhores-apps-de-guarda-roupa'
     | '/app'
   id:
     | '__root__'
@@ -190,6 +202,7 @@ export interface FileRouteTypes {
     | '/app/settings'
     | '/app/stats'
     | '/app/subscription'
+    | '/guia/melhores-apps-de-guarda-roupa'
     | '/app/'
   fileRoutesById: FileRoutesById
 }
@@ -198,6 +211,7 @@ export interface RootRouteChildren {
   AppRoute: typeof AppRouteWithChildren
   AuthRoute: typeof AuthRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  GuiaMelhoresAppsDeGuardaRoupaRoute: typeof GuiaMelhoresAppsDeGuardaRoupaRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -236,6 +250,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/app/'
       preLoaderRoute: typeof AppIndexRouteImport
       parentRoute: typeof AppRoute
+    }
+    '/guia/melhores-apps-de-guarda-roupa': {
+      id: '/guia/melhores-apps-de-guarda-roupa'
+      path: '/guia/melhores-apps-de-guarda-roupa'
+      fullPath: '/guia/melhores-apps-de-guarda-roupa'
+      preLoaderRoute: typeof GuiaMelhoresAppsDeGuardaRoupaRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/app/subscription': {
       id: '/app/subscription'
@@ -336,6 +357,7 @@ const rootRouteChildren: RootRouteChildren = {
   AppRoute: AppRouteWithChildren,
   AuthRoute: AuthRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  GuiaMelhoresAppsDeGuardaRoupaRoute: GuiaMelhoresAppsDeGuardaRoupaRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

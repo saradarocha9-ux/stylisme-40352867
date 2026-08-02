@@ -46,7 +46,7 @@ function Wardrobe() {
         <div className="flex items-center gap-2">
           <Logo size={36} />
           <div>
-            <p className="font-display text-2xl leading-none">Stylisme</p>
+            <h1 className="font-display text-2xl leading-none">Stylisme<span className="sr-only"> — Meu armário</span></h1>
             <p className="text-[10px] uppercase tracking-[0.24em] text-muted-foreground">Seu armário</p>
           </div>
         </div>

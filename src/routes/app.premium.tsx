@@ -72,7 +72,7 @@ function PremiumPage() {
     <div className="min-h-screen bg-premium text-white">
       <div className="mx-auto max-w-md px-6 pb-16 pt-8">
         <Link to="/app/profile" className="inline-flex items-center gap-1 text-xs uppercase tracking-[0.24em] opacity-70">
-          <ArrowLeft size={14} /> Voltar
+          <ArrowLeft size={14} /> Voltar para o Perfil
         </Link>
 
         {showCancelled && (

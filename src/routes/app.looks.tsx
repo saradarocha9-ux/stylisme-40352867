@@ -180,7 +180,7 @@ function TryOnPage() {
         {body ? (
           <img
             src={generatedUrl ?? body}
-            alt={generatedUrl ? "Resultado do provador virtual" : "Você"}
+            alt={generatedUrl ? "Resultado do provador virtual com as peças vestidas" : "Sua foto de corpo inteiro usada no provador virtual"}
             className="pointer-events-none absolute inset-0 h-full w-full object-contain"
           />
         ) : (
