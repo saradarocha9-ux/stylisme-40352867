@@ -15,7 +15,9 @@ export const Route = createFileRoute("/guia/melhores-apps-de-guarda-roupa")({
       { property: "og:description", content: DESC },
       { property: "og:type", content: "article" },
       { property: "og:url", content: URL },
+      { property: "og:image", content: "https://stylisme.company/og-stylisme.jpg" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:image", content: "https://stylisme.company/og-stylisme.jpg" },
     ],
     links: [{ rel: "canonical", href: URL }],
     scripts: [
