@@ -24,6 +24,7 @@ import { Route as AppPaletteRouteImport } from './routes/app.palette'
 import { Route as AppLooksRouteImport } from './routes/app.looks'
 import { Route as AppIdeasRouteImport } from './routes/app.ideas'
 import { Route as AppHelpRouteImport } from './routes/app.help'
+import { Route as AppFeedRouteImport } from './routes/app.feed'
 import { Route as AppFavoritesRouteImport } from './routes/app.favorites'
 import { Route as AppAiRouteImport } from './routes/app.ai'
 
@@ -103,6 +104,11 @@ const AppHelpRoute = AppHelpRouteImport.update({
   path: '/help',
   getParentRoute: () => AppRoute,
 } as any)
+const AppFeedRoute = AppFeedRouteImport.update({
+  id: '/feed',
+  path: '/feed',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppFavoritesRoute = AppFavoritesRouteImport.update({
   id: '/favorites',
   path: '/favorites',
@@ -121,6 +127,7 @@ export interface FileRoutesByFullPath {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/app/ai': typeof AppAiRoute
   '/app/favorites': typeof AppFavoritesRoute
+  '/app/feed': typeof AppFeedRoute
   '/app/help': typeof AppHelpRoute
   '/app/ideas': typeof AppIdeasRoute
   '/app/looks': typeof AppLooksRoute
@@ -139,6 +146,7 @@ export interface FileRoutesByTo {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/app/ai': typeof AppAiRoute
   '/app/favorites': typeof AppFavoritesRoute
+  '/app/feed': typeof AppFeedRoute
   '/app/help': typeof AppHelpRoute
   '/app/ideas': typeof AppIdeasRoute
   '/app/looks': typeof AppLooksRoute
@@ -159,6 +167,7 @@ export interface FileRoutesById {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/app/ai': typeof AppAiRoute
   '/app/favorites': typeof AppFavoritesRoute
+  '/app/feed': typeof AppFeedRoute
   '/app/help': typeof AppHelpRoute
   '/app/ideas': typeof AppIdeasRoute
   '/app/looks': typeof AppLooksRoute
@@ -180,6 +189,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/app/ai'
     | '/app/favorites'
+    | '/app/feed'
     | '/app/help'
     | '/app/ideas'
     | '/app/looks'
@@ -198,6 +208,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/app/ai'
     | '/app/favorites'
+    | '/app/feed'
     | '/app/help'
     | '/app/ideas'
     | '/app/looks'
@@ -217,6 +228,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/app/ai'
     | '/app/favorites'
+    | '/app/feed'
     | '/app/help'
     | '/app/ideas'
     | '/app/looks'
@@ -345,6 +357,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppHelpRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/feed': {
+      id: '/app/feed'
+      path: '/feed'
+      fullPath: '/app/feed'
+      preLoaderRoute: typeof AppFeedRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/favorites': {
       id: '/app/favorites'
       path: '/favorites'
@@ -365,6 +384,7 @@ declare module '@tanstack/react-router' {
 interface AppRouteChildren {
   AppAiRoute: typeof AppAiRoute
   AppFavoritesRoute: typeof AppFavoritesRoute
+  AppFeedRoute: typeof AppFeedRoute
   AppHelpRoute: typeof AppHelpRoute
   AppIdeasRoute: typeof AppIdeasRoute
   AppLooksRoute: typeof AppLooksRoute
@@ -380,6 +400,7 @@ interface AppRouteChildren {
 const AppRouteChildren: AppRouteChildren = {
   AppAiRoute: AppAiRoute,
   AppFavoritesRoute: AppFavoritesRoute,
+  AppFeedRoute: AppFeedRoute,
   AppHelpRoute: AppHelpRoute,
   AppIdeasRoute: AppIdeasRoute,
   AppLooksRoute: AppLooksRoute,
