@@ -68,7 +68,7 @@ function PublicProfilePage() {
       {isMe && (
         <Link
           to="/app/looks"
-          className="press mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-foreground py-3 text-xs uppercase tracking-[0.2em] text-primary-foreground"
+          className="press-gold mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-foreground py-3 text-xs uppercase tracking-[0.2em] text-primary-foreground"
         >
           <Plus size={14} /> Criar look
         </Link>

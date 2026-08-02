@@ -62,7 +62,7 @@ function FeedPage() {
         </div>
         <Link
           to="/app/looks"
-          className="press flex items-center gap-1.5 rounded-full bg-foreground px-4 py-2 text-xs uppercase tracking-[0.2em] text-primary-foreground"
+          className="press-gold flex items-center gap-1.5 rounded-full bg-foreground px-4 py-2 text-xs uppercase tracking-[0.2em] text-primary-foreground"
         >
           <Plus size={14} /> Criar look
         </Link>
@@ -107,7 +107,7 @@ function FeedPage() {
         <div className="mt-16 flex flex-col items-center gap-3 px-6 text-center text-muted-foreground">
           <Sparkles size={26} strokeWidth={1.3} />
           <p className="text-sm">Ainda não há looks por aqui nessa seleção.</p>
-          <Link to="/app/looks" className="press mt-1 rounded-full bg-foreground px-5 py-2.5 text-xs uppercase tracking-[0.2em] text-primary-foreground">
+          <Link to="/app/looks" className="press-gold mt-1 rounded-full bg-foreground px-5 py-2.5 text-xs uppercase tracking-[0.2em] text-primary-foreground">
             Criar o primeiro look
           </Link>
         </div>
