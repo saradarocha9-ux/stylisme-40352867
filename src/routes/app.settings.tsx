@@ -18,15 +18,9 @@ function SettingsPage() {
     alert("Dados salvos.");
   }
 
-  function toggleTheme(theme: "light" | "dark" | "system") {
-    actions.updateProfile({ theme });
-    const root = document.documentElement;
-    if (theme === "dark") root.classList.add("dark");
-    else if (theme === "light") root.classList.remove("dark");
-    else {
-      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-      root.classList.toggle("dark", prefersDark);
-    }
+  function pickTheme(t: "light" | "dark") {
+    setTheme(t);
+    actions.updateProfile({ theme: t });
   }
 
   function exportData() {
