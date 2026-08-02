@@ -96,7 +96,17 @@ interface AppState {
   gamify: Gamify;
 }
 
-const KEY = "stylisme:v1";
+const LEGACY_KEY = "stylisme:v1";
+const UID_KEY = "stylisme:uid";
+
+/** Usuário ativo: cada conta tem o seu próprio armazenamento local. */
+let currentUid: string | null =
+  typeof window === "undefined" ? null : (localStorage.getItem(UID_KEY) || null);
+
+function storeKey(uid: string | null = currentUid) {
+  return uid ? `stylisme:v1:${uid}` : "stylisme:v1:guest";
+}
+
 
 const defaultProfile: Profile = {
   name: "Você",
