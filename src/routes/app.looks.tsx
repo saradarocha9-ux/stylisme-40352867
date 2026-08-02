@@ -261,22 +261,32 @@ function TryOnPage() {
       )}
 
       {body && state.tryOn.length > 0 && (
-        <ShareButton
-          kind="tryon"
-          bodyUrl={generatedUrl ?? body}
-          caption="Meu look"
-          label="Compartilhar meu look"
-          className="mt-4 w-full sheen"
-          pieces={(generatedUrl ? [] : items)
-            .map((t) => {
-              const g = state.garments.find((x) => x.id === t.garmentId);
-              return g?.imageUrl
-                ? { url: g.imageUrl, x: t.x, y: t.y, scale: t.scale, rotation: t.rotation, z: t.z }
-                : null;
-            })
-            .filter(Boolean) as { url: string; x: number; y: number; scale: number; rotation: number; z: number }[]}
-        />
+        <>
+          <ShareButton
+            kind="tryon"
+            bodyUrl={generatedUrl ?? body}
+            caption="Meu look"
+            label="Compartilhar meu look"
+            className="mt-4 w-full sheen"
+            pieces={(generatedUrl ? [] : items)
+              .map((t) => {
+                const g = state.garments.find((x) => x.id === t.garmentId);
+                return g?.imageUrl
+                  ? { url: g.imageUrl, x: t.x, y: t.y, scale: t.scale, rotation: t.rotation, z: t.z }
+                  : null;
+              })
+              .filter(Boolean) as { url: string; x: number; y: number; scale: number; rotation: number; z: number }[]}
+          />
+          <button
+            onClick={() => setPublishing(true)}
+            disabled={tryOnBusy}
+            className="press mt-3 flex w-full items-center justify-center gap-2 rounded-full border border-border py-3 text-xs uppercase tracking-[0.2em] disabled:opacity-60"
+          >
+            <Users size={14} /> Publicar na comunidade
+          </button>
+        </>
       )}
+
 
       {body && (
         <button
