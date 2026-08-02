@@ -304,7 +304,6 @@ function GarmentPicker({ body, busy, onSelect, onClose }: { body?: string; busy:
   );
 
   async function addWithDetectedFit(garment: Garment) {
-    if (!body || !garment.imageUrl) return;
     setFittingId(garment.id);
     setFitError(null);
     try {
