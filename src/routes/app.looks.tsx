@@ -331,13 +331,18 @@ function GarmentPicker({ body, busy, onSelect, onClose }: { body?: string; busy:
         {state.garments.length === 0 && (
           <p className="mt-6 text-center text-sm text-muted-foreground">Cadastre peças no armário para começar a provar.</p>
         )}
+        {!body && state.garments.length > 0 && (
+          <p className="mt-3 text-xs text-muted-foreground">
+            Envie uma foto sua de corpo inteiro para ver o caimento. As peças escolhidas já ficam salvas no provador.
+          </p>
+        )}
         {fitError && <p className="mt-3 text-xs text-destructive">{fitError}</p>}
         <div className="mt-4 grid grid-cols-3 gap-2">
           {list.map((g) => (
             <button
               key={g.id}
               onClick={() => void addWithDetectedFit(g)}
-              disabled={fittingId !== null || busy || !body}
+              disabled={fittingId !== null || busy}
               className="group relative aspect-square overflow-hidden rounded-2xl bg-muted p-2 disabled:opacity-60"
             >
               {g.imageUrl ? (
