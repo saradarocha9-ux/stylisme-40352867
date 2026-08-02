@@ -137,7 +137,49 @@ const initial: AppState = {
 let cache: AppState | null = null;
 const listeners = new Set<() => void>();
 
+/**
+ * Define a conta ativa. Cada usuário tem o seu próprio espaço local:
+ * ao trocar de conta o app carrega exatamente o que aquela conta deixou.
+ */
+export function setStoreUser(uid: string | null) {
+  if (typeof window === "undefined") return;
+  const prev = currentUid;
+  if (prev === uid) return;
+
+  // Garante que o que estava em memória seja salvo na conta anterior.
+  if (persistTimer) {
+    clearTimeout(persistTimer);
+    persistTimer = null;
+  }
+  if (cache) {
+    try {
+      localStorage.setItem(storeKey(prev), JSON.stringify(cache));
+    } catch { /* quota */ }
+  }
+
+  currentUid = uid;
+  try {
+    if (uid) localStorage.setItem(UID_KEY, uid);
+    else localStorage.removeItem(UID_KEY);
+  } catch { /* ignore */ }
+
+  // Migração única: dados antigos (sem conta) viram os dados da primeira conta.
+  if (uid) {
+    try {
+      const legacy = localStorage.getItem(LEGACY_KEY);
+      if (legacy && !localStorage.getItem(storeKey(uid))) {
+        localStorage.setItem(storeKey(uid), legacy);
+      }
+      localStorage.removeItem(LEGACY_KEY);
+    } catch { /* ignore */ }
+  }
+
+  cache = null;
+  emit();
+}
+
 function parseStored(): AppState {
+
   if (typeof window === "undefined") return initial;
   try {
     const raw = localStorage.getItem(storeKey());
