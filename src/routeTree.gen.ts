@@ -26,6 +26,7 @@ import { Route as AppIdeasRouteImport } from './routes/app.ideas'
 import { Route as AppHelpRouteImport } from './routes/app.help'
 import { Route as AppFeedRouteImport } from './routes/app.feed'
 import { Route as AppFavoritesRouteImport } from './routes/app.favorites'
+import { Route as AppEditProfileRouteImport } from './routes/app.edit-profile'
 import { Route as AppAiRouteImport } from './routes/app.ai'
 import { Route as AppUUserIdRouteImport } from './routes/app.u.$userId'
 import { Route as AppLookPostIdRouteImport } from './routes/app.look.$postId'
@@ -116,6 +117,11 @@ const AppFavoritesRoute = AppFavoritesRouteImport.update({
   path: '/favorites',
   getParentRoute: () => AppRoute,
 } as any)
+const AppEditProfileRoute = AppEditProfileRouteImport.update({
+  id: '/edit-profile',
+  path: '/edit-profile',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppAiRoute = AppAiRouteImport.update({
   id: '/ai',
   path: '/ai',
@@ -138,6 +144,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/app/ai': typeof AppAiRoute
+  '/app/edit-profile': typeof AppEditProfileRoute
   '/app/favorites': typeof AppFavoritesRoute
   '/app/feed': typeof AppFeedRoute
   '/app/help': typeof AppHelpRoute
@@ -159,6 +166,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/app/ai': typeof AppAiRoute
+  '/app/edit-profile': typeof AppEditProfileRoute
   '/app/favorites': typeof AppFavoritesRoute
   '/app/feed': typeof AppFeedRoute
   '/app/help': typeof AppHelpRoute
@@ -182,6 +190,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/app/ai': typeof AppAiRoute
+  '/app/edit-profile': typeof AppEditProfileRoute
   '/app/favorites': typeof AppFavoritesRoute
   '/app/feed': typeof AppFeedRoute
   '/app/help': typeof AppHelpRoute
@@ -206,6 +215,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/sitemap.xml'
     | '/app/ai'
+    | '/app/edit-profile'
     | '/app/favorites'
     | '/app/feed'
     | '/app/help'
@@ -227,6 +237,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/sitemap.xml'
     | '/app/ai'
+    | '/app/edit-profile'
     | '/app/favorites'
     | '/app/feed'
     | '/app/help'
@@ -249,6 +260,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/sitemap.xml'
     | '/app/ai'
+    | '/app/edit-profile'
     | '/app/favorites'
     | '/app/feed'
     | '/app/help'
@@ -395,6 +407,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppFavoritesRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/edit-profile': {
+      id: '/app/edit-profile'
+      path: '/edit-profile'
+      fullPath: '/app/edit-profile'
+      preLoaderRoute: typeof AppEditProfileRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/ai': {
       id: '/app/ai'
       path: '/ai'
@@ -421,6 +440,7 @@ declare module '@tanstack/react-router' {
 
 interface AppRouteChildren {
   AppAiRoute: typeof AppAiRoute
+  AppEditProfileRoute: typeof AppEditProfileRoute
   AppFavoritesRoute: typeof AppFavoritesRoute
   AppFeedRoute: typeof AppFeedRoute
   AppHelpRoute: typeof AppHelpRoute
@@ -439,6 +459,7 @@ interface AppRouteChildren {
 
 const AppRouteChildren: AppRouteChildren = {
   AppAiRoute: AppAiRoute,
+  AppEditProfileRoute: AppEditProfileRoute,
   AppFavoritesRoute: AppFavoritesRoute,
   AppFeedRoute: AppFeedRoute,
   AppHelpRoute: AppHelpRoute,
