@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { Crown, Settings, LogOut, ChevronRight, User as UserIcon, CreditCard, BarChart3 } from "lucide-react";
+import { Crown, Settings, LogOut, ChevronRight, User as UserIcon, CreditCard, BarChart3, Users } from "lucide-react";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useStore, ACHIEVEMENTS } from "@/lib/store";
