@@ -22,6 +22,8 @@ import { Route as AppProfileRouteImport } from './routes/app.profile'
 import { Route as AppPremiumRouteImport } from './routes/app.premium'
 import { Route as AppPaletteRouteImport } from './routes/app.palette'
 import { Route as AppLooksRouteImport } from './routes/app.looks'
+import { Route as AppIdeasRouteImport } from './routes/app.ideas'
+import { Route as AppHelpRouteImport } from './routes/app.help'
 import { Route as AppFavoritesRouteImport } from './routes/app.favorites'
 import { Route as AppAiRouteImport } from './routes/app.ai'
 
@@ -91,6 +93,16 @@ const AppLooksRoute = AppLooksRouteImport.update({
   path: '/looks',
   getParentRoute: () => AppRoute,
 } as any)
+const AppIdeasRoute = AppIdeasRouteImport.update({
+  id: '/ideas',
+  path: '/ideas',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppHelpRoute = AppHelpRouteImport.update({
+  id: '/help',
+  path: '/help',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppFavoritesRoute = AppFavoritesRouteImport.update({
   id: '/favorites',
   path: '/favorites',
@@ -109,6 +121,8 @@ export interface FileRoutesByFullPath {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/app/ai': typeof AppAiRoute
   '/app/favorites': typeof AppFavoritesRoute
+  '/app/help': typeof AppHelpRoute
+  '/app/ideas': typeof AppIdeasRoute
   '/app/looks': typeof AppLooksRoute
   '/app/palette': typeof AppPaletteRoute
   '/app/premium': typeof AppPremiumRoute
@@ -125,6 +139,8 @@ export interface FileRoutesByTo {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/app/ai': typeof AppAiRoute
   '/app/favorites': typeof AppFavoritesRoute
+  '/app/help': typeof AppHelpRoute
+  '/app/ideas': typeof AppIdeasRoute
   '/app/looks': typeof AppLooksRoute
   '/app/palette': typeof AppPaletteRoute
   '/app/premium': typeof AppPremiumRoute
@@ -143,6 +159,8 @@ export interface FileRoutesById {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/app/ai': typeof AppAiRoute
   '/app/favorites': typeof AppFavoritesRoute
+  '/app/help': typeof AppHelpRoute
+  '/app/ideas': typeof AppIdeasRoute
   '/app/looks': typeof AppLooksRoute
   '/app/palette': typeof AppPaletteRoute
   '/app/premium': typeof AppPremiumRoute
@@ -162,6 +180,8 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/app/ai'
     | '/app/favorites'
+    | '/app/help'
+    | '/app/ideas'
     | '/app/looks'
     | '/app/palette'
     | '/app/premium'
@@ -178,6 +198,8 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/app/ai'
     | '/app/favorites'
+    | '/app/help'
+    | '/app/ideas'
     | '/app/looks'
     | '/app/palette'
     | '/app/premium'
@@ -195,6 +217,8 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/app/ai'
     | '/app/favorites'
+    | '/app/help'
+    | '/app/ideas'
     | '/app/looks'
     | '/app/palette'
     | '/app/premium'
@@ -307,6 +331,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppLooksRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/ideas': {
+      id: '/app/ideas'
+      path: '/ideas'
+      fullPath: '/app/ideas'
+      preLoaderRoute: typeof AppIdeasRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/help': {
+      id: '/app/help'
+      path: '/help'
+      fullPath: '/app/help'
+      preLoaderRoute: typeof AppHelpRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/favorites': {
       id: '/app/favorites'
       path: '/favorites'
@@ -327,6 +365,8 @@ declare module '@tanstack/react-router' {
 interface AppRouteChildren {
   AppAiRoute: typeof AppAiRoute
   AppFavoritesRoute: typeof AppFavoritesRoute
+  AppHelpRoute: typeof AppHelpRoute
+  AppIdeasRoute: typeof AppIdeasRoute
   AppLooksRoute: typeof AppLooksRoute
   AppPaletteRoute: typeof AppPaletteRoute
   AppPremiumRoute: typeof AppPremiumRoute
@@ -340,6 +380,8 @@ interface AppRouteChildren {
 const AppRouteChildren: AppRouteChildren = {
   AppAiRoute: AppAiRoute,
   AppFavoritesRoute: AppFavoritesRoute,
+  AppHelpRoute: AppHelpRoute,
+  AppIdeasRoute: AppIdeasRoute,
   AppLooksRoute: AppLooksRoute,
   AppPaletteRoute: AppPaletteRoute,
   AppPremiumRoute: AppPremiumRoute,
