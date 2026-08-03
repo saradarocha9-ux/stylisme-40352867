@@ -20,9 +20,11 @@ export function useSubscription() {
     staleTime: 60_000,
     refetchOnWindowFocus: true,
   });
+  // Conta oficial do Stylisme é premium permanente.
+  const official = isOfficialUser(session?.user.id, session?.user.email);
   return {
-    status: query.data ?? EMPTY,
-    isPremium: !!query.data?.subscribed,
+    status: official ? { ...(query.data ?? EMPTY), subscribed: true } : query.data ?? EMPTY,
+    isPremium: official || !!query.data?.subscribed,
     loading: query.isLoading,
     refetch: query.refetch,
   };
