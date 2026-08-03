@@ -5,9 +5,75 @@ const MAX_DIM = 1600;
 
 export async function removeImageBackground(file: File | Blob): Promise<string> {
   const dataUrl = await downscale(await blobToDataUrl(file));
-  const { dataUrl: out } = await removeBgRemote({ data: { dataUrl } });
-  return trimTransparentMargins(out);
+  const { dataUrl: out, mode } = await removeBgRemote({ data: { dataUrl } });
+  const cut = mode === "whitebg" ? await whiteToTransparent(out) : out;
+  return trimTransparentMargins(cut);
 }
+
+/** Converte o fundo branco puro (recorte por IA) em transparência real. */
+async function whiteToTransparent(dataUrl: string): Promise<string> {
+  if (typeof document === "undefined") return dataUrl;
+  try {
+    const image = await loadImage(dataUrl);
+    const width = image.naturalWidth || image.width;
+    const height = image.naturalHeight || image.height;
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext("2d", { willReadFrequently: true });
+    if (!ctx) return dataUrl;
+    ctx.drawImage(image, 0, 0);
+    const imageData = ctx.getImageData(0, 0, width, height);
+    const px = imageData.data;
+
+    // Flood fill a partir das bordas: só apaga o branco conectado ao fundo,
+    // preservando áreas brancas dentro da própria peça.
+    const visited = new Uint8Array(width * height);
+    const stack: number[] = [];
+    const isWhite = (i: number) => px[i * 4] > 235 && px[i * 4 + 1] > 235 && px[i * 4 + 2] > 235;
+    for (let x = 0; x < width; x += 1) {
+      stack.push(x, (height - 1) * width + x);
+    }
+    for (let y = 0; y < height; y += 1) {
+      stack.push(y * width, y * width + width - 1);
+    }
+    while (stack.length) {
+      const i = stack.pop() as number;
+      if (i < 0 || i >= width * height || visited[i]) continue;
+      visited[i] = 1;
+      if (!isWhite(i)) continue;
+      px[i * 4 + 3] = 0;
+      const x = i % width;
+      const y = (i - x) / width;
+      if (x > 0) stack.push(i - 1);
+      if (x < width - 1) stack.push(i + 1);
+      if (y > 0) stack.push(i - width);
+      if (y < height - 1) stack.push(i + width);
+    }
+
+    // Suaviza a borda: pixels claros vizinhos de transparência ficam semitransparentes.
+    for (let y = 1; y < height - 1; y += 1) {
+      for (let x = 1; x < width - 1; x += 1) {
+        const i = y * width + x;
+        if (px[i * 4 + 3] === 0) continue;
+        const near =
+          px[(i - 1) * 4 + 3] === 0 ||
+          px[(i + 1) * 4 + 3] === 0 ||
+          px[(i - width) * 4 + 3] === 0 ||
+          px[(i + width) * 4 + 3] === 0;
+        if (near && px[i * 4] > 225 && px[i * 4 + 1] > 225 && px[i * 4 + 2] > 225) {
+          px[i * 4 + 3] = 90;
+        }
+      }
+    }
+
+    ctx.putImageData(imageData, 0, 0);
+    return canvas.toDataURL("image/png");
+  } catch {
+    return dataUrl;
+  }
+}
+
 
 /** Remove o espaço transparente deixado ao redor do corpo ou da peça. */
 async function trimTransparentMargins(dataUrl: string): Promise<string> {
