@@ -138,6 +138,7 @@ function ProfilePage() {
         <Row to="/app/stats" icon={BarChart3} label="Estatísticas" />
         <Row to="/app/settings" icon={Settings} label="Configurações" />
         <ExternalRow href="https://stylismeteam.com/" icon={Users} label="Saber sobre a equipe Stylisme" />
+        <Row to="/privacidade" icon={Shield} label="Política de Privacidade" />
         <Row onClick={signOut} icon={LogOut} label="Sair" danger />
       </div>
     </div>

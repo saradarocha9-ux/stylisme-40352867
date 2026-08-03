@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Shield } from "lucide-react";
 import { useState } from "react";
 import { actions, useStore } from "@/lib/store";
 import { useTheme } from "@/lib/theme";
