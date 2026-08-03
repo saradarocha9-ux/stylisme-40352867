@@ -33,8 +33,12 @@ export interface FeedPost {
   category: string;
   imageUrl: string;
   garments: PostGarment[];
+  /** Curtidas exibidas (aplica o piso da conta oficial, quando for o caso). */
   likes: number;
+  /** Curtidas reais gravadas no banco — base de todo cálculo. */
+  realLikes: number;
   likedByMe: boolean;
+
   createdAt: string;
 }
 
