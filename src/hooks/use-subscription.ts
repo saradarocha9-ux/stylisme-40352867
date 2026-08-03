@@ -2,6 +2,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { checkSubscription, type SubscriptionStatus } from "@/lib/stripe.functions";
 import { useSession } from "./use-session";
+import { isOfficialUser } from "@/lib/official";
 
 const EMPTY: SubscriptionStatus = {
   subscribed: false,
