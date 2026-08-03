@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { X, Upload, Sparkles, Wand2 } from "lucide-react";
 import { actions, type Category, type Occasion, type Season } from "@/lib/store";
 import { removeImageBackground, fileToDataUrl } from "@/lib/bg-removal";
