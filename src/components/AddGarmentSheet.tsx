@@ -190,9 +190,11 @@ export function AddGarmentSheet({ onClose }: { onClose: () => void }) {
         >
           Salvar peça
         </button>
+        </div>
       </div>
       <style>{`.input{width:100%;background:var(--color-background);border:1px solid var(--color-border);border-radius:12px;padding:.7rem .9rem;font-size:.9rem;outline:none}.input:focus{border-color:var(--color-foreground)}`}</style>
-    </div>
+    </div>,
+    document.body,
   );
 }
 
