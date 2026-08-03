@@ -90,6 +90,10 @@ function SettingsPage() {
 
       <section className="mt-4 space-y-2">
         <button onClick={exportData} className="w-full rounded-2xl bg-card p-4 text-left text-sm shadow-soft">Exportar meus dados</button>
+        <Link to="/privacidade" className="flex w-full items-center justify-between rounded-2xl bg-card p-4 text-sm shadow-soft">
+          <span className="flex items-center gap-2"><Shield size={16} strokeWidth={1.5} /> Política de Privacidade</span>
+          <span className="text-muted-foreground">→</span>
+        </Link>
         <button onClick={deleteAccount} className="w-full rounded-2xl bg-card p-4 text-left text-sm text-destructive shadow-soft">Excluir minha conta</button>
       </section>
     </div>

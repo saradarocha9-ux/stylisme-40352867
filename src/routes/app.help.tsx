@@ -180,6 +180,14 @@ function HelpPage() {
           <HelpCircle size={14} strokeWidth={1.5} />
           {SUPPORT_EMAIL}
         </a>
+
+        <Link
+          to="/privacidade"
+          className="mt-4 flex items-center justify-center gap-2 text-xs text-muted-foreground"
+        >
+          <Shield size={14} strokeWidth={1.5} />
+          Política de Privacidade
+        </Link>
       </div>
     </div>
   );
