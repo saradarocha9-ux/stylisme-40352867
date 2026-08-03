@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowLeft, HelpCircle, Mail, MessageSquare } from "lucide-react";
+import { ArrowLeft, HelpCircle, Mail, MessageSquare, Shield } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -180,6 +180,14 @@ function HelpPage() {
           <HelpCircle size={14} strokeWidth={1.5} />
           {SUPPORT_EMAIL}
         </a>
+
+        <Link
+          to="/privacidade"
+          className="mt-4 flex items-center justify-center gap-2 text-xs text-muted-foreground"
+        >
+          <Shield size={14} strokeWidth={1.5} />
+          Política de Privacidade
+        </Link>
       </div>
     </div>
   );
