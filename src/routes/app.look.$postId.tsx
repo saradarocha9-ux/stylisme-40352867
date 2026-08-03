@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { ArrowLeft, Heart, Loader2, Search, Share2, Shirt, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { deletePost, getPost, timeAgo, toggleLike, type FeedPost } from "@/lib/community";
+import { applyLikeToggle, deletePost, getPost, timeAgo, toggleLike, type FeedPost } from "@/lib/community";
 import { matchWardrobe, type WardrobeMatch } from "@/lib/wardrobe-match.functions";
 import { useStore, actions } from "@/lib/store";
 import { tap } from "@/lib/haptics";
@@ -54,7 +54,7 @@ function LookPostPage() {
   async function like() {
     if (!post) return;
     tap();
-    setPost({ ...post, likedByMe: !post.likedByMe, likes: post.likes + (post.likedByMe ? -1 : 1) });
+    setPost(applyLikeToggle(post));
     try {
       await toggleLike(post.id, post.likedByMe);
     } catch (e) {

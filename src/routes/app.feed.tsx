@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useCallback, useEffect, useState } from "react";
 import { Heart, Loader2, Plus, Sparkles } from "lucide-react";
 import { toast } from "sonner";
-import { FEED_CATEGORIES, listFeed, timeAgo, toggleLike, type FeedPost, type FeedSort } from "@/lib/community";
+import { FEED_CATEGORIES, applyLikeToggle, listFeed, timeAgo, toggleLike, type FeedPost, type FeedSort } from "@/lib/community";
 import { tap } from "@/lib/haptics";
 
 export const Route = createFileRoute("/app/feed")({
@@ -43,7 +43,7 @@ function FeedPage() {
   async function like(post: FeedPost) {
     tap();
     setPosts((prev) =>
-      prev.map((p) => (p.id === post.id ? { ...p, likedByMe: !p.likedByMe, likes: p.likes + (p.likedByMe ? -1 : 1) } : p)),
+      prev.map((p) => (p.id === post.id ? applyLikeToggle(p) : p)),
     );
     try {
       await toggleLike(post.id, post.likedByMe);
