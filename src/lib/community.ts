@@ -1,5 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
-import { OFFICIAL_LIKES, isOfficialUser } from "@/lib/official";
+import { displayPostLikes } from "@/lib/official";
+
 
 export const FEED_CATEGORIES = [
   { id: "geral", label: "Geral" },
@@ -32,8 +33,12 @@ export interface FeedPost {
   category: string;
   imageUrl: string;
   garments: PostGarment[];
+  /** Curtidas exibidas (aplica o piso da conta oficial, quando for o caso). */
   likes: number;
+  /** Curtidas reais gravadas no banco — base de todo cálculo. */
+  realLikes: number;
   likedByMe: boolean;
+
   createdAt: string;
 }
 
@@ -84,7 +89,9 @@ async function hydrate(rows: Row[]): Promise<FeedPost[]> {
     category: r.category,
     imageUrl: urls.get(r.image_path) ?? "",
     garments: Array.isArray(r.garments) ? (r.garments as PostGarment[]) : [],
-    likes: isOfficialUser(r.user_id) ? Math.max(OFFICIAL_LIKES, r.likes_count) : r.likes_count,
+    likes: displayPostLikes(r.user_id, r.likes_count),
+    realLikes: Math.max(0, r.likes_count ?? 0),
+
     likedByMe: liked.has(r.id),
     createdAt: r.created_at,
   }));
@@ -134,6 +141,21 @@ export async function toggleLike(postId: string, liked: boolean) {
     if (error && !error.message.includes("duplicate")) throw new Error(error.message);
   }
 }
+
+/**
+ * Atualização otimista de curtida: mexe só na contagem REAL e recalcula a
+ * exibida. Evita que o piso da conta oficial seja somado/desfeito por engano.
+ */
+export function applyLikeToggle(post: FeedPost): FeedPost {
+  const realLikes = Math.max(0, post.realLikes + (post.likedByMe ? -1 : 1));
+  return {
+    ...post,
+    likedByMe: !post.likedByMe,
+    realLikes,
+    likes: displayPostLikes(post.userId, realLikes),
+  };
+}
+
 
 async function dataUrlToBlob(dataUrl: string): Promise<Blob> {
   const res = await fetch(dataUrl);
