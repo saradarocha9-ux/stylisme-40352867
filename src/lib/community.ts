@@ -89,7 +89,9 @@ async function hydrate(rows: Row[]): Promise<FeedPost[]> {
     category: r.category,
     imageUrl: urls.get(r.image_path) ?? "",
     garments: Array.isArray(r.garments) ? (r.garments as PostGarment[]) : [],
-    likes: isOfficialUser(r.user_id) ? Math.max(OFFICIAL_LIKES, r.likes_count) : r.likes_count,
+    likes: displayPostLikes(r.user_id, r.likes_count),
+    realLikes: Math.max(0, r.likes_count ?? 0),
+
     likedByMe: liked.has(r.id),
     createdAt: r.created_at,
   }));
