@@ -2,6 +2,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { checkSubscription, type SubscriptionStatus } from "@/lib/stripe.functions";
 import { useSession } from "./use-session";
+import { isOfficialUser } from "@/lib/official";
 
 const EMPTY: SubscriptionStatus = {
   subscribed: false,
@@ -20,9 +21,11 @@ export function useSubscription() {
     staleTime: 60_000,
     refetchOnWindowFocus: true,
   });
+  // Conta oficial do Stylisme é premium permanente.
+  const official = isOfficialUser(session?.user.id, session?.user.email);
   return {
-    status: query.data ?? EMPTY,
-    isPremium: !!query.data?.subscribed,
+    status: official ? { ...(query.data ?? EMPTY), subscribed: true } : query.data ?? EMPTY,
+    isPremium: official || !!query.data?.subscribed,
     loading: query.isLoading,
     refetch: query.refetch,
   };

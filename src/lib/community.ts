@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import { OFFICIAL_LIKES, isOfficialUser } from "@/lib/official";
 
 export const FEED_CATEGORIES = [
   { id: "geral", label: "Geral" },
@@ -83,7 +84,7 @@ async function hydrate(rows: Row[]): Promise<FeedPost[]> {
     category: r.category,
     imageUrl: urls.get(r.image_path) ?? "",
     garments: Array.isArray(r.garments) ? (r.garments as PostGarment[]) : [],
-    likes: r.likes_count,
+    likes: isOfficialUser(r.user_id) ? Math.max(OFFICIAL_LIKES, r.likes_count) : r.likes_count,
     likedByMe: liked.has(r.id),
     createdAt: r.created_at,
   }));
@@ -99,7 +100,9 @@ export async function listFeed(opts: { sort: FeedSort; category?: string }): Pro
   if (opts.category && opts.category !== "todos") query = query.eq("category", opts.category);
   const { data, error } = await query;
   if (error) throw new Error(error.message);
-  return hydrate((data ?? []) as unknown as Row[]);
+  const posts = await hydrate((data ?? []) as unknown as Row[]);
+  // Ordena pelas curtidas exibidas (a conta oficial tem contagem de vitrine).
+  return opts.sort === "populares" ? posts.sort((a, b) => b.likes - a.likes) : posts;
 }
 
 export async function listUserPosts(userId: string): Promise<FeedPost[]> {

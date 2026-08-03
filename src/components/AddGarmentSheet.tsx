@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { X, Upload, Sparkles, Wand2 } from "lucide-react";
 import { actions, type Category, type Occasion, type Season } from "@/lib/store";
 import { removeImageBackground, fileToDataUrl } from "@/lib/bg-removal";
@@ -95,14 +96,18 @@ export function AddGarmentSheet({ onClose }: { onClose: () => void }) {
     onClose();
   }
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm animate-fade-in-slow">
-      <div className="w-full max-w-md max-h-[92vh] overflow-y-auto rounded-t-3xl sm:rounded-3xl bg-card p-6 shadow-lift">
-        <div className="flex items-center justify-between">
+  if (typeof document === "undefined") return null;
+  // Portal + área rolável: a tela usa transform/will-change e prendia a folha
+  // "fixed" para fora da área visível, jogando os campos para baixo.
+  return createPortal(
+    <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm animate-fade-in-slow">
+      <div className="flex w-full max-w-md max-h-[85dvh] flex-col overflow-hidden rounded-t-3xl sm:rounded-3xl bg-card shadow-lift">
+        <div className="flex shrink-0 items-center justify-between px-6 pt-6">
           <h2 className="font-display text-2xl">Nova peça</h2>
           <button onClick={onClose} className="rounded-full p-2 hover:bg-muted"><X size={18} /></button>
         </div>
 
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-6 pb-[calc(env(safe-area-inset-bottom)+1.5rem)]">
         <button
           onClick={() => fileRef.current?.click()}
           className="mt-4 relative flex aspect-[4/3] w-full items-center justify-center overflow-hidden rounded-2xl border-2 border-dashed border-border bg-[conic-gradient(from_45deg,transparent_0_25%,rgba(0,0,0,0.04)_0_50%,transparent_0_75%,rgba(0,0,0,0.04)_0)] bg-[length:24px_24px]"
@@ -186,9 +191,11 @@ export function AddGarmentSheet({ onClose }: { onClose: () => void }) {
         >
           Salvar peça
         </button>
+        </div>
       </div>
       <style>{`.input{width:100%;background:var(--color-background);border:1px solid var(--color-border);border-radius:12px;padding:.7rem .9rem;font-size:.9rem;outline:none}.input:focus{border-color:var(--color-foreground)}`}</style>
-    </div>
+    </div>,
+    document.body,
   );
 }
 
