@@ -36,12 +36,11 @@ export async function trackAd(
   const { data } = await supabase.auth.getUser();
   const userId = data.user?.id;
   if (!userId) return;
-  const revenue = kind === "impression" ? Math.round(ad.cpm_cents / 1000) : ad.cpc_cents;
+  // revenue_cents é calculado no servidor (trigger) a partir do CPM/CPC real da campanha.
   await supabase.from("ad_events").insert({
     campaign_id: ad.id,
     user_id: userId,
     kind,
     placement,
-    revenue_cents: revenue,
   });
 }
