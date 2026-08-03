@@ -100,7 +100,9 @@ export async function listFeed(opts: { sort: FeedSort; category?: string }): Pro
   if (opts.category && opts.category !== "todos") query = query.eq("category", opts.category);
   const { data, error } = await query;
   if (error) throw new Error(error.message);
-  return hydrate((data ?? []) as unknown as Row[]);
+  const posts = await hydrate((data ?? []) as unknown as Row[]);
+  // Ordena pelas curtidas exibidas (a conta oficial tem contagem de vitrine).
+  return opts.sort === "populares" ? posts.sort((a, b) => b.likes - a.likes) : posts;
 }
 
 export async function listUserPosts(userId: string): Promise<FeedPost[]> {
