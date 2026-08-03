@@ -1,5 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
-import { OFFICIAL_LIKES, isOfficialUser } from "@/lib/official";
+import { displayPostLikes } from "@/lib/official";
+
 
 export const FEED_CATEGORIES = [
   { id: "geral", label: "Geral" },
