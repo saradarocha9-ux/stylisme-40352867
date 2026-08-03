@@ -142,6 +142,21 @@ export async function toggleLike(postId: string, liked: boolean) {
   }
 }
 
+/**
+ * Atualização otimista de curtida: mexe só na contagem REAL e recalcula a
+ * exibida. Evita que o piso da conta oficial seja somado/desfeito por engano.
+ */
+export function applyLikeToggle(post: FeedPost): FeedPost {
+  const realLikes = Math.max(0, post.realLikes + (post.likedByMe ? -1 : 1));
+  return {
+    ...post,
+    likedByMe: !post.likedByMe,
+    realLikes,
+    likes: displayPostLikes(post.userId, realLikes),
+  };
+}
+
+
 async function dataUrlToBlob(dataUrl: string): Promise<Blob> {
   const res = await fetch(dataUrl);
   return res.blob();
