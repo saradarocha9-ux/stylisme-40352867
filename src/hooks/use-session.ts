@@ -9,9 +9,14 @@ export function useSession() {
 
   useEffect(() => {
     let active = true;
+    let timeout: number | undefined;
 
     const applySession = (nextSession: Session | null) => {
       if (!active) return;
+      if (timeout !== undefined) {
+        window.clearTimeout(timeout);
+        timeout = undefined;
+      }
       setStoreUser(nextSession?.user?.id ?? null);
       setSession(nextSession);
       setLoading(false);
@@ -25,11 +30,11 @@ export function useSession() {
       .then(({ data }) => applySession(data.session))
       .catch(() => applySession(null));
 
-    const timeout = window.setTimeout(() => applySession(null), 5000);
+    timeout = window.setTimeout(() => applySession(null), 5000);
 
     return () => {
       active = false;
-      window.clearTimeout(timeout);
+      if (timeout !== undefined) window.clearTimeout(timeout);
       sub.subscription.unsubscribe();
     };
   }, []);
