@@ -1,6 +1,10 @@
 name: Publicar Stylisme no GitHub Pages
 
 on:
+  push:
+    branches:
+      - main
+      - master
   # O GitHub Pages configurado pela interface primeiro publica o repositório
   # com Jekyll. Rodamos depois dele para impedir que o README sobrescreva o app.
   workflow_run:
