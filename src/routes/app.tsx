@@ -1,5 +1,4 @@
-import { createFileRoute, Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { createFileRoute, Outlet, useRouterState } from "@tanstack/react-router";
 import { BottomNav } from "@/components/BottomNav";
 import { useSession } from "@/hooks/use-session";
 import { Logo } from "@/components/Logo";
@@ -24,16 +23,11 @@ const PLACEMENTS: Record<string, string> = {
 
 
 function AppLayout() {
-  const { session, loading } = useSession();
-  const navigate = useNavigate();
+  const { loading } = useSession();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const placement = PLACEMENTS[pathname.replace(/(.)\/$/, "$1")] ?? "app-corner";
 
-  useEffect(() => {
-    if (!loading && !session) navigate({ to: "/auth" });
-  }, [loading, session, navigate]);
-
-  if (loading || !session) {
+  if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
         <div className="animate-logo-in opacity-70">
