@@ -1,9 +1,10 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { Logo } from "@/components/Logo";
 import { Mail, Lock, User, ArrowRight } from "lucide-react";
+import { useSession } from "@/hooks/use-session";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
@@ -33,17 +34,17 @@ function AuthPage() {
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const redirectingRef = useRef(false);
+  const { session, loading: sessionLoading } = useSession();
 
   // If already signed in, go straight to the app.
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      if (data.session) navigate({ to: "/app", replace: true });
+    if (sessionLoading || !session || redirectingRef.current) return;
+    redirectingRef.current = true;
+    void navigate({ to: "/app", replace: true }).catch(() => {
+      redirectingRef.current = false;
     });
-    const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => {
-      if (s) navigate({ to: "/app", replace: true });
-    });
-    return () => sub.subscription.unsubscribe();
-  }, [navigate]);
+  }, [session, sessionLoading, navigate]);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -61,9 +62,8 @@ function AuthPage() {
         });
         if (error) throw error;
       } else {
-        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
-        if (data.session) await navigate({ to: "/app", replace: true });
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Não foi possível continuar.");

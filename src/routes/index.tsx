@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { Logo } from "@/components/Logo";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -32,7 +33,12 @@ function Splash() {
 
   useEffect(() => {
     const t = setTimeout(() => {
-      navigate({ to: "/app" });
+      void supabase.auth.getSession().then(({ data }) => {
+        void navigate({
+          to: data.session ? "/app" : "/auth",
+          replace: true,
+        });
+      });
     }, 2200);
     return () => clearTimeout(t);
   }, [navigate]);
