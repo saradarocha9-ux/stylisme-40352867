@@ -81,6 +81,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
       { title: "Stylisme — Inteligência para o seu armário" },
+      { name: "application-name", content: "Stylisme" },
       { name: "description", content: "Organize seu guarda-roupa digital, monte looks com IA e planeje seu estilo. Stylisme, moda com inteligência." },
       { name: "author", content: "Stylisme" },
       { name: "google-site-verification", content: "AC2p6iC78f2kcTMBnEQqEoeiOuswXeaoyBlNwcS9lVg" },
