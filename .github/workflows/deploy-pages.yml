@@ -1,0 +1,66 @@
+name: Publicar Stylisme no GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Baixar código
+        uses: actions/checkout@v4
+
+      - name: Preparar Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Gerar versão estática
+        run: npm run build:pages
+
+      - name: Ajustar manifesto para o endereço do Pages
+        run: |
+          node --input-type=module <<'EOF'
+          import { readFile, writeFile } from 'node:fs/promises'
+          const path = '.output/public/manifest.webmanifest'
+          const manifest = JSON.parse(await readFile(path, 'utf8'))
+          const base = '/stylisme-40352867/'
+          manifest.id = base
+          manifest.start_url = base
+          manifest.scope = base
+          manifest.icons = manifest.icons.map((icon) => ({
+            ...icon,
+            src: `${base}${icon.src.replace(/^\//, '')}`,
+          }))
+          await writeFile(path, `${JSON.stringify(manifest, null, 2)}\n`)
+          EOF
+
+      - name: Configurar GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Enviar somente os arquivos gerados
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .output/public
+
+      - name: Publicar
+        id: deployment
+        uses: actions/deploy-pages@v4
