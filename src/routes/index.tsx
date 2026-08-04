@@ -32,10 +32,9 @@ function Splash() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const t = setTimeout(async () => {
-      const { data } = await supabase.auth.getSession();
-      navigate({ to: data.session ? "/app" : "/auth" });
-    }, 3200);
+    const t = setTimeout(() => {
+      navigate({ to: "/app" });
+    }, 2200);
     return () => clearTimeout(t);
   }, [navigate]);
 
