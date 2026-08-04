@@ -26,7 +26,7 @@ jobs:
       - name: Baixar código
         uses: actions/checkout@v4
 
-      - name: Criar entrada direta para o aplicativo completo
+      - name: Criar redirecionamento para o aplicativo oficial
         run: |
           mkdir -p pages-site
           cp public/icon-192.png public/icon-512.png public/icon-512-maskable.png pages-site/
@@ -38,6 +38,8 @@ jobs:
               <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
               <meta name="theme-color" content="#0b0a09" />
               <meta name="description" content="Stylisme — inteligência para o seu armário." />
+              <meta name="robots" content="noindex,follow" />
+              <link rel="canonical" href="https://stylisme.company/" />
               <link rel="manifest" href="./manifest.webmanifest" />
               <link rel="icon" href="./icon-192.png" />
               <title>Stylisme</title>
@@ -46,9 +48,7 @@ jobs:
                 html,body{width:100%;height:100%;margin:0;background:#0b0a09;overflow:hidden}
               </style>
               <script>
-                if (window.location.hostname !== "stylisme.company") {
-                  window.location.replace("https://stylisme.company/");
-                }
+                window.location.replace("https://stylisme.company/");
               </script>
             </head>
             <body aria-label="Abrindo Stylisme"></body>
