@@ -1,8 +1,11 @@
 name: Publicar Stylisme no GitHub Pages
 
 on:
-  push:
-    branches: [main, master]
+  # O GitHub Pages configurado pela interface primeiro publica o repositório
+  # com Jekyll. Rodamos depois dele para impedir que o README sobrescreva o app.
+  workflow_run:
+    workflows: ["pages build and deployment"]
+    types: [completed]
   workflow_dispatch:
 
 permissions:
@@ -23,6 +26,8 @@ jobs:
     steps:
       - name: Baixar código
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
 
       - name: Criar entrada PWA para o aplicativo completo
         run: |
