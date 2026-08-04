@@ -1,3 +1,11 @@
+@@
+-              <meta http-equiv="refresh" content="0;url=https://stylisme.company/" />
+-              <script>window.location.replace("https://stylisme.company/");</script>
++              <meta http-equiv="refresh" content="0;url=https://stylisme.company/app" />
++              <script>window.location.replace("https://stylisme.company/app");</script>
+@@
+-              <p>Abrindo <a href="https://stylisme.company/">Stylisme</a>…</p>
++              <p>Abrindo <a href="https://stylisme.company/app">Stylisme</a>…</p>
 name: Publicar Stylisme no GitHub Pages
 
 on:
