@@ -1,5 +1,11 @@
 apply plugin: 'com.android.application'
 
+def uploadStoreFile = System.getenv('ANDROID_KEYSTORE_PATH')
+def uploadStorePassword = System.getenv('ANDROID_KEYSTORE_PASSWORD')
+def uploadKeyAlias = System.getenv('ANDROID_KEY_ALIAS')
+def uploadKeyPassword = System.getenv('ANDROID_KEY_PASSWORD')
+def hasUploadSigning = uploadStoreFile && uploadStorePassword && uploadKeyAlias && uploadKeyPassword
+
 android {
     namespace = "company.stylisme.app"
     compileSdk = rootProject.ext.compileSdkVersion
@@ -8,7 +14,7 @@ android {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
-        versionName "1.0"
+        versionName "1.0.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
@@ -16,10 +22,23 @@ android {
             ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+    signingConfigs {
+        if (hasUploadSigning) {
+            release {
+                storeFile file(uploadStoreFile)
+                storePassword uploadStorePassword
+                keyAlias uploadKeyAlias
+                keyPassword uploadKeyPassword
+            }
+        }
+    }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            if (hasUploadSigning) {
+                signingConfig signingConfigs.release
+            }
         }
     }
 }
