@@ -39,16 +39,16 @@ jobs:
               <meta name="theme-color" content="#0b0a09" />
               <meta name="description" content="Stylisme — inteligência para o seu armário." />
               <meta name="robots" content="noindex,follow" />
-              <link rel="canonical" href="https://stylisme.company/" />
+              <link rel="canonical" href="https://stylisme.company/auth" />
               <link rel="manifest" href="./manifest.webmanifest" />
               <link rel="icon" href="./icon-192.png" />
               <title>Stylisme</title>
-              <meta http-equiv="refresh" content="0;url=https://stylisme.company/" />
+              <meta http-equiv="refresh" content="0;url=https://stylisme.company/auth" />
               <style>
                 html,body{width:100%;height:100%;margin:0;background:#0b0a09;overflow:hidden}
               </style>
               <script>
-                window.location.replace("https://stylisme.company/");
+                window.location.replace("https://stylisme.company/auth");
               </script>
             </head>
             <body aria-label="Abrindo Stylisme"></body>
@@ -61,7 +61,7 @@ jobs:
             "short_name": "Stylisme",
             "description": "Guarda-roupa digital com IA, provador virtual e Stylisme Premium.",
             "id": "https://stylisme.company/",
-            "start_url": "https://stylisme.company/",
+            "start_url": "https://stylisme.company/auth",
             "scope": "https://stylisme.company/",
             "display": "standalone",
             "orientation": "portrait",
