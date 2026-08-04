@@ -53,6 +53,9 @@ jobs:
           await writeFile(path, `${JSON.stringify(manifest, null, 2)}\n`)
           EOF
 
+      - name: Permitir abertura direta das rotas do aplicativo
+        run: cp .output/public/index.html .output/public/404.html
+
       - name: Configurar GitHub Pages
         uses: actions/configure-pages@v5
 
