@@ -2,7 +2,7 @@ name: Publicar Stylisme no GitHub Pages
 
 on:
   push:
-    branches: [main]
+    branches: [main, master]
   workflow_dispatch:
 
 permissions:
@@ -58,6 +58,8 @@ jobs:
 
       - name: Configurar GitHub Pages
         uses: actions/configure-pages@v5
+        with:
+          enablement: true
 
       - name: Enviar somente os arquivos gerados
         uses: actions/upload-pages-artifact@v3
