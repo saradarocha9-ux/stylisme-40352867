@@ -115,7 +115,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "icon", href: `${publicBase}favicon.ico`, sizes: "48x48" },
       { rel: "icon", href: `${publicBase}favicon.png`, type: "image/png", sizes: "192x192" },
       { rel: "apple-touch-icon", href: `${publicBase}apple-touch-icon.png`, sizes: "180x180" },
-      { rel: "manifest", href: `${publicBase}manifest.webmanifest` },
+      { rel: "manifest", href: `${publicBase}manifest.json`, type: "application/manifest+json" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
@@ -132,7 +132,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" className="dark">
+    <html lang="pt-BR" className="dark">
       <head>
         <HeadContent />
         <script
