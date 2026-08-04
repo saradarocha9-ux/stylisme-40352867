@@ -11,7 +11,6 @@ export const getRouter = () => {
 
   const router = createRouter({
     routeTree,
-    basepath: import.meta.env.VITE_APP_BASE_PATH,
     context: { queryClient },
     scrollRestoration: true,
     defaultPreload: "intent",

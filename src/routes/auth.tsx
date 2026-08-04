@@ -56,7 +56,7 @@ function AuthPage() {
           password,
           options: {
             data: { name },
-            emailRedirectTo: new URL(import.meta.env.BASE_URL, window.location.origin).href,
+            emailRedirectTo: window.location.origin,
           },
         });
         if (error) throw error;
@@ -74,7 +74,7 @@ function AuthPage() {
   async function google() {
     setError(null);
     const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: new URL(import.meta.env.BASE_URL, window.location.origin).href,
+      redirect_uri: window.location.origin,
     });
     if (result.error) setError("Não foi possível entrar com o Google.");
   }
