@@ -1,5 +1,5 @@
 import { createFileRoute, Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { BottomNav } from "@/components/BottomNav";
 import { useSession } from "@/hooks/use-session";
 import { Logo } from "@/components/Logo";
@@ -26,11 +26,16 @@ const PLACEMENTS: Record<string, string> = {
 function AppLayout() {
   const { session, loading } = useSession();
   const navigate = useNavigate();
+  const redirectingRef = useRef(false);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const placement = PLACEMENTS[pathname.replace(/(.)\/$/, "$1")] ?? "app-corner";
 
   useEffect(() => {
-    if (!loading && !session) navigate({ to: "/auth", replace: true });
+    if (loading || session || redirectingRef.current) return;
+    redirectingRef.current = true;
+    void navigate({ to: "/auth", replace: true }).catch(() => {
+      redirectingRef.current = false;
+    });
   }, [loading, session, navigate]);
 
   if (loading || !session) {

@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { Logo } from "@/components/Logo";
@@ -33,16 +33,29 @@ function AuthPage() {
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const redirectingRef = useRef(false);
 
   // If already signed in, go straight to the app.
   useEffect(() => {
+    let active = true;
+    const openApp = () => {
+      if (!active || redirectingRef.current) return;
+      redirectingRef.current = true;
+      void navigate({ to: "/app", replace: true }).catch(() => {
+        if (active) redirectingRef.current = false;
+      });
+    };
+
     supabase.auth.getSession().then(({ data }) => {
-      if (data.session) navigate({ to: "/app", replace: true });
+      if (data.session) openApp();
     });
-    const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => {
-      if (s) navigate({ to: "/app", replace: true });
+    const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event !== "SIGNED_OUT" && session) openApp();
     });
-    return () => sub.subscription.unsubscribe();
+    return () => {
+      active = false;
+      sub.subscription.unsubscribe();
+    };
   }, [navigate]);
 
   async function submit(e: React.FormEvent) {
@@ -61,9 +74,8 @@ function AuthPage() {
         });
         if (error) throw error;
       } else {
-        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
-        if (data.session) await navigate({ to: "/app", replace: true });
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Não foi possível continuar.");

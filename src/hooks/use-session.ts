@@ -9,9 +9,11 @@ export function useSession() {
 
   useEffect(() => {
     let active = true;
+    let authenticatedSessionSeen = false;
 
     const applySession = (nextSession: Session | null) => {
       if (!active) return;
+      if (nextSession) authenticatedSessionSeen = true;
       setStoreUser(nextSession?.user?.id ?? null);
       setSession(nextSession);
       setLoading(false);
@@ -30,10 +32,12 @@ export function useSession() {
     void supabase.auth.getSession().then(({ data, error }) => {
       if (!active) return;
       if (error) {
-        applySession(null);
+        if (!authenticatedSessionSeen) applySession(null);
         return;
       }
-      applySession(data.session);
+      // A login event may complete while this storage read is in flight.
+      // Never let that older null result overwrite the newer valid session.
+      if (data.session || !authenticatedSessionSeen) applySession(data.session);
     });
 
     return () => {
