@@ -71,12 +71,7 @@ jobs:
           EOF
           touch pages-site/.nojekyll
 
-      - name: Desativar publicação do README pelo Jekyll
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: gh api --method PUT "repos/${GITHUB_REPOSITORY}/pages" -f build_type=workflow
-
-      - name: Configurar GitHub Pages para GitHub Actions
+      - name: Configurar GitHub Pages
         uses: actions/configure-pages@v5
         with:
           enablement: true
