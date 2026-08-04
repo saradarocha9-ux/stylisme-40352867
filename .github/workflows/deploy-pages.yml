@@ -1,11 +1,3 @@
-@@
--              <meta http-equiv="refresh" content="0;url=https://stylisme.company/" />
--              <script>window.location.replace("https://stylisme.company/");</script>
-+              <meta http-equiv="refresh" content="0;url=https://stylisme.company/app" />
-+              <script>window.location.replace("https://stylisme.company/app");</script>
-@@
--              <p>Abrindo <a href="https://stylisme.company/">Stylisme</a>…</p>
-+              <p>Abrindo <a href="https://stylisme.company/app">Stylisme</a>…</p>
 name: Publicar Stylisme no GitHub Pages
 
 on:
@@ -49,11 +41,11 @@ jobs:
               <link rel="manifest" href="./manifest.webmanifest" />
               <link rel="icon" href="./icon-192.png" />
               <title>Stylisme</title>
-              <meta http-equiv="refresh" content="0;url=https://stylisme.company/" />
-              <script>window.location.replace("https://stylisme.company/");</script>
+              <meta http-equiv="refresh" content="0;url=https://stylisme.lovable.app/app" />
+              <script>window.location.replace("https://stylisme.lovable.app/app");</script>
             </head>
             <body>
-              <p>Abrindo <a href="https://stylisme.company/">Stylisme</a>…</p>
+              <p>Abrindo <a href="https://stylisme.lovable.app/app">Stylisme</a>…</p>
             </body>
           </html>
           EOF
