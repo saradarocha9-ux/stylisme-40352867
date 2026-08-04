@@ -5,11 +5,6 @@ on:
     branches:
       - main
       - master
-  # O GitHub Pages configurado pela interface primeiro publica o repositório
-  # com Jekyll. Rodamos depois dele para impedir que o README sobrescreva o app.
-  workflow_run:
-    workflows: ["pages build and deployment"]
-    types: [completed]
   workflow_dispatch:
 
 permissions:
@@ -30,8 +25,6 @@ jobs:
     steps:
       - name: Baixar código
         uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
 
       - name: Criar entrada PWA para o aplicativo completo
         run: |
@@ -78,7 +71,12 @@ jobs:
           EOF
           touch pages-site/.nojekyll
 
-      - name: Configurar GitHub Pages
+      - name: Desativar publicação do README pelo Jekyll
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api --method PUT "repos/${GITHUB_REPOSITORY}/pages" -f build_type=workflow
+
+      - name: Configurar GitHub Pages para GitHub Actions
         uses: actions/configure-pages@v5
         with:
           enablement: true
