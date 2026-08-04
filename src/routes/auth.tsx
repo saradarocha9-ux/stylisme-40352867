@@ -37,10 +37,10 @@ function AuthPage() {
   // If already signed in, go straight to the app.
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
-      if (data.session) navigate({ to: "/app" });
+      if (data.session) navigate({ to: "/app", replace: true });
     });
     const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => {
-      if (s) navigate({ to: "/app" });
+      if (s) navigate({ to: "/app", replace: true });
     });
     return () => sub.subscription.unsubscribe();
   }, [navigate]);
@@ -61,8 +61,9 @@ function AuthPage() {
         });
         if (error) throw error;
       } else {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
+        if (data.session) await navigate({ to: "/app", replace: true });
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Não foi possível continuar.");

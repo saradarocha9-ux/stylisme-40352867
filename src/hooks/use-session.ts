@@ -9,32 +9,35 @@ export function useSession() {
 
   useEffect(() => {
     let active = true;
-    let timeout: number | undefined;
 
     const applySession = (nextSession: Session | null) => {
       if (!active) return;
-      if (timeout !== undefined) {
-        window.clearTimeout(timeout);
-        timeout = undefined;
-      }
       setStoreUser(nextSession?.user?.id ?? null);
       setSession(nextSession);
       setLoading(false);
     };
 
-    // Subscribe first, then read current session — prevents race conditions.
-    const { data: sub } = supabase.auth.onAuthStateChange((_evt, s) => {
-      applySession(s);
+    // Restore the persisted session before deciding whether the user is signed out.
+    // INITIAL_SESSION can briefly be null while storage is still being restored,
+    // so only an explicit SIGNED_OUT event is allowed to clear an active session.
+    const { data: sub } = supabase.auth.onAuthStateChange((event, nextSession) => {
+      if (event === "SIGNED_OUT") {
+        applySession(null);
+        return;
+      }
+      if (nextSession) applySession(nextSession);
     });
-    supabase.auth.getSession()
-      .then(({ data }) => applySession(data.session))
-      .catch(() => applySession(null));
-
-    timeout = window.setTimeout(() => applySession(null), 5000);
+    void supabase.auth.getSession().then(({ data, error }) => {
+      if (!active) return;
+      if (error) {
+        applySession(null);
+        return;
+      }
+      applySession(data.session);
+    });
 
     return () => {
       active = false;
-      if (timeout !== undefined) window.clearTimeout(timeout);
       sub.subscription.unsubscribe();
     };
   }, []);
