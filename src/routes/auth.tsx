@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { Logo } from "@/components/Logo";
 import { Mail, Lock, User, ArrowRight } from "lucide-react";
+import { useSession } from "@/hooks/use-session";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
@@ -34,29 +35,16 @@ function AuthPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const redirectingRef = useRef(false);
+  const { session, loading: sessionLoading } = useSession();
 
   // If already signed in, go straight to the app.
   useEffect(() => {
-    let active = true;
-    const openApp = () => {
-      if (!active || redirectingRef.current) return;
-      redirectingRef.current = true;
-      void navigate({ to: "/app", replace: true }).catch(() => {
-        if (active) redirectingRef.current = false;
-      });
-    };
-
-    supabase.auth.getSession().then(({ data }) => {
-      if (data.session) openApp();
+    if (sessionLoading || !session || redirectingRef.current) return;
+    redirectingRef.current = true;
+    void navigate({ to: "/app", replace: true }).catch(() => {
+      redirectingRef.current = false;
     });
-    const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event !== "SIGNED_OUT" && session) openApp();
-    });
-    return () => {
-      active = false;
-      sub.subscription.unsubscribe();
-    };
-  }, [navigate]);
+  }, [session, sessionLoading, navigate]);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
