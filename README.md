@@ -4,7 +4,7 @@ Aplicativo de guarda-roupa inteligente, criação de looks e provador virtual.
 
 ## Abrir o aplicativo
 
-### [Acessar o Stylisme](https://stylisme.company/)
+### [Acessar o Stylisme](https://stylisme.company/auth)
 
 O aplicativo oficial funciona em **stylisme.company**. Para entrar ou criar uma conta, acesse o endereço acima.
 
