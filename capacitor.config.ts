@@ -14,7 +14,9 @@
 const config = {
   appId: "company.stylisme.app",
   appName: "Stylisme",
-  webDir: "dist",
+  // O app nativo usa o domínio publicado para manter IA, pagamentos e backend.
+  // Este shell local existe apenas como fallback exigido pelo empacotamento.
+  webDir: "native-shell",
   server: {
     url: "https://stylisme.company",
     cleartext: false,
