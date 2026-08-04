@@ -1,5 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { createFileRoute, Navigate } from "@tanstack/react-router";
 import { Logo } from "@/components/Logo";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -25,44 +24,20 @@ export const Route = createFileRoute("/")({
     ],
     links: [{ rel: "canonical", href: "https://stylisme.company/" }],
   }),
-  component: Splash,
+  beforeLoad: async () => {
+    const { data } = await supabase.auth.getSession();
+    return { session: data.session };
+  },
+  component: IndexRedirect,
 });
 
-function Splash() {
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    const t = setTimeout(async () => {
-      const { data } = await supabase.auth.getSession();
-      navigate({ to: data.session ? "/app" : "/auth" });
-    }, 3200);
-    return () => clearTimeout(t);
-  }, [navigate]);
-
+function IndexRedirect() {
+  const { session } = Route.useRouteContext();
   return (
-    <div className="relative min-h-screen overflow-hidden bg-background px-6 text-center">
-      <div className="aurora pointer-events-none absolute inset-0 opacity-25" />
-      <div className="relative flex min-h-screen flex-col items-center justify-center">
-        <div className="animate-logo-in">
-          <Logo size={140} />
-        </div>
-        <h1
-          className="mt-2 animate-fade-in-slow font-display text-5xl tracking-[0.02em] text-foreground"
-          style={{ animationDelay: "1s" }}
-        >
-          Stylisme
-        </h1>
-        <p
-          className="mt-4 animate-fade-in-slow text-sm uppercase tracking-[0.32em] text-muted-foreground"
-          style={{ animationDelay: "1.9s" }}
-        >
-          Inteligência para o seu armário
-        </p>
-        <div
-          className="mt-10 h-px w-24 animate-fade-in-slow bg-gold opacity-70"
-          style={{ animationDelay: "2.4s" }}
-        />
-      </div>
-    </div>
+    <>
+      <Navigate to={session ? "/app" : "/auth"} />
+      <div className="min-h-screen bg-background" />
+    </>
   );
 }
+
