@@ -12,7 +12,7 @@
     "target": {
       "namespace": "android_app",
       "package_name": "com.stylisme.inteli",
-      "sha256_cert_fingerprints": ["4E:E7:3B:35:78:35:CC:84:89:F9:04:7F:24:69:9A:E5:D7:D5:B6:4A:B5:56:46:73:58:BF:C2:3F:4D:D6:1D:DB"]
+      "sha256_cert_fingerprints": ["36:D7:0E:4C:EB:F0:50:76:38:8E:78:60:B1:71:29:61:17:3A:5E:B1:1F:36:2F:B2:C2:41:0E:9E:00:46:32:0C"]
     }
   }
 ]
