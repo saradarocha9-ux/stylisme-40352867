@@ -1,4 +1,4 @@
-package company.stylisme.app;
+package com.stylisme.inteli;
 
 import com.getcapacitor.BridgeActivity;
 
