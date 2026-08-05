@@ -27,6 +27,17 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="https" android:host="stylisme.company" />
+                <data android:scheme="https" android:host="www.stylisme.company" />
+                <data android:path="/" />
+                <data android:pathPrefix="/app" />
+                <data android:pathPrefix="/auth" />
+            </intent-filter>
+
         </activity>
 
         <provider

@@ -1,0 +1,10 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.stylisme.inteli",
+      "sha256_cert_fingerprints": ["07:69:56:7E:9A:63:8E:84:04:27:87:2B:18:98:28:02:F5:D2:59:8F:DC:26:01:CA:6E:C2:F4:2D:4C:D0:7E:63"]
+    }
+  }
+]
