@@ -2,6 +2,6 @@
 <resources>
     <string name="app_name">Stylisme</string>
     <string name="title_activity_main">Stylisme</string>
-    <string name="package_name">company.stylisme.app</string>
-    <string name="custom_url_scheme">company.stylisme.app</string>
+    <string name="package_name">com.stylisme.inteli</string>
+    <string name="custom_url_scheme">com.stylisme.inteli</string>
 </resources>

@@ -12,7 +12,7 @@
  * No iOS, em Info.plist: GADApplicationIdentifier = mesmo App ID.
  */
 const config = {
-  appId: "company.stylisme.app",
+  appId: "com.stylisme.inteli",
   appName: "Stylisme",
   // O app nativo usa o domínio publicado para manter IA, pagamentos e backend.
   // Este shell local existe apenas como fallback exigido pelo empacotamento.
