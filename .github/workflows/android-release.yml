@@ -23,7 +23,7 @@ jobs:
       ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
       ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
       ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
-      EXPECTED_ANDROID_SIGNING_SHA1: 66:42:AA:85:37:97:A4:5C:05:DD:8C:27:59:30:96:FC:E5:D2:E7:26
+      EXPECTED_ANDROID_SIGNING_SHA1: 09:58:BD:6F:0C:5E:C8:A5:04:55:16:79:4E:9A:79:FB:F3:83:18:3F
 
     steps:
       - name: Baixar código
@@ -85,7 +85,16 @@ jobs:
         run: ./gradlew bundleRelease --no-daemon
 
       - name: Confirmar assinatura do AAB
-        run: jarsigner -verify android/app/build/outputs/bundle/release/app-release.aab
+        run: |
+          AAB_PATH="android/app/build/outputs/bundle/release/app-release.aab"
+          jarsigner -verify "$AAB_PATH"
+          AAB_SHA1="$(keytool -printcert -jarfile "$AAB_PATH" | sed -n 's/^[[:space:]]*SHA1: //p' | head -n 1)"
+          if [ "$AAB_SHA1" != "$EXPECTED_ANDROID_SIGNING_SHA1" ]; then
+            echo "Erro: o AAB final foi assinado com um certificado incorreto."
+            echo "SHA-1 esperado: $EXPECTED_ANDROID_SIGNING_SHA1"
+            echo "SHA-1 encontrado: $AAB_SHA1"
+            exit 1
+          fi
 
       - name: Publicar AAB como artefato
         uses: actions/upload-artifact@v4
