@@ -4,15 +4,11 @@
     "target": {
       "namespace": "android_app",
       "package_name": "com.stylisme.inteli",
-      "sha256_cert_fingerprints": ["07:69:56:7E:9A:63:8E:84:04:27:87:2B:18:98:28:02:F5:D2:59:8F:DC:26:01:CA:6E:C2:F4:2D:4C:D0:7E:63"]
-    }
-  },
-  {
-    "relation": ["delegate_permission/common.handle_all_urls"],
-    "target": {
-      "namespace": "android_app",
-      "package_name": "com.stylisme.inteli",
-      "sha256_cert_fingerprints": ["36:D7:0E:4C:EB:F0:50:76:38:8E:78:60:B1:71:29:61:17:3A:5E:B1:1F:36:2F:B2:C2:41:0E:9E:00:46:32:0C"]
+      "sha256_cert_fingerprints": [
+        "02:7A:54:9E:07:F2:DE:E9:F0:D6:D2:27:E9:40:80:38:37:84:FE:8F:E1:89:4B:02:17:06:10:BF:15:60:30:70",
+        "23:F4:FC:C2:33:43:9B:BF:89:54:6B:73:32:7D:B3:06:21:B0:C3:9C:89:CD:26:2D:2A:67:74:61:A3:07:FF:23",
+        "9E:79:60:50:6B:B8:F3:0E:4E:DF:4D:89:DD:DA:C6:93:B8:BF:52:CA:30:7B:0D:B8:FA:1E:FA:9D:47:7F:B6:9E"
+      ]
     }
   }
 ]
