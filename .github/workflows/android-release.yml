@@ -90,7 +90,18 @@ jobs:
             echo "Erro: alias '$ANDROID_KEY_ALIAS' não encontrado. Use um dos aliases listados acima."
             exit 1
           fi
-          ACTUAL_SHA1="$(sed -n 's/^[[:space:]]*SHA1: //p' /tmp/alias.txt | head -n 1)"
+          extract_sha1() {
+            grep -Ei 'SHA-?1:' "$1" \
+              | head -n 1 \
+              | grep -Eo '([0-9A-Fa-f]{2}:){19}[0-9A-Fa-f]{2}' \
+              | tr '[:lower:]' '[:upper:]'
+          }
+          ACTUAL_SHA1="$(extract_sha1 /tmp/alias.txt)"
+          if [ -z "$ACTUAL_SHA1" ]; then
+            echo "Erro: não foi possível ler o SHA-1 do keystore. Saída do keytool:"
+            cat /tmp/alias.txt
+            exit 1
+          fi
           if [ "$ACTUAL_SHA1" != "$EXPECTED_ANDROID_SIGNING_SHA1" ]; then
             echo "Erro: o keystore configurado não corresponde à chave de upload exigida pela Play Store."
             echo "SHA-1 esperado: $EXPECTED_ANDROID_SIGNING_SHA1"
