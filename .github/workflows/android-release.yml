@@ -125,7 +125,7 @@ jobs:
         run: |
           AAB_PATH="android/app/build/outputs/bundle/release/app-release.aab"
           jarsigner -verify "$AAB_PATH"
-          AAB_SHA1="$(keytool -printcert -jarfile "$AAB_PATH" | sed -n 's/^[[:space:]]*SHA1: //p' | head -n 1)"
+          AAB_SHA1="$(keytool -printcert -jarfile "$AAB_PATH" | grep -Ei 'SHA-?1:' | head -n 1 | grep -Eo '([0-9A-Fa-f]{2}:){19}[0-9A-Fa-f]{2}' | tr '[:lower:]' '[:upper:]')"
           if [ "$AAB_SHA1" != "$EXPECTED_ANDROID_SIGNING_SHA1" ]; then
             echo "Erro: o AAB final foi assinado com um certificado incorreto."
             echo "SHA-1 esperado: $EXPECTED_ANDROID_SIGNING_SHA1"
