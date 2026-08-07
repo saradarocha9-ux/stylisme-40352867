@@ -110,7 +110,6 @@ jobs:
           fi
           echo "Keystore validado: $ACTUAL_SHA1"
 
-
       - name: Sincronizar projeto Android
         run: bunx cap sync android
 
