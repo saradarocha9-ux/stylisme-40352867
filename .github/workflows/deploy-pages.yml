@@ -1,10 +1,9 @@
 name: Publicar Stylisme no GitHub Pages
 
 on:
-  push:
-    branches:
-      - main
-      - master
+  # O aplicativo oficial é publicado em stylisme.company.
+  # Mantemos este fluxo apenas manual para impedir que o GitHub Pages seja
+  # confundido com o aplicativo Android ou com o site oficial.
   workflow_dispatch:
 
 permissions:
