@@ -113,6 +113,23 @@ jobs:
       - name: Sincronizar projeto Android
         run: bunx cap sync android
 
+      - name: Validar conteúdo do aplicativo
+        run: |
+          CONFIG_PATH="android/app/src/main/assets/capacitor.config.json"
+          if [ ! -f "$CONFIG_PATH" ]; then
+            echo "Erro: a configuração do aplicativo não foi incluída no Android."
+            exit 1
+          fi
+          if ! grep -Fq 'https://stylisme.company/' "$CONFIG_PATH"; then
+            echo "Erro: o aplicativo não está configurado para abrir o Stylisme."
+            cat "$CONFIG_PATH"
+            exit 1
+          fi
+          if grep -Eiq 'github\.com|github\.io' "$CONFIG_PATH" android/app/src/main/assets/public; then
+            echo "Erro: foi encontrada uma referência ao GitHub dentro do aplicativo Android."
+            exit 1
+          fi
+
       - name: Configurar cache do Gradle
         uses: gradle/actions/setup-gradle@v4
 

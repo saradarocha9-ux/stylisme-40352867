@@ -14,11 +14,11 @@
 const config = {
   appId: "com.stylisme.inteli",
   appName: "Stylisme",
-  // O app nativo usa o domínio publicado para manter IA, pagamentos e backend.
-  // Este shell local existe apenas como fallback exigido pelo empacotamento.
+  // O aplicativo Android sempre abre o Stylisme publicado dentro do WebView.
+  // Não use URLs do GitHub/GitHub Pages aqui.
   webDir: "native-shell",
   server: {
-    url: "https://stylisme.company",
+    url: "https://stylisme.company/",
     cleartext: false,
   },
 };
