@@ -1,7 +1,9 @@
 import { useEffect } from "react";
 import { Link } from "@tanstack/react-router";
 import { Crown } from "lucide-react";
-import { hideAdMobBanner, isNativeApp, showAdMobBanner } from "@/lib/admob";
+import { adSlotFor, hideAdMobBanner, isNativeApp, showAdMobBanner } from "@/lib/admob";
+import { AdSenseUnit } from "@/components/AdSenseUnit";
+import { useSubscription } from "@/hooks/use-subscription";
 
 interface Props {
   placement: string;
@@ -10,18 +12,32 @@ interface Props {
 }
 
 /**
- * Anúncios: desativados na web. No app nativo (Capacitor) exibe o banner AdMob.
+ * Anúncios: AdMob no app nativo, AdSense na web.
+ * Usuários Premium nunca veem anúncios.
  */
-export function SponsoredAd(_props: Props) {
+export function SponsoredAd({ placement, className }: Props) {
+  const { isPremium } = useSubscription();
+  const native = isNativeApp();
+
   useEffect(() => {
-    if (!isNativeApp()) return;
+    if (!native) return;
+    if (isPremium) {
+      void hideAdMobBanner();
+      return;
+    }
     void showAdMobBanner();
     return () => {
       void hideAdMobBanner();
     };
-  }, []);
+  }, [native, isPremium]);
 
-  return null;
+  if (isPremium || native) return null;
+
+  return (
+    <div className={"mx-auto max-w-md px-4 pb-24 " + (className ?? "")}>
+      <AdSenseUnit slot={adSlotFor(placement)} />
+    </div>
+  );
 }
 
 /** Pequeno link "Remover anúncios" para colocar próximo ao chip, se desejado. */
