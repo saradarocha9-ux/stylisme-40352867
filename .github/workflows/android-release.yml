@@ -113,6 +113,14 @@ jobs:
       - name: Sincronizar projeto Android
         run: bunx cap sync android
 
+      - name: Confirmar versão Android
+        run: |
+          if ! grep -Eq 'versionCode[[:space:]]+8([^0-9]|$)' android/app/build.gradle; then
+            echo "Erro: este código não gera o versionCode 8 esperado."
+            exit 1
+          fi
+          echo "Versão confirmada: versionCode 8"
+
       - name: Validar conteúdo do aplicativo
         run: |
           CONFIG_PATH="android/app/src/main/assets/capacitor.config.json"
@@ -152,7 +160,7 @@ jobs:
       - name: Publicar AAB como artefato
         uses: actions/upload-artifact@v5
         with:
-          name: stylisme-release-aab-${{ github.run_number }}
+          name: stylisme-v8-release-aab-${{ github.run_number }}
           path: android/app/build/outputs/bundle/release/app-release.aab
           if-no-files-found: error
           retention-days: 30
