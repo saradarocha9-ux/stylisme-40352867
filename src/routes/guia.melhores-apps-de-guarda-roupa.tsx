@@ -121,6 +121,7 @@ function GuidePage() {
           Começar agora
         </Link>
       </div>
+      <SponsoredAd placement="guide" className="pb-6" />
     </main>
   );
 }

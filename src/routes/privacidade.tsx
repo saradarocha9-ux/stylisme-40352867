@@ -187,6 +187,7 @@ function PrivacyPage() {
       <p className="mt-8 text-center text-xs text-muted-foreground">
         Última atualização: 3 de agosto de 2026.
       </p>
+      <SponsoredAd placement="privacy" className="pb-6" />
     </main>
   );
 }

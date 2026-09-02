@@ -147,6 +147,7 @@ function AuthPage() {
           <Link to="/" className="hover:text-foreground">Voltar</Link>
         </p>
       </div>
+      <SponsoredAd placement="auth" className="pb-6" />
     </div>
   );
 }
