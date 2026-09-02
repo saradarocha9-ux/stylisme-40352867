@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Logo } from "@/components/Logo";
+import { SponsoredAd } from "@/components/SponsoredAd";
 
 const TITLE = "Melhores apps de guarda-roupa digital em 2026";
 const DESC =

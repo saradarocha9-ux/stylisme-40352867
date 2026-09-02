@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft, Shield } from "lucide-react";
 import { Logo } from "@/components/Logo";
+import { SponsoredAd } from "@/components/SponsoredAd";
 
 const TITLE = "Política de Privacidade";
 const DESC = "Saiba como o Stylisme coleta, usa e protege seus dados pessoais e de estilo.";

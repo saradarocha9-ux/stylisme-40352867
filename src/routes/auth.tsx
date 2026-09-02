@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { Logo } from "@/components/Logo";
+import { SponsoredAd } from "@/components/SponsoredAd";
 import { Mail, Lock, User, ArrowRight } from "lucide-react";
 import { useSession } from "@/hooks/use-session";
 
