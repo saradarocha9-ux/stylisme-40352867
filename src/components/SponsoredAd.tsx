@@ -34,8 +34,18 @@ export function SponsoredAd({ placement, className }: Props) {
   if (isPremium || native) return null;
 
   return (
-    <div className={"mx-auto max-w-md px-4 pb-24 " + (className ?? "")}>
+    <div
+      className={
+        "mx-auto w-full max-w-md px-4 py-3 text-center " + (className ?? "")
+      }
+    >
+      <p className="mb-1.5 text-[9px] uppercase tracking-[0.22em] text-muted-foreground/70">
+        Publicidade
+      </p>
       <AdSenseUnit slot={adSlotFor(placement)} />
+      <div className="mt-2 flex justify-center">
+        <RemoveAdsLink />
+      </div>
     </div>
   );
 }
@@ -45,9 +55,9 @@ export function RemoveAdsLink() {
   return (
     <Link
       to="/app/premium"
-      className="flex items-center gap-1 text-[10px] uppercase tracking-[0.2em] text-muted-foreground"
+      className="flex items-center gap-1 text-[10px] uppercase tracking-[0.2em] text-muted-foreground hover:text-foreground transition-colors"
     >
-      <Crown size={10} className="text-gold" /> Remover
+      <Crown size={10} className="text-gold" /> Remover anúncios
     </Link>
   );
 }

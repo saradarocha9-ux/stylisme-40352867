@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft, Shield } from "lucide-react";
 import { Logo } from "@/components/Logo";
+import { SponsoredAd } from "@/components/SponsoredAd";
 
 const TITLE = "Política de Privacidade";
 const DESC = "Saiba como o Stylisme coleta, usa e protege seus dados pessoais e de estilo.";
@@ -186,6 +187,7 @@ function PrivacyPage() {
       <p className="mt-8 text-center text-xs text-muted-foreground">
         Última atualização: 3 de agosto de 2026.
       </p>
+      <SponsoredAd placement="privacy" className="pb-6" />
     </main>
   );
 }

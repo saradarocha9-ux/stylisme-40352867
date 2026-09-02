@@ -141,6 +141,11 @@ function RootShell({ children }: { children: ReactNode }) {
               "try{var t=localStorage.getItem('stylisme:theme');document.documentElement.classList.toggle('dark',t!=='light')}catch(e){}",
           }}
         />
+        <script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9364980465425949"
+          crossOrigin="anonymous"
+        />
       </head>
       <body suppressHydrationWarning>
         <div id="app-root">{children}</div>

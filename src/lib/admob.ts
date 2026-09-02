@@ -30,11 +30,15 @@ export const ADSENSE = {
   slots: {
     "app-armario": "",
     "app-looks": "",
+    "app-feed": "",
     "app-ai": "",
     "app-palette": "",
     "app-favorites": "",
     "app-stats": "",
     "app-profile": "",
+    "auth": "",
+    "privacy": "",
+    "guide": "",
   } as Record<string, string>,
 } as const;
 
