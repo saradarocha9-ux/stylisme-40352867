@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowLeft, Shield } from "lucide-react";
+import { ArrowLeft, FileText, Scale, Shield } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { SponsoredAd } from "@/components/SponsoredAd";
 
@@ -182,6 +182,16 @@ function PrivacyPage() {
           <p className="font-display text-lg">Stylisme</p>
           <p className="text-xs text-muted-foreground">Inteligência para o seu armário</p>
         </div>
+      </div>
+
+      <div className="mt-6 flex flex-wrap items-center justify-center gap-4">
+        <Link
+          to="/termos"
+          className="inline-flex items-center gap-2 text-xs text-muted-foreground"
+        >
+          <Scale size={14} strokeWidth={1.5} />
+          Termos de Serviço
+        </Link>
       </div>
 
       <p className="mt-8 text-center text-xs text-muted-foreground">

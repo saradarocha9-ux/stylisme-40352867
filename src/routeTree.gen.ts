@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TermosRouteImport } from './routes/termos'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as PrivacidadeRouteImport } from './routes/privacidade'
 import { Route as AuthRouteImport } from './routes/auth'
@@ -32,6 +33,11 @@ import { Route as AppAiRouteImport } from './routes/app.ai'
 import { Route as AppUUserIdRouteImport } from './routes/app.u.$userId'
 import { Route as AppLookPostIdRouteImport } from './routes/app.look.$postId'
 
+const TermosRoute = TermosRouteImport.update({
+  id: '/termos',
+  path: '/termos',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
@@ -150,6 +156,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/privacidade': typeof PrivacidadeRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/termos': typeof TermosRoute
   '/app/ai': typeof AppAiRoute
   '/app/edit-profile': typeof AppEditProfileRoute
   '/app/favorites': typeof AppFavoritesRoute
@@ -173,6 +180,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/privacidade': typeof PrivacidadeRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/termos': typeof TermosRoute
   '/app/ai': typeof AppAiRoute
   '/app/edit-profile': typeof AppEditProfileRoute
   '/app/favorites': typeof AppFavoritesRoute
@@ -198,6 +206,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/privacidade': typeof PrivacidadeRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/termos': typeof TermosRoute
   '/app/ai': typeof AppAiRoute
   '/app/edit-profile': typeof AppEditProfileRoute
   '/app/favorites': typeof AppFavoritesRoute
@@ -224,6 +233,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/privacidade'
     | '/sitemap.xml'
+    | '/termos'
     | '/app/ai'
     | '/app/edit-profile'
     | '/app/favorites'
@@ -247,6 +257,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/privacidade'
     | '/sitemap.xml'
+    | '/termos'
     | '/app/ai'
     | '/app/edit-profile'
     | '/app/favorites'
@@ -271,6 +282,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/privacidade'
     | '/sitemap.xml'
+    | '/termos'
     | '/app/ai'
     | '/app/edit-profile'
     | '/app/favorites'
@@ -296,11 +308,19 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   PrivacidadeRoute: typeof PrivacidadeRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  TermosRoute: typeof TermosRoute
   GuiaMelhoresAppsDeGuardaRoupaRoute: typeof GuiaMelhoresAppsDeGuardaRoupaRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/termos': {
+      id: '/termos'
+      path: '/termos'
+      fullPath: '/termos'
+      preLoaderRoute: typeof TermosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/sitemap.xml': {
       id: '/sitemap.xml'
       path: '/sitemap.xml'
@@ -504,6 +524,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   PrivacidadeRoute: PrivacidadeRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  TermosRoute: TermosRoute,
   GuiaMelhoresAppsDeGuardaRoupaRoute: GuiaMelhoresAppsDeGuardaRoupaRoute,
 }
 export const routeTree = rootRouteImport
