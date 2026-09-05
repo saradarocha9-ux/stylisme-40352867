@@ -264,38 +264,50 @@ export type Database = {
         }
         Relationships: []
       }
-    }
-    Views: {
       public_profiles: {
         Row: {
           avatar_url: string | null
           banner_url: string | null
-          bio: string | null
-          id: string | null
-          link: string | null
-          name: string | null
+          bio: string
+          id: string
+          link: string
+          name: string
+          updated_at: string
           username: string | null
         }
         Insert: {
           avatar_url?: string | null
           banner_url?: string | null
-          bio?: string | null
-          id?: string | null
-          link?: string | null
-          name?: string | null
+          bio?: string
+          id: string
+          link?: string
+          name?: string
+          updated_at?: string
           username?: string | null
         }
         Update: {
           avatar_url?: string | null
           banner_url?: string | null
-          bio?: string | null
-          id?: string | null
-          link?: string | null
-          name?: string | null
+          bio?: string
+          id?: string
+          link?: string
+          name?: string
+          updated_at?: string
           username?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "public_profiles_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
+    }
+    Views: {
+      [_ in never]: never
     }
     Functions: {
       [_ in never]: never
