@@ -264,23 +264,53 @@ export type Database = {
         }
         Relationships: []
       }
+      public_profiles: {
+        Row: {
+          avatar_url: string | null
+          banner_url: string | null
+          bio: string
+          id: string
+          link: string
+          name: string
+          updated_at: string
+          username: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          banner_url?: string | null
+          bio?: string
+          id: string
+          link?: string
+          name?: string
+          updated_at?: string
+          username?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          banner_url?: string | null
+          bio?: string
+          id?: string
+          link?: string
+          name?: string
+          updated_at?: string
+          username?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "public_profiles_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      get_public_profile: {
-        Args: { _user_id: string }
-        Returns: {
-          avatar_url: string
-          banner_url: string
-          bio: string
-          id: string
-          link: string
-          name: string
-          username: string
-        }[]
-      }
+      [_ in never]: never
     }
     Enums: {
       [_ in never]: never
