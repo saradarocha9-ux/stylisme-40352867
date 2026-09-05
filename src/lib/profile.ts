@@ -53,9 +53,13 @@ async function hydrate(row: Row): Promise<CloudProfile> {
 export async function getProfile(userId: string): Promise<CloudProfile | null> {
   const { data: auth } = await supabase.auth.getUser();
   if (auth.user?.id === userId) return getOwnProfile(userId);
-  const { data, error } = await supabase.rpc("get_public_profile", { _user_id: userId });
+  const { data, error } = await supabase
+    .from("public_profiles" as never)
+    .select("id, name, username, bio, link, avatar_url, banner_url")
+    .eq("id", userId)
+    .maybeSingle();
   if (error) throw new Error(error.message);
-  const row = Array.isArray(data) ? data[0] : data;
+  const row = data as unknown as Omit<Row, "plan"> | null;
   if (!row) return null;
   return hydrate({ ...(row as Omit<Row, "plan">), plan: "free" } as Row);
 }
