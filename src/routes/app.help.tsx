@@ -188,6 +188,14 @@ function HelpPage() {
           <Shield size={14} strokeWidth={1.5} />
           Política de Privacidade
         </Link>
+
+        <Link
+          to="/termos"
+          className="mt-4 flex items-center justify-center gap-2 text-xs text-muted-foreground"
+        >
+          <FileText size={14} strokeWidth={1.5} />
+          Termos de Serviço
+        </Link>
       </div>
     </div>
   );
