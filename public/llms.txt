@@ -15,3 +15,5 @@ de uma foto do rosto.
 ## Optional
 
 - [Entrar](/auth): Acesso à conta.
+- [Termos de Serviço](/termos): Regras de uso, planos, pagamentos e responsabilidades.
+- [Política de Privacidade](/privacidade): Como coletamos, usamos e protegemos seus dados.
