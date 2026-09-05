@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowLeft, Shield } from "lucide-react";
+import { ArrowLeft, FileText, Scale, Shield } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { SponsoredAd } from "@/components/SponsoredAd";
 
