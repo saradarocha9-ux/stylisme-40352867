@@ -23,7 +23,7 @@ const FAQS = [
   {
     question: "Como funciona o Provador Virtual?",
     answer:
-      "Envie uma foto de corpo inteiro na aba Looks e selecione as peças do seu armário. A IA posiciona e ajusta cada roupa sobre o seu corpo, respeitando caimento, sobreposição e proporções.",
+      "Envie uma foto de corpo inteiro na aba Looks e selecione as peças do seu armário. A IA posiciona e ajusta cada roupa sobre o seu corpo, respeitando caimento, sobreposição e proporções. No Free são 3 provas por dia; no Premium, sem limite. A foto pode ser apagada no próprio provador ou em Configurações → Minhas fotos.",
   },
   {
     question: "O que é a Análise de Paleta de Cores?",
