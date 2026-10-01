@@ -54,6 +54,15 @@ function SettingsPage() {
     }
   }
 
+  async function deletePaletteHistory() {
+    if (!confirm("Apagar todo o histórico de análises de cor?")) return;
+    const { data } = await supabase.auth.getUser();
+    if (!data.user) return;
+    const { error } = await supabase.from("color_analyses").delete().eq("user_id", data.user.id);
+    if (error) toast.error("Não consegui apagar o histórico.");
+    else toast.success("Histórico de cores apagado.");
+  }
+
   function pickTheme(t: "light" | "dark") {
     setTheme(t);
     actions.updateProfile({ theme: t });
@@ -87,6 +96,27 @@ function SettingsPage() {
         <Input label="Email da conta" value={email} onChange={setEmail} type="email" disabled />
         <p className="text-xs text-muted-foreground">O e-mail de acesso não pode ser alterado aqui.</p>
         <button onClick={() => void save()} disabled={saving} className="w-full rounded-full bg-foreground py-3 text-xs uppercase tracking-[0.24em] text-primary-foreground disabled:opacity-50">{saving ? "Salvando…" : "Salvar nome"}</button>
+      </section>
+
+      <section id="fotos" className="mt-4 space-y-3 rounded-3xl bg-card p-5 shadow-soft">
+        <p className="text-[10px] uppercase tracking-[0.22em] text-muted-foreground">Minhas fotos</p>
+        <p className="text-xs text-muted-foreground">Apague qualquer foto sem excluir sua conta.</p>
+        <PhotoRow
+          label="Foto do provador (corpo inteiro)"
+          src={state.profile.bodyPhotoUrl}
+          onDelete={() => { actions.updateProfile({ bodyPhotoUrl: undefined }); toast.success("Foto do provador apagada."); }}
+        />
+        <PhotoRow
+          label="Foto de coloração (rosto)"
+          src={state.profile.facePhotoUrl}
+          onDelete={() => { actions.updateProfile({ facePhotoUrl: undefined }); toast.success("Foto de coloração apagada."); }}
+        />
+        <button
+          onClick={() => void deletePaletteHistory()}
+          className="w-full rounded-xl border border-border px-4 py-2.5 text-left text-xs text-destructive"
+        >
+          Apagar histórico de análises de cor (miniaturas salvas na nuvem)
+        </button>
       </section>
 
       <section className="mt-4 rounded-3xl bg-card p-5 shadow-soft">
