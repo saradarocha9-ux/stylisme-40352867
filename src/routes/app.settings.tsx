@@ -167,3 +167,22 @@ function Input({ label, value, onChange, type = "text", disabled = false }: { la
     </label>
   );
 }
+
+function PhotoRow({ label, src, onDelete }: { label: string; src?: string; onDelete: () => void }) {
+  return (
+    <div className="flex items-center gap-3 rounded-xl border border-border p-3">
+      <div className="h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-muted">
+        {src && <img src={src} alt="" className="h-full w-full object-cover" />}
+      </div>
+      <div className="min-w-0 flex-1">
+        <p className="text-sm">{label}</p>
+        <p className="text-[11px] text-muted-foreground">{src ? "Salva só neste aparelho" : "Nenhuma foto enviada"}</p>
+      </div>
+      <button
+        onClick={() => { if (confirm(`Apagar ${label.toLowerCase()}?`)) onDelete(); }}
+        disabled={!src}
+        className="rounded-full border border-border px-3 py-1.5 text-xs text-destructive disabled:opacity-40"
+      >Apagar</button>
+    </div>
+  );
+}
