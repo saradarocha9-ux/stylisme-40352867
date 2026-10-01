@@ -58,6 +58,11 @@ function StatsPage() {
           <p className="mx-auto mt-3 max-w-xs text-sm opacity-80">
             Estatísticas completas do seu guarda-roupa — cores favoritas, peças esquecidas e mais.
           </p>
+          <div className="mt-5 grid grid-cols-3 gap-2 text-left opacity-70 blur-[2px]" aria-hidden="true">
+            <PreviewStat label="Cor favorita" value="Preto" />
+            <PreviewStat label="Mais usada" value="Camisa" />
+            <PreviewStat label="Esquecidas" value="4 peças" />
+          </div>
           <Link
             to="/app/premium"
             className="mt-6 inline-flex items-center gap-2 rounded-full bg-gold px-6 py-3 text-xs uppercase tracking-[0.24em] text-[oklch(0.16_0.01_60)]"
@@ -88,6 +93,10 @@ function StatsPage() {
       </div>
     </div>
   );
+}
+
+function PreviewStat({ label, value }: { label: string; value: string }) {
+  return <div className="rounded-xl bg-white/10 p-3"><p className="text-[8px] uppercase opacity-70">{label}</p><p className="mt-1 font-display text-lg">{value}</p></div>;
 }
 
 function Card({ label, value }: { label: string; value: string | number }) {

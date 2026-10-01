@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { X, Upload, Sparkles, Wand2 } from "lucide-react";
+import { X, Upload, Sparkles, Wand2, ChevronDown } from "lucide-react";
 import { actions, type Category, type Occasion, type Season } from "@/lib/store";
 import { removeImageBackground, fileToDataUrl } from "@/lib/bg-removal";
 import { analyzeGarment } from "@/lib/garment-ai.functions";
@@ -23,6 +23,7 @@ export function AddGarmentSheet({ onClose }: { onClose: () => void }) {
   const [progress, setProgress] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [detected, setDetected] = useState(false);
+  const [showOptional, setShowOptional] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
   function toggle<T>(arr: T[], v: T, setter: (a: T[]) => void) {
@@ -119,7 +120,8 @@ export function AddGarmentSheet({ onClose }: { onClose: () => void }) {
           ) : (
             <div className="flex flex-col items-center gap-2 text-muted-foreground">
               <Upload size={22} strokeWidth={1.5} />
-              <span className="text-xs uppercase tracking-[0.2em]">Enviar foto</span>
+              <span className="text-xs uppercase tracking-[0.2em]">Fotografar peça</span>
+              <span className="max-w-[240px] text-center text-[11px] normal-case tracking-normal">Removemos o fundo e identificamos categoria, cor e material.</span>
             </div>
           )}
           {progress && (
@@ -131,6 +133,9 @@ export function AddGarmentSheet({ onClose }: { onClose: () => void }) {
           )}
         </button>
         {error && <p className="mt-2 text-xs text-destructive">{error}</p>}
+        <p className="mt-2 text-[11px] leading-relaxed text-muted-foreground">
+          A foto fica privada no seu armário. Você pode apagar a peça quando quiser.
+        </p>
 
         {imageUrl && !progress && (
           <div className="mt-2 flex items-center justify-between gap-2">
@@ -163,25 +168,30 @@ export function AddGarmentSheet({ onClose }: { onClose: () => void }) {
               {CATEGORIES.map((c) => <option key={c}>{c}</option>)}
             </select>
           </Field>
-          <div className="grid grid-cols-2 gap-3">
-            <Field label="Cor"><input value={color} onChange={(e) => setColor(e.target.value)} className="input" placeholder="Bege" /></Field>
-            <Field label="Material"><input value={material} onChange={(e) => setMaterial(e.target.value)} className="input" placeholder="Linho" /></Field>
-          </div>
-          <Field label="Estampa"><input value={pattern} onChange={(e) => setPattern(e.target.value)} className="input" placeholder="Lisa" /></Field>
-          <Field label="Ocasiões">
-            <div className="flex flex-wrap gap-1.5">
-              {OCCASIONS.map((o) => (
-                <Chip key={o} active={occasions.includes(o)} onClick={() => toggle(occasions, o, setOccasions)}>{o}</Chip>
-              ))}
+          <Field label="Cor"><input value={color} onChange={(e) => setColor(e.target.value)} className="input" placeholder="Bege" /></Field>
+          <button type="button" onClick={() => setShowOptional((open) => !open)} className="flex w-full items-center justify-between border-t border-border pt-3 text-left text-[10px] uppercase tracking-[0.22em] text-muted-foreground">
+            Detalhes opcionais <ChevronDown size={14} className={showOptional ? "rotate-180" : ""} />
+          </button>
+          {showOptional && (
+            <div className="space-y-3">
+              <Field label="Material"><input value={material} onChange={(e) => setMaterial(e.target.value)} className="input" placeholder="Linho" /></Field>
+              <Field label="Estampa"><input value={pattern} onChange={(e) => setPattern(e.target.value)} className="input" placeholder="Lisa" /></Field>
+              <Field label="Ocasiões">
+                <div className="flex flex-wrap gap-1.5">
+                  {OCCASIONS.map((o) => (
+                    <Chip key={o} active={occasions.includes(o)} onClick={() => toggle(occasions, o, setOccasions)}>{o}</Chip>
+                  ))}
+                </div>
+              </Field>
+              <Field label="Estações">
+                <div className="flex flex-wrap gap-1.5">
+                  {SEASONS.map((s) => (
+                    <Chip key={s} active={seasons.includes(s)} onClick={() => toggle(seasons, s, setSeasons)}>{s}</Chip>
+                  ))}
+                </div>
+              </Field>
             </div>
-          </Field>
-          <Field label="Estações">
-            <div className="flex flex-wrap gap-1.5">
-              {SEASONS.map((s) => (
-                <Chip key={s} active={seasons.includes(s)} onClick={() => toggle(seasons, s, setSeasons)}>{s}</Chip>
-              ))}
-            </div>
-          </Field>
+          )}
         </div>
 
         <button

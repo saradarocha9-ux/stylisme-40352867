@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { Plus, Search, Heart, Trash2, Crown } from "lucide-react";
+import { Plus, Search, Heart, Trash2, Crown, Camera, ScanSearch, Wand2, ArrowRight } from "lucide-react";
 import { useStore, actions, type Category } from "@/lib/store";
 import { Logo } from "@/components/Logo";
 import { AddGarmentSheet } from "@/components/AddGarmentSheet";
@@ -96,7 +96,22 @@ function Wardrobe() {
         </div>
       </div>
 
-      <div className="mt-6 grid grid-cols-2 gap-3">
+      {state.garments.length === 0 && (
+        <section className="mt-6 border-y border-border py-6">
+          <p className="text-[10px] uppercase tracking-[0.24em] text-muted-foreground">Sua primeira combinação</p>
+          <h2 className="mt-1 font-display text-2xl">Comece com uma peça</h2>
+          <div className="mt-4 grid gap-3 sm:grid-cols-3">
+            <FirstStep icon={Camera} number="1" title="Fotografe" text="Use uma foto nítida da peça." />
+            <FirstStep icon={ScanSearch} number="2" title="Confirme" text="A IA identifica os detalhes." />
+            <FirstStep icon={Wand2} number="3" title="Combine" text="Adicione outra peça e gere sugestões." />
+          </div>
+          <button onClick={() => { tap(); setAdding(true); }} className="press-gold mt-5 flex w-full items-center justify-center gap-2 rounded-full bg-foreground py-3 text-sm text-primary-foreground">
+            Adicionar minha primeira peça <ArrowRight size={15} />
+          </button>
+        </section>
+      )}
+
+      <div className="mt-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
 
         <button
           onClick={() => { tap(); setAdding(true); }}
@@ -142,13 +157,18 @@ function Wardrobe() {
         ))}
       </div>
 
-      {filtered.length === 0 && state.garments.length === 0 && (
-        <p className="mt-8 text-center text-sm text-muted-foreground">
-          Seu armário está vazio. Toque em <span className="text-foreground">Adicionar</span> para cadastrar sua primeira peça.
-        </p>
+      {state.garments.length === 1 && (
+        <div className="col-span-2 flex flex-col gap-2 rounded-2xl border border-border p-4 lg:col-span-4 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-sm">Ótimo começo. Adicione mais uma peça para a IA criar sua primeira combinação.</p>
+          <button onClick={() => setAdding(true)} className="shrink-0 rounded-full bg-foreground px-4 py-2 text-xs text-primary-foreground">Adicionar outra</button>
+        </div>
       )}
 
       {adding && <AddGarmentSheet onClose={() => setAdding(false)} />}
     </div>
   );
+}
+
+function FirstStep({ icon: Icon, number, title, text }: { icon: React.ElementType; number: string; title: string; text: string }) {
+  return <div className="flex items-start gap-3"><span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-muted"><Icon size={16} /></span><div><p className="text-xs font-medium">{number}. {title}</p><p className="mt-0.5 text-xs text-muted-foreground">{text}</p></div></div>;
 }

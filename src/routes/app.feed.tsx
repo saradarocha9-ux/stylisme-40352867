@@ -1,9 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useCallback, useEffect, useState } from "react";
-import { Heart, Loader2, Plus, Sparkles } from "lucide-react";
+import { Heart, Loader2, Plus, Sparkles, Search } from "lucide-react";
 import { toast } from "sonner";
 import { FEED_CATEGORIES, applyLikeToggle, listFeed, timeAgo, toggleLike, type FeedPost, type FeedSort } from "@/lib/community";
 import { tap } from "@/lib/haptics";
+import { isOfficialUser } from "@/lib/official";
 
 export const Route = createFileRoute("/app/feed")({
   head: () => ({
@@ -64,7 +65,7 @@ function FeedPage() {
           to="/app/looks"
           className="press-gold flex items-center gap-1.5 rounded-full bg-foreground px-4 py-2 text-xs uppercase tracking-[0.2em] text-primary-foreground"
         >
-          <Plus size={14} /> Criar look
+          <Plus size={14} /> Ver no corpo
         </Link>
       </div>
 
@@ -124,6 +125,7 @@ function FeedPage() {
                 <Link to="/app/look/$postId" params={{ postId: p.id }}>
                   <p className="truncate text-sm font-medium">{p.title}</p>
                 </Link>
+                {isOfficialUser(p.userId) && <p className="mt-1 text-[9px] uppercase tracking-[0.16em] text-gold">Editorial Stylisme</p>}
                 <div className="mt-1 flex items-center justify-between">
                   <Link
                     to="/app/u/$userId"
@@ -141,6 +143,9 @@ function FeedPage() {
                   </button>
                 </div>
                 <p className="mt-1 text-[10px] uppercase tracking-[0.16em] text-muted-foreground">{timeAgo(p.createdAt)}</p>
+                <Link to="/app/look/$postId" params={{ postId: p.id }} className="mt-2 flex items-center gap-1 text-[10px] font-medium text-foreground">
+                  <Search size={11} /> Procurar no meu armário
+                </Link>
               </div>
             </article>
           ))}
