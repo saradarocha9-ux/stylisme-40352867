@@ -25,12 +25,12 @@ export const Route = createFileRoute("/app/premium")({
 });
 
 const benefits = [
-  { icon: Sparkles, title: "IA ilimitada", desc: "Gere looks sem limites com recomendações refinadas." },
+  { icon: Sparkles, title: "IA ilimitada", desc: "Faça quantas gerações quiser, com até 3 sugestões por vez." },
   { icon: CalendarDays, title: "Planejamento semanal e mensal", desc: "Organize sua semana com um calendário elegante." },
   { icon: BarChart3, title: "Estatísticas completas", desc: "Descubra suas peças mais e menos usadas." },
   { icon: Cloud, title: "Backup em nuvem", desc: "Seus dados sempre protegidos." },
   { icon: RefreshCw, title: "Sincronização total", desc: "Continue de qualquer dispositivo, na hora." },
-  { icon: Zap, title: "Recursos exclusivos", desc: "Novidades chegam primeiro para você." },
+  { icon: Zap, title: "Sem anúncios", desc: "Use todas as telas sem interrupções publicitárias." },
 ];
 
 const freeFeatures = ["Cadastro de roupas", "Guarda-roupa digital", "Provador virtual", "3 gerações de IA por dia", "Até 3 sugestões por geração", "Favoritos", "Perfil"];

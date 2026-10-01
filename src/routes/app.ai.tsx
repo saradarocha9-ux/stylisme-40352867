@@ -172,7 +172,7 @@ function AiPage() {
           </span>
         ) : (
           <Link to="/app/premium" className="rounded-full border border-border px-2.5 py-1 text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
-            {remaining}/{FREE_DAILY_LIMIT} hoje
+            {remaining} gerações hoje
           </Link>
         )}
       </div>

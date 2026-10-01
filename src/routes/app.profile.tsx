@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { Crown, Settings, LogOut, ChevronRight, User as UserIcon, CreditCard, BarChart3, Users, HelpCircle, Lightbulb, Images, PlusCircle, Shield } from "lucide-react";
+import { Crown, Settings, LogOut, ChevronRight, User as UserIcon, CreditCard, BarChart3, Users, HelpCircle, Lightbulb, Images, PlusCircle, Shield, CalendarDays } from "lucide-react";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useStore, ACHIEVEMENTS } from "@/lib/store";
@@ -139,6 +139,7 @@ function ProfilePage() {
         <Row to="/app/ideas" icon={Lightbulb} label="Central de Ideias" />
 
         <Row to="/app/subscription" icon={CreditCard} label="Minha assinatura" />
+        <Row to="/app/planner" icon={CalendarDays} label="Planejar meus looks" />
         <Row to="/app/stats" icon={BarChart3} label="Estatísticas" />
         <Row to="/app/settings" icon={Settings} label="Configurações" />
         <ExternalRow href="https://stylismeteam.com/" icon={Users} label="Saber sobre a equipe Stylisme" />
