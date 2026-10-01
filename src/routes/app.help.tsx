@@ -33,7 +33,7 @@ const FAQS = [
   {
     question: "Como funciona o plano Premium?",
     answer:
-      "O Premium remove o limite diário da IA, libera calendário de looks, provador no corpo, estatísticas detalhadas, sincronização e remove anúncios. No Free, você tem 3 gerações por dia, com até 3 sugestões em cada uma.",
+      "No Free: 3 gerações de IA por dia (até 3 sugestões cada), 3 provas por dia no provador e até 3 looks agendados em lista. No Premium: tudo sem limite diário, calendário semanal e mensal, estatísticas do armário e nenhum anúncio. Fotos podem ser apagadas a qualquer momento em Configurações → Minhas fotos.",
   },
   {
     question: "Posso compartilhar meus looks?",
