@@ -7,6 +7,7 @@ import { StreakCard } from "@/components/StreakCard";
 import { Achievements } from "@/components/Achievements";
 import { useSubscription } from "@/hooks/use-subscription";
 import { getMyProfile, type CloudProfile } from "@/lib/profile";
+import { listUserPosts } from "@/lib/community";
 
 export const Route = createFileRoute("/app/profile")({
   head: () => ({
@@ -30,11 +31,13 @@ function ProfilePage() {
   const [email, setEmail] = useState("");
   const [uid, setUid] = useState<string | null>(null);
   const [cloud, setCloud] = useState<CloudProfile | null>(null);
+  const [publishedCount, setPublishedCount] = useState(0);
   const { isPremium } = useSubscription();
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
       setEmail(data.user?.email ?? "");
       setUid(data.user?.id ?? null);
+      if (data.user?.id) void listUserPosts(data.user.id).then((posts) => setPublishedCount(posts.length)).catch(() => {});
     });
     getMyProfile().then(setCloud).catch(() => {});
   }, []);
@@ -86,9 +89,10 @@ function ProfilePage() {
 
       <div className="mt-4 grid grid-cols-4 gap-2 text-center">
         <Stat label="Roupas" value={state.garments.length} />
-        <Stat label="Looks" value={state.looks.length} />
+        <Stat label="Looks salvos" value={state.looks.length} />
+        <Stat label="Publicados" value={publishedCount} />
         <Stat label="Favoritos" value={favCount} />
-        <Stat label="Dias" value={days} />
+        <Stat label={days === 1 ? "Dia no app" : "Dias no app"} value={days} />
       </div>
 
       <div className="mt-6 animate-rise">

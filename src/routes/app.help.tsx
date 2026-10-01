@@ -33,7 +33,7 @@ const FAQS = [
   {
     question: "Como funciona o plano Premium?",
     answer:
-      "O Premium remove limites de uso da IA, libera looks ilimitados, provador virtual avançado, estatísticas detalhadas e recomendações personalizadas. Você gerencia a assinatura em 'Minha assinatura'.",
+      "O Premium remove o limite diário da IA, libera calendário de looks, provador no corpo, estatísticas detalhadas, sincronização e remove anúncios. No Free, você tem 3 gerações por dia, com até 3 sugestões em cada uma.",
   },
   {
     question: "Posso compartilhar meus looks?",

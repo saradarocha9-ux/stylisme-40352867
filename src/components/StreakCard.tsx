@@ -22,7 +22,7 @@ export function StreakCard({ gamify, compact }: { gamify: Gamify; compact?: bool
         <div>
           <p className="text-[10px] uppercase tracking-[0.24em] opacity-70">Nível {lv.level} · {lv.name}</p>
           <p className="font-display text-3xl leading-tight">
-            {gamify.streak} {gamify.streak === 1 ? "dia" : "dias"} de estilo
+            {gamify.streak} {gamify.streak === 1 ? "dia" : "dias"} em sequência
           </p>
         </div>
         <div className="flex h-14 w-14 items-center justify-center rounded-full bg-white/10">

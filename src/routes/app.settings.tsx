@@ -1,8 +1,11 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { ArrowLeft, Shield } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { actions, useStore } from "@/lib/store";
 import { useTheme } from "@/lib/theme";
+import { getMyProfile, saveProfile } from "@/lib/profile";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/app/settings")({
   head: () => ({
@@ -26,10 +29,29 @@ function SettingsPage() {
   const { theme, setTheme } = useTheme();
   const [name, setName] = useState(state.profile.name);
   const [email, setEmail] = useState(state.profile.email);
+  const [saving, setSaving] = useState(false);
 
-  function save() {
-    actions.updateProfile({ name, email });
-    alert("Dados salvos.");
+  useEffect(() => {
+    let active = true;
+    void Promise.all([getMyProfile(), supabase.auth.getUser()]).then(([profile, auth]) => {
+      if (!active) return;
+      setName(profile?.name || state.profile.name);
+      setEmail(auth.data.user?.email ?? state.profile.email);
+    });
+    return () => { active = false; };
+  }, [state.profile.email, state.profile.name]);
+
+  async function save() {
+    setSaving(true);
+    try {
+      await saveProfile({ name: name.trim() });
+      actions.updateProfile({ name: name.trim(), email });
+      toast.success("Nome salvo.");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Não consegui salvar.");
+    } finally {
+      setSaving(false);
+    }
   }
 
   function pickTheme(t: "light" | "dark") {
@@ -62,8 +84,9 @@ function SettingsPage() {
       <section className="mt-6 space-y-3 rounded-3xl bg-card p-5 shadow-soft">
         <p className="text-[10px] uppercase tracking-[0.22em] text-muted-foreground">Perfil</p>
         <Input label="Nome" value={name} onChange={setName} />
-        <Input label="Email" value={email} onChange={setEmail} type="email" />
-        <button onClick={save} className="w-full rounded-full bg-foreground py-3 text-xs uppercase tracking-[0.24em] text-primary-foreground">Salvar</button>
+        <Input label="Email da conta" value={email} onChange={setEmail} type="email" disabled />
+        <p className="text-xs text-muted-foreground">O e-mail de acesso não pode ser alterado aqui.</p>
+        <button onClick={() => void save()} disabled={saving} className="w-full rounded-full bg-foreground py-3 text-xs uppercase tracking-[0.24em] text-primary-foreground disabled:opacity-50">{saving ? "Salvando…" : "Salvar nome"}</button>
       </section>
 
       <section className="mt-4 rounded-3xl bg-card p-5 shadow-soft">
@@ -100,7 +123,7 @@ function SettingsPage() {
   );
 }
 
-function Input({ label, value, onChange, type = "text" }: { label: string; value: string; onChange: (v: string) => void; type?: string }) {
+function Input({ label, value, onChange, type = "text", disabled = false }: { label: string; value: string; onChange: (v: string) => void; type?: string; disabled?: boolean }) {
   return (
     <label className="block">
       <span className="mb-1.5 block text-[10px] uppercase tracking-[0.22em] text-muted-foreground">{label}</span>
@@ -108,7 +131,8 @@ function Input({ label, value, onChange, type = "text" }: { label: string; value
         type={type}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-xl border border-border bg-background px-4 py-2.5 text-sm outline-none focus:border-foreground"
+        disabled={disabled}
+        className="w-full rounded-xl border border-border bg-background px-4 py-2.5 text-sm outline-none focus:border-foreground disabled:cursor-not-allowed disabled:opacity-60"
       />
     </label>
   );

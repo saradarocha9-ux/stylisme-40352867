@@ -33,8 +33,8 @@ const benefits = [
   { icon: Zap, title: "Recursos exclusivos", desc: "Novidades chegam primeiro para você." },
 ];
 
-const freeFeatures = ["Cadastro de roupas", "Guarda-roupa digital", "Provador virtual", "IA (3 looks/dia)", "Favoritos", "Perfil"];
-const premiumFeatures = ["Tudo do Free", "IA ilimitada", "Planejamento inteligente", "Estatísticas", "Recomendações avançadas", "Recursos exclusivos", "Sincronização completa"];
+const freeFeatures = ["Cadastro de roupas", "Guarda-roupa digital", "Provador virtual", "3 gerações de IA por dia", "Até 3 sugestões por geração", "Favoritos", "Perfil"];
+const premiumFeatures = ["Tudo do Free", "IA sem limite diário", "Calendário de looks", "Estatísticas detalhadas", "Provador no corpo", "Sincronização completa", "Sem anúncios"];
 
 function PremiumPage() {
   const { isPremium, loading } = useSubscription();
