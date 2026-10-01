@@ -148,8 +148,8 @@ function PrivacyPage() {
         <Section title="7. Retenção de dados">
           <p>
             Mantemos seus dados enquanto sua conta estiver ativa. Se você excluir a conta, os dados são removidos do
-            banco ativo em até 30 dias. Cópias de segurança criptografadas e isoladas são eliminadas conforme o ciclo de
-            retenção do serviço, em até 90 dias após a exclusão.
+            banco ativo em até 30 dias. Cópias de segurança criptografadas e isoladas seguem o ciclo de retenção do
+            provedor de infraestrutura e não são usadas para outras finalidades.
           </p>
         </Section>
 
