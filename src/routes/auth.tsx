@@ -3,8 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { Logo } from "@/components/Logo";
-import { SponsoredAd } from "@/components/SponsoredAd";
-import { Mail, Lock, User, ArrowRight } from "lucide-react";
+import { Mail, Lock, User, ArrowRight, Eye, EyeOff } from "lucide-react";
 import { useSession } from "@/hooks/use-session";
 
 export const Route = createFileRoute("/auth")({
@@ -35,6 +34,8 @@ function AuthPage() {
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
   const redirectingRef = useRef(false);
   const { session, loading: sessionLoading } = useSession();
 
@@ -81,14 +82,20 @@ function AuthPage() {
     if (result.error) setError("Não foi possível entrar com o Google.");
   }
 
+  async function forgotPassword() {
+    if (!email) { setError("Digite seu e-mail para recuperar a senha."); return; }
+    setError(null);
+    const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: `${window.location.origin}/reset-password` });
+    if (resetError) setError(resetError.message);
+    else setNotice("Enviamos um link para redefinir sua senha.");
+  }
+
   return (
     <div className="min-h-screen bg-background px-6 pb-16 pt-14">
       <div className="mx-auto flex max-w-sm flex-col items-center text-center animate-fade-in-slow">
         <Logo size={72} />
         <h1 className="mt-4 font-display text-4xl">Stylisme</h1>
-        <p className="mt-1 text-[10px] uppercase tracking-[0.28em] text-muted-foreground">
-          Inteligência para o seu armário
-        </p>
+        <p className="mt-2 max-w-xs text-sm text-muted-foreground">Organize suas roupas e receba combinações úteis para cada ocasião.</p>
       </div>
 
       <div className="mx-auto mt-10 max-w-sm">
@@ -120,12 +127,15 @@ function AuthPage() {
 
         <form onSubmit={submit} className="space-y-3">
           {mode === "signup" && (
-            <Field icon={User} placeholder="Seu nome" value={name} onChange={setName} />
+            <Field icon={User} label="Nome" placeholder="Seu nome" value={name} onChange={setName} />
           )}
-          <Field icon={Mail} type="email" placeholder="Email" value={email} onChange={setEmail} required />
-          <Field icon={Lock} type="password" placeholder="Senha (mínimo 6 caracteres)" value={password} onChange={setPassword} minLength={6} required />
+          <Field icon={Mail} label="E-mail" type="email" placeholder="voce@email.com" value={email} onChange={setEmail} required />
+          <Field icon={Lock} label="Senha" type={showPassword ? "text" : "password"} placeholder="Mínimo 6 caracteres" value={password} onChange={setPassword} minLength={6} required action={<button type="button" onClick={() => setShowPassword((value) => !value)} aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}>{showPassword ? <EyeOff size={16} /> : <Eye size={16} />}</button>} />
 
           {error && <p className="text-xs text-destructive">{error}</p>}
+          {notice && <p className="text-xs text-gold">{notice}</p>}
+
+          {mode === "signin" && <button type="button" onClick={() => void forgotPassword()} className="text-xs text-muted-foreground underline">Esqueci minha senha</button>}
 
           <button
             type="submit"
@@ -138,8 +148,8 @@ function AuthPage() {
         </form>
 
         {mode === "signup" && (
-          <p className="mt-4 text-center text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
-            Ao criar sua conta, você começa no plano <span className="text-foreground">Stylisme Free</span>.
+          <p className="mt-4 text-center text-xs leading-relaxed text-muted-foreground">
+            Ao criar sua conta, você começa no plano <span className="text-foreground">Stylisme Free</span> e aceita os <Link to="/termos" className="underline">Termos</Link> e a <Link to="/privacidade" className="underline">Privacidade</Link>.
           </p>
         )}
 
@@ -147,34 +157,30 @@ function AuthPage() {
           <Link to="/" className="hover:text-foreground">Voltar</Link>
         </p>
       </div>
-      <SponsoredAd placement="auth" className="pb-6" />
     </div>
   );
 }
 
 function Field({
-  icon: Icon, value, onChange, type = "text", placeholder, required, minLength,
+  icon: Icon, value, onChange, type = "text", placeholder, label, required, minLength, action,
 }: {
   icon: React.ElementType;
   value: string;
   onChange: (v: string) => void;
   type?: string;
   placeholder: string;
+  label: string;
   required?: boolean;
   minLength?: number;
+  action?: React.ReactNode;
 }) {
   return (
-    <label className="flex items-center gap-3 rounded-2xl border border-border bg-card px-4 py-3 shadow-soft focus-within:border-foreground">
-      <Icon size={16} className="text-muted-foreground" strokeWidth={1.5} />
-      <input
-        type={type}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder}
-        required={required}
-        minLength={minLength}
-        className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
-      />
+    <label className="block text-left">
+      <span className="mb-1.5 block text-xs text-muted-foreground">{label}</span>
+      <span className="flex items-center gap-3 rounded-2xl border border-border bg-card px-4 py-3 shadow-soft focus-within:border-foreground"><Icon size={16} className="text-muted-foreground" strokeWidth={1.5} />
+        <input type={type} value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} required={required} minLength={minLength} className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground" />
+        {action}
+      </span>
     </label>
   );
 }
