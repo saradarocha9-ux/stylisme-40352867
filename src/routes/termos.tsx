@@ -76,8 +76,8 @@ function TermsPage() {
           <ul className="list-disc space-y-1.5 pl-5">
             <li>Você precisa ter pelo menos 13 anos para usar o Stylisme.</li>
             <li>
-              A autenticação é feita pelo login com Google, gerenciado pela Lovable Cloud. Você é responsável por manter
-              seu dispositivo e conta seguros.
+              A autenticação pode ser feita pelo Google ou por email e senha, gerenciada pela Lovable Cloud. Você é
+              responsável por manter seu dispositivo e conta seguros.
             </li>
             <li>Não compartilhe sua conta com terceiros nem use contas falsas.</li>
             <li>

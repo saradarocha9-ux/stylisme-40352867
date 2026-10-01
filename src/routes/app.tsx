@@ -6,6 +6,16 @@ import { Logo } from "@/components/Logo";
 import { SponsoredAd } from "@/components/SponsoredAd";
 
 export const Route = createFileRoute("/app")({
+  head: () => ({
+    meta: [
+      { title: "Aplicativo — Stylisme" },
+      { name: "description", content: "Organize seu armário e escolha o que vestir com o Stylisme." },
+      { property: "og:title", content: "Aplicativo — Stylisme" },
+      { property: "og:description", content: "Organize seu armário e escolha o que vestir com o Stylisme." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
   component: AppLayout,
 });
 
