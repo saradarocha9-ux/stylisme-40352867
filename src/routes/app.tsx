@@ -6,6 +6,16 @@ import { Logo } from "@/components/Logo";
 import { SponsoredAd } from "@/components/SponsoredAd";
 
 export const Route = createFileRoute("/app")({
+  head: () => ({
+    meta: [
+      { title: "Aplicativo — Stylisme" },
+      { name: "description", content: "Organize seu armário e escolha o que vestir com o Stylisme." },
+      { property: "og:title", content: "Aplicativo — Stylisme" },
+      { property: "og:description", content: "Organize seu armário e escolha o que vestir com o Stylisme." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
   component: AppLayout,
 });
 
@@ -50,7 +60,7 @@ function AppLayout() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div key={pathname} className="animate-page mx-auto max-w-md pb-28">
+      <div key={pathname} className="animate-page mx-auto w-full max-w-md pb-28 lg:max-w-6xl">
         <Outlet />
       </div>
       <BottomNav />

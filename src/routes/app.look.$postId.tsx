@@ -8,6 +8,7 @@ import { applyLikeToggle, deletePost, getPost, timeAgo, toggleLike, type FeedPos
 import { matchWardrobe, type WardrobeMatch } from "@/lib/wardrobe-match.functions";
 import { useStore, actions } from "@/lib/store";
 import { tap } from "@/lib/haptics";
+import { isOfficialUser } from "@/lib/official";
 
 export const Route = createFileRoute("/app/look/$postId")({
   head: () => ({
@@ -172,6 +173,7 @@ function LookPostPage() {
         </span>
         <span className="min-w-0 flex-1">
           <span className="block truncate text-sm font-medium">{post.authorName}</span>
+          {isOfficialUser(post.userId) && <span className="block text-[9px] uppercase tracking-[0.16em] text-gold">Conteúdo editorial Stylisme</span>}
           <span className="block text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
             Ver perfil · {timeAgo(post.createdAt)}
           </span>

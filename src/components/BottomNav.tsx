@@ -15,7 +15,7 @@ export function BottomNav() {
   const { location } = useRouterState();
   return (
     <nav className="fixed bottom-0 inset-x-0 z-40 border-t border-border bg-background/70 backdrop-blur-2xl">
-      <div className="mx-auto max-w-md grid grid-cols-6">
+      <div className="mx-auto grid max-w-md grid-cols-6 lg:max-w-3xl">
         {items.map(({ to, label, icon: Icon }) => {
           const active = location.pathname === to || (to !== "/app" && location.pathname.startsWith(to));
           return (

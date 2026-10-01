@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useMemo, useRef, useState, useEffect } from "react";
 import { createPortal } from "react-dom";
@@ -201,7 +201,7 @@ function TryOnPage() {
             <UserIcon size={40} strokeWidth={1.2} />
             <span className="text-xs uppercase tracking-[0.22em]">Envie uma foto sua</span>
             <span className="max-w-[220px] text-center text-[11px] normal-case tracking-normal">
-              De corpo inteiro, contra um fundo simples. Removemos o fundo automaticamente.
+              De corpo inteiro, contra um fundo simples. A foto fica privada e pode ser apagada em Configurações.
             </span>
           </button>
         )}
@@ -363,7 +363,10 @@ function GarmentPicker({ body, busy, onSelect, onClose }: { body?: string; busy:
         </div>
         <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-6 pb-[calc(env(safe-area-inset-bottom)+1.5rem)]">
         {state.garments.length === 0 && (
-          <p className="mt-6 text-center text-sm text-muted-foreground">Cadastre peças no armário para começar a provar.</p>
+          <div className="mt-6 text-center">
+            <p className="text-sm text-muted-foreground">Cadastre uma peça no armário para começar.</p>
+            <Link to="/app" onClick={onClose} className="mt-3 inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-2.5 text-xs text-primary-foreground"><Plus size={14} /> Cadastrar peça</Link>
+          </div>
         )}
         {!body && state.garments.length > 0 && (
           <p className="mt-3 text-xs text-muted-foreground">

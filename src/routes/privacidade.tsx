@@ -68,7 +68,7 @@ function PrivacyPage() {
           <p>Coletamos apenas o necessário para o app funcionar:</p>
           <ul className="list-disc space-y-1.5 pl-5">
             <li>
-              <strong>Dados de conta:</strong> nome, email e identificador fornecidos pelo login com Google (autenticação via Lovable Cloud).
+              <strong>Dados de conta:</strong> nome, email e identificador fornecidos pelo login com Google ou pelo cadastro com email e senha.
             </li>
             <li>
               <strong>Fotos de roupas:</strong> imagens que você envia para cadastrar peças no armário digital.
@@ -148,15 +148,15 @@ function PrivacyPage() {
         <Section title="7. Retenção de dados">
           <p>
             Mantemos seus dados enquanto sua conta estiver ativa. Se você excluir a conta, os dados são removidos do
-            banco ativo em até 30 dias. Backups automáticos podem reter cópias por mais tempo, mas de forma criptografada
-            e isolada.
+            banco ativo em até 30 dias. Cópias de segurança criptografadas e isoladas seguem o ciclo de retenção do
+            provedor de infraestrutura e não são usadas para outras finalidades.
           </p>
         </Section>
 
         <Section title="8. Crianças e adolescentes">
           <p>
-            O Stylisme é destinado a maiores de 13 anos. Se identificarmos uma conta de menor de idade, podemos
-            suspendê-la e remover os dados.
+            O Stylisme é destinado a pessoas com 13 anos ou mais. Se identificarmos uma conta de pessoa abaixo dessa
+            idade, podemos suspendê-la e remover os dados.
           </p>
         </Section>
 
@@ -171,7 +171,7 @@ function PrivacyPage() {
           <p>
             O Stylisme roda sobre a plataforma Lovable Cloud, que fornece autenticação, banco de dados e storage. A
             segurança do app também depende de você: mantenha seu dispositivo protegido, não compartilhe sua conta e
-            revise cuidadosamente as permissões concedidas ao login com Google.
+            revise cuidadosamente as permissões concedidas ao seu método de acesso.
           </p>
         </Section>
       </div>

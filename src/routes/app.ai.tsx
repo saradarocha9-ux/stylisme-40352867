@@ -78,7 +78,7 @@ function AiPage() {
   async function generate() {
     if (loading) return;
     if (!isPremium && remaining <= 0) {
-      setMsgs((m) => [...m, { role: "ai", text: "Você atingiu o limite diário do plano Free (3 looks). Faça upgrade para IA ilimitada." }]);
+      setMsgs((m) => [...m, { role: "ai", text: "Você usou as 3 gerações de hoje no plano Free. Cada geração pode trazer até 3 sugestões. Faça upgrade para usar sem limite." }]);
       return;
     }
     if (state.garments.length < 2) {
@@ -172,7 +172,7 @@ function AiPage() {
           </span>
         ) : (
           <Link to="/app/premium" className="rounded-full border border-border px-2.5 py-1 text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
-            {remaining}/{FREE_DAILY_LIMIT} hoje
+            {remaining} gerações hoje
           </Link>
         )}
       </div>
@@ -242,7 +242,7 @@ function AiPage() {
 
         <button onClick={generate} disabled={loading} className="mt-5 flex w-full items-center justify-center gap-2 rounded-full bg-foreground py-3.5 text-sm uppercase tracking-[0.24em] text-primary-foreground disabled:opacity-60">
           {loading ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
-          {loading ? "Combinando peças…" : "Gerar 3 looks"}
+          {loading ? "Combinando peças…" : "Gerar até 3 sugestões"}
         </button>
 
       </section>
