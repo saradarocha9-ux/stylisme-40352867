@@ -89,7 +89,7 @@ function PalettePage() {
         Envie uma foto do seu rosto com luz natural e sem maquiagem pesada.
       </p>
       <p className="mt-2 text-xs text-muted-foreground">
-        A iluminação e a câmera podem alterar o resultado. Sua foto fica privada e pode ser apagada em Configurações.
+        A iluminação e a câmera podem alterar o resultado. Sua foto fica privada e pode ser apagada aqui ou em Configurações → Minhas fotos.
       </p>
 
       <input

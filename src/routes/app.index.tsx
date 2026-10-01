@@ -113,13 +113,13 @@ function Wardrobe() {
 
       <div className="mt-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
 
-        <button
+        {state.garments.length > 0 && <button
           onClick={() => { tap(); setAdding(true); }}
           className="press aspect-[3/4] rounded-2xl border-2 border-dashed border-border flex flex-col items-center justify-center gap-2 text-muted-foreground hover:text-foreground hover:border-foreground transition"
         >
           <Plus size={22} strokeWidth={1.5} className="animate-float" />
           <span className="text-xs uppercase tracking-[0.2em]">Adicionar</span>
-        </button>
+        </button>}
 
         {filtered.map((g, i) => (
           <div

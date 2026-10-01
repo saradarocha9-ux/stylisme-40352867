@@ -349,7 +349,7 @@ function TryOnPage() {
   );
 }
 
-function GarmentPicker({ body, busy, onSelect, onClose }: { body?: string; busy: boolean; onSelect: (garment: Garment) => Promise<void>; onClose: () => void }) {
+function GarmentPicker({ body, busy, onSelect, onClose, onAddNew }: { body?: string; busy: boolean; onSelect: (garment: Garment) => Promise<void>; onClose: () => void; onAddNew: () => void }) {
   const { state } = useStore();
   const [q, setQ] = useState("");
   const [fittingId, setFittingId] = useState<string | null>(null);

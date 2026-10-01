@@ -58,11 +58,17 @@ function StatsPage() {
           <p className="mx-auto mt-3 max-w-xs text-sm opacity-80">
             Estatísticas completas do seu guarda-roupa — cores favoritas, peças esquecidas e mais.
           </p>
-          <div className="mt-5 grid grid-cols-3 gap-2 text-left opacity-70 blur-[2px]" aria-hidden="true">
+          <p className="mt-6 text-[10px] uppercase tracking-[0.24em] text-gold">Exemplo de demonstração</p>
+          <div className="mt-2 grid grid-cols-3 gap-2 text-left">
             <PreviewStat label="Cor favorita" value="Preto" />
             <PreviewStat label="Mais usada" value="Camisa" />
             <PreviewStat label="Esquecidas" value="4 peças" />
           </div>
+          <ul className="mx-auto mt-4 max-w-xs space-y-1.5 text-left text-xs opacity-80">
+            <li>• Peças esquecidas: decida o que usar mais, doar ou vender.</li>
+            <li>• Cor mais usada: evite comprar repetido e varie a paleta.</li>
+            <li>• Categoria top: descubra o que realmente falta no armário.</li>
+          </ul>
           <Link
             to="/app/premium"
             className="mt-6 inline-flex items-center gap-2 rounded-full bg-gold px-6 py-3 text-xs uppercase tracking-[0.24em] text-[oklch(0.16_0.01_60)]"
