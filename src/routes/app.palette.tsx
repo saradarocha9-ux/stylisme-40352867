@@ -89,7 +89,7 @@ function PalettePage() {
         Envie uma foto do seu rosto com luz natural e sem maquiagem pesada.
       </p>
       <p className="mt-2 text-xs text-muted-foreground">
-        A iluminação e a câmera podem alterar o resultado. Sua foto fica privada e pode ser apagada em Configurações.
+        A iluminação e a câmera podem alterar o resultado. Sua foto fica privada e pode ser apagada aqui ou em Configurações → Minhas fotos.
       </p>
 
       <input
@@ -135,6 +135,11 @@ function PalettePage() {
             {loading ? "Analisando tonalidade, subtom e contraste…" : "A IA identifica sua estação de cor."}
           </p>
           <div className="mt-2 flex flex-wrap gap-2">
+            {photo && (
+              <button type="button" onClick={() => { if (confirm("Apagar sua foto de coloração? O resultado da cartela continua salvo.")) actions.updateProfile({ facePhotoUrl: undefined }); }} className="rounded-full border border-border px-3 py-1.5 text-[11px] text-destructive">
+                Apagar foto
+              </button>
+            )}
             <button
               type="button"
               onClick={() => inputRef.current?.click()}

@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { Check, Crown, ArrowLeft, Sparkles, CalendarDays, BarChart3, Cloud, RefreshCw, Zap, Loader2 } from "lucide-react";
+import { Check, Crown, ArrowLeft, Sparkles, CalendarDays, BarChart3, Cloud, Zap, Loader2 } from "lucide-react";
+import { FREE_PLANNED_LOOKS, FREE_TRYON_DAILY, PLAN_RULES } from "@/lib/plan-limits";
 import { useEffect, useState } from "react";
 import { useSearch } from "@tanstack/react-router";
 import { createCheckout } from "@/lib/stripe.functions";
@@ -25,16 +26,15 @@ export const Route = createFileRoute("/app/premium")({
 });
 
 const benefits = [
-  { icon: Sparkles, title: "IA ilimitada", desc: "Faça quantas gerações quiser, com até 3 sugestões por vez." },
-  { icon: CalendarDays, title: "Planejamento semanal e mensal", desc: "Organize sua semana com um calendário elegante." },
-  { icon: BarChart3, title: "Estatísticas completas", desc: "Descubra suas peças mais e menos usadas." },
-  { icon: Cloud, title: "Backup em nuvem", desc: "Seus dados sempre protegidos." },
-  { icon: RefreshCw, title: "Sincronização total", desc: "Continue de qualquer dispositivo, na hora." },
-  { icon: Zap, title: "Sem anúncios", desc: "Use todas as telas sem interrupções publicitárias." },
+  { icon: Sparkles, title: "IA sem limite diário", desc: "No Free são 3 gerações por dia. Aqui, quantas quiser — sempre com até 3 sugestões por vez." },
+  { icon: Zap, title: "Provador no corpo sem limite", desc: `No Free são ${FREE_TRYON_DAILY} provas por dia na sua foto. No Premium, prove quantas combinações quiser.` },
+  { icon: CalendarDays, title: "Calendário semanal e mensal", desc: `No Free, até ${FREE_PLANNED_LOOKS} looks agendados em lista. No Premium, planejamento ilimitado com visão de semana e mês.` },
+  { icon: BarChart3, title: "Estatísticas do armário", desc: "Veja peças esquecidas, cor e categoria mais usadas para decidir o que usar mais, doar ou evitar comprar repetido." },
+  { icon: Cloud, title: "Sem anúncios", desc: "Nenhuma publicidade em nenhuma tela." },
 ];
 
-const freeFeatures = ["Cadastro de roupas", "Guarda-roupa digital", "Provador virtual", "3 gerações de IA por dia", "Até 3 sugestões por geração", "Favoritos", "Perfil"];
-const premiumFeatures = ["Tudo do Free", "IA sem limite diário", "Calendário de looks", "Estatísticas detalhadas", "Provador no corpo", "Sincronização completa", "Sem anúncios"];
+const freeFeatures = PLAN_RULES.free;
+const premiumFeatures = PLAN_RULES.premium;
 
 function PremiumPage() {
   const { isPremium, loading } = useSubscription();

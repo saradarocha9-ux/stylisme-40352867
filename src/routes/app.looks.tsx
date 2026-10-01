@@ -5,6 +5,9 @@ import { createPortal } from "react-dom";
 import { Plus, User as UserIcon, X, RotateCcw, Sparkles, Users } from "lucide-react";
 import { useStore, actions, slotOf, type Garment } from "@/lib/store";
 import { generateVirtualTryOn } from "@/lib/virtual-tryon.functions";
+import { useSubscription } from "@/hooks/use-subscription";
+import { FREE_TRYON_DAILY, bumpTryOn, tryOnUsedToday } from "@/lib/plan-limits";
+import { AddGarmentSheet } from "@/components/AddGarmentSheet";
 import { track } from "@/lib/track";
 import { resizeDataUrl } from "@/lib/image-resize";
 import { PublishLookSheet } from "@/components/PublishLookSheet";
@@ -30,6 +33,11 @@ export const Route = createFileRoute("/app/looks")({
 function TryOnPage() {
   const { state } = useStore();
   const createTryOn = useServerFn(generateVirtualTryOn);
+  const { isPremium } = useSubscription();
+  const [usedTryOn, setUsedTryOn] = useState(0);
+  const [addingGarment, setAddingGarment] = useState(false);
+  useEffect(() => { setUsedTryOn(tryOnUsedToday()); }, []);
+  const tryOnLeft = isPremium ? Infinity : Math.max(0, FREE_TRYON_DAILY - usedTryOn);
   const [picker, setPicker] = useState(false);
   const [bodyBusy, setBodyBusy] = useState(false);
   const [tryOnBusy, setTryOnBusy] = useState(false);
@@ -71,6 +79,10 @@ function TryOnPage() {
       setGeneratedUrl(null);
       return;
     }
+    if (!isPremium && tryOnUsedToday() >= FREE_TRYON_DAILY) {
+      setTryOnError(`Você usou as ${FREE_TRYON_DAILY} provas de hoje no plano Free. Volte amanhã ou assine o Premium para provar sem limite.`);
+      return;
+    }
     setTryOnBusy(true);
     setTryOnError(null);
     try {
@@ -89,6 +101,8 @@ function TryOnPage() {
 
       const result = await createTryOn({ data: { bodyDataUrl: baseImage, garments: payloadGarments } });
       setGeneratedUrl(result.imageUrl);
+      bumpTryOn();
+      setUsedTryOn(tryOnUsedToday());
     } catch (error) {
       setTryOnError(error instanceof Error ? error.message : "Não foi possível vestir as peças.");
       throw error;
@@ -201,7 +215,7 @@ function TryOnPage() {
             <UserIcon size={40} strokeWidth={1.2} />
             <span className="text-xs uppercase tracking-[0.22em]">Envie uma foto sua</span>
             <span className="max-w-[220px] text-center text-[11px] normal-case tracking-normal">
-              De corpo inteiro, contra um fundo simples. A foto fica privada e pode ser apagada em Configurações.
+              De corpo inteiro, contra um fundo simples. A foto fica privada e pode ser apagada aqui mesmo ou em Configurações → Minhas fotos.
             </span>
           </button>
         )}
@@ -226,6 +240,19 @@ function TryOnPage() {
         className="hidden"
         onChange={(e) => e.target.files?.[0] && onBodyFile(e.target.files[0])}
       />
+
+      <div className="mt-3 flex items-center justify-between gap-3 rounded-2xl border border-border px-4 py-3 text-xs">
+        <span className="text-muted-foreground">
+          {isPremium ? "Premium: provas no corpo sem limite." : `Free: ${tryOnLeft} de ${FREE_TRYON_DAILY} provas no corpo restantes hoje.`}
+          {!isPremium && <Link to="/app/premium" className="ml-1 text-gold underline">Ver Premium</Link>}
+        </span>
+        {body && (
+          <button
+            onClick={() => { if (confirm("Apagar sua foto do provador?")) { actions.updateProfile({ bodyPhotoUrl: undefined }); setGeneratedUrl(null); } }}
+            className="shrink-0 text-destructive underline"
+          >Apagar foto</button>
+        )}
+      </div>
 
       {tryOnError && <p className="mt-3 text-center text-xs text-destructive">{tryOnError}</p>}
 
@@ -301,7 +328,8 @@ function TryOnPage() {
       )}
 
 
-      {picker && <GarmentPicker body={body} busy={tryOnBusy} onSelect={addGarment} onClose={() => setPicker(false)} />}
+      {picker && <GarmentPicker body={body} busy={tryOnBusy} onSelect={addGarment} onClose={() => setPicker(false)} onAddNew={() => { setPicker(false); setAddingGarment(true); }} />}
+      {addingGarment && <AddGarmentSheet onClose={() => setAddingGarment(false)} />}
 
       {publishing && body && (
         <PublishLookSheet
@@ -321,7 +349,7 @@ function TryOnPage() {
   );
 }
 
-function GarmentPicker({ body, busy, onSelect, onClose }: { body?: string; busy: boolean; onSelect: (garment: Garment) => Promise<void>; onClose: () => void }) {
+function GarmentPicker({ body, busy, onSelect, onClose, onAddNew }: { body?: string; busy: boolean; onSelect: (garment: Garment) => Promise<void>; onClose: () => void; onAddNew: () => void }) {
   const { state } = useStore();
   const [q, setQ] = useState("");
   const [fittingId, setFittingId] = useState<string | null>(null);
@@ -365,7 +393,7 @@ function GarmentPicker({ body, busy, onSelect, onClose }: { body?: string; busy:
         {state.garments.length === 0 && (
           <div className="mt-6 text-center">
             <p className="text-sm text-muted-foreground">Cadastre uma peça no armário para começar.</p>
-            <Link to="/app" onClick={onClose} className="mt-3 inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-2.5 text-xs text-primary-foreground"><Plus size={14} /> Cadastrar peça</Link>
+            <button onClick={onAddNew} className="mt-3 inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-2.5 text-xs text-primary-foreground"><Plus size={14} /> Cadastrar peça</button>
           </div>
         )}
         {!body && state.garments.length > 0 && (

@@ -4,6 +4,7 @@ import { BottomNav } from "@/components/BottomNav";
 import { useSession } from "@/hooks/use-session";
 import { Logo } from "@/components/Logo";
 import { SponsoredAd } from "@/components/SponsoredAd";
+import { useStore } from "@/lib/store";
 
 export const Route = createFileRoute("/app")({
   head: () => ({
@@ -38,6 +39,10 @@ function AppLayout() {
   const navigate = useNavigate();
   const redirectingRef = useRef(false);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const { state } = useStore();
+  // Sem anúncios na assinatura nem no primeiro uso (até a pessoa ter 3 peças e conseguir gerar um resultado).
+  const noAdsPath = /^\/app\/(premium|subscription)/.test(pathname);
+  const showAds = !noAdsPath && state.garments.length >= 3;
   const placement = PLACEMENTS[pathname.replace(/(.)\/$/, "$1")] ?? "app-corner";
 
   useEffect(() => {
@@ -64,7 +69,7 @@ function AppLayout() {
         <Outlet />
       </div>
       <BottomNav />
-      <SponsoredAd key={placement} placement={placement} />
+      {showAds && <SponsoredAd key={placement} placement={placement} />}
     </div>
   );
 }
