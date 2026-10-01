@@ -24,6 +24,7 @@ import { Route as AppStatsRouteImport } from './routes/app.stats'
 import { Route as AppSettingsRouteImport } from './routes/app.settings'
 import { Route as AppProfileRouteImport } from './routes/app.profile'
 import { Route as AppPremiumRouteImport } from './routes/app.premium'
+import { Route as AppPlannerRouteImport } from './routes/app.planner'
 import { Route as AppPaletteRouteImport } from './routes/app.palette'
 import { Route as AppLooksRouteImport } from './routes/app.looks'
 import { Route as AppIdeasRouteImport } from './routes/app.ideas'
@@ -111,6 +112,11 @@ const AppPremiumRoute = AppPremiumRouteImport.update({
   path: '/premium',
   getParentRoute: () => AppRoute,
 } as any)
+const AppPlannerRoute = AppPlannerRouteImport.update({
+  id: '/planner',
+  path: '/planner',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppPaletteRoute = AppPaletteRouteImport.update({
   id: '/palette',
   path: '/palette',
@@ -179,6 +185,7 @@ export interface FileRoutesByFullPath {
   '/app/ideas': typeof AppIdeasRoute
   '/app/looks': typeof AppLooksRoute
   '/app/palette': typeof AppPaletteRoute
+  '/app/planner': typeof AppPlannerRoute
   '/app/premium': typeof AppPremiumRoute
   '/app/profile': typeof AppProfileRoute
   '/app/settings': typeof AppSettingsRoute
@@ -205,6 +212,7 @@ export interface FileRoutesByTo {
   '/app/ideas': typeof AppIdeasRoute
   '/app/looks': typeof AppLooksRoute
   '/app/palette': typeof AppPaletteRoute
+  '/app/planner': typeof AppPlannerRoute
   '/app/premium': typeof AppPremiumRoute
   '/app/profile': typeof AppProfileRoute
   '/app/settings': typeof AppSettingsRoute
@@ -233,6 +241,7 @@ export interface FileRoutesById {
   '/app/ideas': typeof AppIdeasRoute
   '/app/looks': typeof AppLooksRoute
   '/app/palette': typeof AppPaletteRoute
+  '/app/planner': typeof AppPlannerRoute
   '/app/premium': typeof AppPremiumRoute
   '/app/profile': typeof AppProfileRoute
   '/app/settings': typeof AppSettingsRoute
@@ -262,6 +271,7 @@ export interface FileRouteTypes {
     | '/app/ideas'
     | '/app/looks'
     | '/app/palette'
+    | '/app/planner'
     | '/app/premium'
     | '/app/profile'
     | '/app/settings'
@@ -288,6 +298,7 @@ export interface FileRouteTypes {
     | '/app/ideas'
     | '/app/looks'
     | '/app/palette'
+    | '/app/planner'
     | '/app/premium'
     | '/app/profile'
     | '/app/settings'
@@ -315,6 +326,7 @@ export interface FileRouteTypes {
     | '/app/ideas'
     | '/app/looks'
     | '/app/palette'
+    | '/app/planner'
     | '/app/premium'
     | '/app/profile'
     | '/app/settings'
@@ -445,6 +457,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppPremiumRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/planner': {
+      id: '/app/planner'
+      path: '/planner'
+      fullPath: '/app/planner'
+      preLoaderRoute: typeof AppPlannerRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/palette': {
       id: '/app/palette'
       path: '/palette'
@@ -527,6 +546,7 @@ interface AppRouteChildren {
   AppIdeasRoute: typeof AppIdeasRoute
   AppLooksRoute: typeof AppLooksRoute
   AppPaletteRoute: typeof AppPaletteRoute
+  AppPlannerRoute: typeof AppPlannerRoute
   AppPremiumRoute: typeof AppPremiumRoute
   AppProfileRoute: typeof AppProfileRoute
   AppSettingsRoute: typeof AppSettingsRoute
@@ -546,6 +566,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppIdeasRoute: AppIdeasRoute,
   AppLooksRoute: AppLooksRoute,
   AppPaletteRoute: AppPaletteRoute,
+  AppPlannerRoute: AppPlannerRoute,
   AppPremiumRoute: AppPremiumRoute,
   AppProfileRoute: AppProfileRoute,
   AppSettingsRoute: AppSettingsRoute,
