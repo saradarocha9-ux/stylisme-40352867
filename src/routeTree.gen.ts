@@ -9,61 +9,36 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as IndexRouteImport } from './routes/index'
-import { Route as AppRouteImport } from './routes/app'
-import { Route as AuthRouteImport } from './routes/auth'
-import { Route as PremiumRouteImport } from './routes/premium'
-import { Route as PrivacidadeRouteImport } from './routes/privacidade'
-import { Route as ResetPasswordRouteImport } from './routes/reset-password'
-import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as TermosRouteImport } from './routes/termos'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as PrivacidadeRouteImport } from './routes/privacidade'
+import { Route as PremiumRouteImport } from './routes/premium'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AppRouteImport } from './routes/app'
+import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppIndexRouteImport } from './routes/app.index'
-import { Route as AppAiRouteImport } from './routes/app.ai'
-import { Route as AppEditProfileRouteImport } from './routes/app.edit-profile'
-import { Route as AppFavoritesRouteImport } from './routes/app.favorites'
-import { Route as AppFeedRouteImport } from './routes/app.feed'
-import { Route as AppHelpRouteImport } from './routes/app.help'
-import { Route as AppIdeasRouteImport } from './routes/app.ideas'
-import { Route as AppLooksRouteImport } from './routes/app.looks'
-import { Route as AppPaletteRouteImport } from './routes/app.palette'
-import { Route as AppPlannerRouteImport } from './routes/app.planner'
-import { Route as AppPremiumRouteImport } from './routes/app.premium'
-import { Route as AppProfileRouteImport } from './routes/app.profile'
-import { Route as AppSettingsRouteImport } from './routes/app.settings'
-import { Route as AppStatsRouteImport } from './routes/app.stats'
-import { Route as AppSubscriptionRouteImport } from './routes/app.subscription'
 import { Route as GuiaMelhoresAppsDeGuardaRoupaRouteImport } from './routes/guia.melhores-apps-de-guarda-roupa'
-import { Route as AppLookPostIdRouteImport } from './routes/app.look.$postId'
+import { Route as AppSubscriptionRouteImport } from './routes/app.subscription'
+import { Route as AppStatsRouteImport } from './routes/app.stats'
+import { Route as AppSettingsRouteImport } from './routes/app.settings'
+import { Route as AppProfileRouteImport } from './routes/app.profile'
+import { Route as AppPremiumRouteImport } from './routes/app.premium'
+import { Route as AppPlannerRouteImport } from './routes/app.planner'
+import { Route as AppPaletteRouteImport } from './routes/app.palette'
+import { Route as AppLooksRouteImport } from './routes/app.looks'
+import { Route as AppIdeasRouteImport } from './routes/app.ideas'
+import { Route as AppHelpRouteImport } from './routes/app.help'
+import { Route as AppFeedRouteImport } from './routes/app.feed'
+import { Route as AppFavoritesRouteImport } from './routes/app.favorites'
+import { Route as AppEditProfileRouteImport } from './routes/app.edit-profile'
+import { Route as AppAiRouteImport } from './routes/app.ai'
 import { Route as AppUUserIdRouteImport } from './routes/app.u.$userId'
+import { Route as AppLookPostIdRouteImport } from './routes/app.look.$postId'
 
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AppRoute = AppRouteImport.update({
-  id: '/app',
-  path: '/app',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuthRoute = AuthRouteImport.update({
-  id: '/auth',
-  path: '/auth',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PremiumRoute = PremiumRouteImport.update({
-  id: '/premium',
-  path: '/premium',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PrivacidadeRoute = PrivacidadeRouteImport.update({
-  id: '/privacidade',
-  path: '/privacidade',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ResetPasswordRoute = ResetPasswordRouteImport.update({
-  id: '/reset-password',
-  path: '/reset-password',
+const TermosRoute = TermosRouteImport.update({
+  id: '/termos',
+  path: '/termos',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
@@ -71,84 +46,39 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
-const TermosRoute = TermosRouteImport.update({
-  id: '/termos',
-  path: '/termos',
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacidadeRoute = PrivacidadeRouteImport.update({
+  id: '/privacidade',
+  path: '/privacidade',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PremiumRoute = PremiumRouteImport.update({
+  id: '/premium',
+  path: '/premium',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AppRoute = AppRouteImport.update({
+  id: '/app',
+  path: '/app',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AppIndexRoute = AppIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppAiRoute = AppAiRouteImport.update({
-  id: '/ai',
-  path: '/ai',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppEditProfileRoute = AppEditProfileRouteImport.update({
-  id: '/edit-profile',
-  path: '/edit-profile',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppFavoritesRoute = AppFavoritesRouteImport.update({
-  id: '/favorites',
-  path: '/favorites',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppFeedRoute = AppFeedRouteImport.update({
-  id: '/feed',
-  path: '/feed',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppHelpRoute = AppHelpRouteImport.update({
-  id: '/help',
-  path: '/help',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppIdeasRoute = AppIdeasRouteImport.update({
-  id: '/ideas',
-  path: '/ideas',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppLooksRoute = AppLooksRouteImport.update({
-  id: '/looks',
-  path: '/looks',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppPaletteRoute = AppPaletteRouteImport.update({
-  id: '/palette',
-  path: '/palette',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppPlannerRoute = AppPlannerRouteImport.update({
-  id: '/planner',
-  path: '/planner',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppPremiumRoute = AppPremiumRouteImport.update({
-  id: '/premium',
-  path: '/premium',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppProfileRoute = AppProfileRouteImport.update({
-  id: '/profile',
-  path: '/profile',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppSettingsRoute = AppSettingsRouteImport.update({
-  id: '/settings',
-  path: '/settings',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppStatsRoute = AppStatsRouteImport.update({
-  id: '/stats',
-  path: '/stats',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppSubscriptionRoute = AppSubscriptionRouteImport.update({
-  id: '/subscription',
-  path: '/subscription',
   getParentRoute: () => AppRoute,
 } as any)
 const GuiaMelhoresAppsDeGuardaRoupaRoute =
@@ -157,14 +87,84 @@ const GuiaMelhoresAppsDeGuardaRoupaRoute =
     path: '/guia/melhores-apps-de-guarda-roupa',
     getParentRoute: () => rootRouteImport,
   } as any)
-const AppLookPostIdRoute = AppLookPostIdRouteImport.update({
-  id: '/look/$postId',
-  path: '/look/$postId',
+const AppSubscriptionRoute = AppSubscriptionRouteImport.update({
+  id: '/subscription',
+  path: '/subscription',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppStatsRoute = AppStatsRouteImport.update({
+  id: '/stats',
+  path: '/stats',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppSettingsRoute = AppSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppProfileRoute = AppProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppPremiumRoute = AppPremiumRouteImport.update({
+  id: '/premium',
+  path: '/premium',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppPlannerRoute = AppPlannerRouteImport.update({
+  id: '/planner',
+  path: '/planner',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppPaletteRoute = AppPaletteRouteImport.update({
+  id: '/palette',
+  path: '/palette',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppLooksRoute = AppLooksRouteImport.update({
+  id: '/looks',
+  path: '/looks',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppIdeasRoute = AppIdeasRouteImport.update({
+  id: '/ideas',
+  path: '/ideas',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppHelpRoute = AppHelpRouteImport.update({
+  id: '/help',
+  path: '/help',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppFeedRoute = AppFeedRouteImport.update({
+  id: '/feed',
+  path: '/feed',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppFavoritesRoute = AppFavoritesRouteImport.update({
+  id: '/favorites',
+  path: '/favorites',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppEditProfileRoute = AppEditProfileRouteImport.update({
+  id: '/edit-profile',
+  path: '/edit-profile',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppAiRoute = AppAiRouteImport.update({
+  id: '/ai',
+  path: '/ai',
   getParentRoute: () => AppRoute,
 } as any)
 const AppUUserIdRoute = AppUUserIdRouteImport.update({
   id: '/u/$userId',
   path: '/u/$userId',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppLookPostIdRoute = AppLookPostIdRouteImport.update({
+  id: '/look/$postId',
+  path: '/look/$postId',
   getParentRoute: () => AppRoute,
 } as any)
 
@@ -352,46 +352,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/app': {
-      id: '/app'
-      path: '/app'
-      fullPath: '/app'
-      preLoaderRoute: typeof AppRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/auth': {
-      id: '/auth'
-      path: '/auth'
-      fullPath: '/auth'
-      preLoaderRoute: typeof AuthRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/premium': {
-      id: '/premium'
-      path: '/premium'
-      fullPath: '/premium'
-      preLoaderRoute: typeof PremiumRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/privacidade': {
-      id: '/privacidade'
-      path: '/privacidade'
-      fullPath: '/privacidade'
-      preLoaderRoute: typeof PrivacidadeRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/reset-password': {
-      id: '/reset-password'
-      path: '/reset-password'
-      fullPath: '/reset-password'
-      preLoaderRoute: typeof ResetPasswordRouteImport
+    '/termos': {
+      id: '/termos'
+      path: '/termos'
+      fullPath: '/termos'
+      preLoaderRoute: typeof TermosRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sitemap.xml': {
@@ -401,11 +366,46 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/termos': {
-      id: '/termos'
-      path: '/termos'
-      fullPath: '/termos'
-      preLoaderRoute: typeof TermosRouteImport
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacidade': {
+      id: '/privacidade'
+      path: '/privacidade'
+      fullPath: '/privacidade'
+      preLoaderRoute: typeof PrivacidadeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/premium': {
+      id: '/premium'
+      path: '/premium'
+      fullPath: '/premium'
+      preLoaderRoute: typeof PremiumRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/app': {
+      id: '/app'
+      path: '/app'
+      fullPath: '/app'
+      preLoaderRoute: typeof AppRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/app/': {
@@ -415,88 +415,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppIndexRouteImport
       parentRoute: typeof AppRoute
     }
-    '/app/ai': {
-      id: '/app/ai'
-      path: '/ai'
-      fullPath: '/app/ai'
-      preLoaderRoute: typeof AppAiRouteImport
-      parentRoute: typeof AppRoute
+    '/guia/melhores-apps-de-guarda-roupa': {
+      id: '/guia/melhores-apps-de-guarda-roupa'
+      path: '/guia/melhores-apps-de-guarda-roupa'
+      fullPath: '/guia/melhores-apps-de-guarda-roupa'
+      preLoaderRoute: typeof GuiaMelhoresAppsDeGuardaRoupaRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/app/edit-profile': {
-      id: '/app/edit-profile'
-      path: '/edit-profile'
-      fullPath: '/app/edit-profile'
-      preLoaderRoute: typeof AppEditProfileRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/favorites': {
-      id: '/app/favorites'
-      path: '/favorites'
-      fullPath: '/app/favorites'
-      preLoaderRoute: typeof AppFavoritesRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/feed': {
-      id: '/app/feed'
-      path: '/feed'
-      fullPath: '/app/feed'
-      preLoaderRoute: typeof AppFeedRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/help': {
-      id: '/app/help'
-      path: '/help'
-      fullPath: '/app/help'
-      preLoaderRoute: typeof AppHelpRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/ideas': {
-      id: '/app/ideas'
-      path: '/ideas'
-      fullPath: '/app/ideas'
-      preLoaderRoute: typeof AppIdeasRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/looks': {
-      id: '/app/looks'
-      path: '/looks'
-      fullPath: '/app/looks'
-      preLoaderRoute: typeof AppLooksRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/palette': {
-      id: '/app/palette'
-      path: '/palette'
-      fullPath: '/app/palette'
-      preLoaderRoute: typeof AppPaletteRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/planner': {
-      id: '/app/planner'
-      path: '/planner'
-      fullPath: '/app/planner'
-      preLoaderRoute: typeof AppPlannerRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/premium': {
-      id: '/app/premium'
-      path: '/premium'
-      fullPath: '/app/premium'
-      preLoaderRoute: typeof AppPremiumRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/profile': {
-      id: '/app/profile'
-      path: '/profile'
-      fullPath: '/app/profile'
-      preLoaderRoute: typeof AppProfileRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/settings': {
-      id: '/app/settings'
-      path: '/settings'
-      fullPath: '/app/settings'
-      preLoaderRoute: typeof AppSettingsRouteImport
+    '/app/subscription': {
+      id: '/app/subscription'
+      path: '/subscription'
+      fullPath: '/app/subscription'
+      preLoaderRoute: typeof AppSubscriptionRouteImport
       parentRoute: typeof AppRoute
     }
     '/app/stats': {
@@ -506,25 +436,88 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppStatsRouteImport
       parentRoute: typeof AppRoute
     }
-    '/app/subscription': {
-      id: '/app/subscription'
-      path: '/subscription'
-      fullPath: '/app/subscription'
-      preLoaderRoute: typeof AppSubscriptionRouteImport
+    '/app/settings': {
+      id: '/app/settings'
+      path: '/settings'
+      fullPath: '/app/settings'
+      preLoaderRoute: typeof AppSettingsRouteImport
       parentRoute: typeof AppRoute
     }
-    '/guia/melhores-apps-de-guarda-roupa': {
-      id: '/guia/melhores-apps-de-guarda-roupa'
-      path: '/guia/melhores-apps-de-guarda-roupa'
-      fullPath: '/guia/melhores-apps-de-guarda-roupa'
-      preLoaderRoute: typeof GuiaMelhoresAppsDeGuardaRoupaRouteImport
-      parentRoute: typeof rootRouteImport
+    '/app/profile': {
+      id: '/app/profile'
+      path: '/profile'
+      fullPath: '/app/profile'
+      preLoaderRoute: typeof AppProfileRouteImport
+      parentRoute: typeof AppRoute
     }
-    '/app/look/$postId': {
-      id: '/app/look/$postId'
-      path: '/look/$postId'
-      fullPath: '/app/look/$postId'
-      preLoaderRoute: typeof AppLookPostIdRouteImport
+    '/app/premium': {
+      id: '/app/premium'
+      path: '/premium'
+      fullPath: '/app/premium'
+      preLoaderRoute: typeof AppPremiumRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/planner': {
+      id: '/app/planner'
+      path: '/planner'
+      fullPath: '/app/planner'
+      preLoaderRoute: typeof AppPlannerRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/palette': {
+      id: '/app/palette'
+      path: '/palette'
+      fullPath: '/app/palette'
+      preLoaderRoute: typeof AppPaletteRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/looks': {
+      id: '/app/looks'
+      path: '/looks'
+      fullPath: '/app/looks'
+      preLoaderRoute: typeof AppLooksRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/ideas': {
+      id: '/app/ideas'
+      path: '/ideas'
+      fullPath: '/app/ideas'
+      preLoaderRoute: typeof AppIdeasRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/help': {
+      id: '/app/help'
+      path: '/help'
+      fullPath: '/app/help'
+      preLoaderRoute: typeof AppHelpRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/feed': {
+      id: '/app/feed'
+      path: '/feed'
+      fullPath: '/app/feed'
+      preLoaderRoute: typeof AppFeedRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/favorites': {
+      id: '/app/favorites'
+      path: '/favorites'
+      fullPath: '/app/favorites'
+      preLoaderRoute: typeof AppFavoritesRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/edit-profile': {
+      id: '/app/edit-profile'
+      path: '/edit-profile'
+      fullPath: '/app/edit-profile'
+      preLoaderRoute: typeof AppEditProfileRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/ai': {
+      id: '/app/ai'
+      path: '/ai'
+      fullPath: '/app/ai'
+      preLoaderRoute: typeof AppAiRouteImport
       parentRoute: typeof AppRoute
     }
     '/app/u/$userId': {
@@ -532,6 +525,13 @@ declare module '@tanstack/react-router' {
       path: '/u/$userId'
       fullPath: '/app/u/$userId'
       preLoaderRoute: typeof AppUUserIdRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/look/$postId': {
+      id: '/app/look/$postId'
+      path: '/look/$postId'
+      fullPath: '/app/look/$postId'
+      preLoaderRoute: typeof AppLookPostIdRouteImport
       parentRoute: typeof AppRoute
     }
   }
