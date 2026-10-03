@@ -6,6 +6,8 @@ import { useStore, actions, generateLook, type Occasion, type Style } from "@/li
 import { generateSmartLooks } from "@/lib/look-ai.functions";
 import { useSubscription } from "@/hooks/use-subscription";
 import { track } from "@/lib/track";
+import { FREE_AI_DAILY, aiUsedToday as usedToday, bumpAi as bumpUsed } from "@/lib/plan-limits";
+import { NextLookCard } from "@/components/NextLookCard";
 
 
 export const Route = createFileRoute("/app/ai")({
@@ -26,23 +28,9 @@ export const Route = createFileRoute("/app/ai")({
 
 const OCC: Occasion[] = ["Trabalho", "Faculdade", "Casual", "Festa", "Casamento", "Viagem", "Evento", "Academia", "Praia", "Jantar"];
 const STY: Style[] = ["Elegante", "Minimalista", "Streetwear", "Casual", "Fashionista", "Vintage", "Romântico", "Esportivo"];
-const FREE_DAILY_LIMIT = 3;
+const FREE_DAILY_LIMIT = FREE_AI_DAILY;
 
 interface Msg { role: "ai" | "user"; text: string; options?: string[][]; labels?: { title: string; why: string }[] }
-
-function todayKey() {
-  const uid = typeof window === "undefined" ? "" : (localStorage.getItem("stylisme:uid") || "guest");
-  return `stylisme:ai:${uid}:` + new Date().toISOString().slice(0, 10);
-}
-function usedToday(): number {
-  if (typeof window === "undefined") return 0;
-  return Number(localStorage.getItem(todayKey()) ?? 0);
-}
-function bumpUsed(): number {
-  const next = usedToday() + 1;
-  localStorage.setItem(todayKey(), String(next));
-  return next;
-}
 
 function AiPage() {
   const { state } = useStore();
@@ -176,6 +164,8 @@ function AiPage() {
           </Link>
         )}
       </div>
+
+      <div className="mt-6"><NextLookCard /></div>
 
       <div className="mt-6 space-y-3">
         {msgs.map((m, i) => (

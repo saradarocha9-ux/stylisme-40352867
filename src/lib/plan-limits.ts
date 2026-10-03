@@ -33,3 +33,19 @@ export function bumpTryOn() {
   if (typeof window === "undefined") return;
   localStorage.setItem(key(), String(tryOnUsedToday() + 1));
 }
+
+/** Contador único de gerações de IA (Stylisme AI e Seu próximo look usam o mesmo). */
+export const FREE_AI_DAILY = 3;
+function aiKey() {
+  const uid = typeof window === "undefined" ? "" : localStorage.getItem("stylisme:uid") || "guest";
+  return `stylisme:ai:${uid}:${new Date().toISOString().slice(0, 10)}`;
+}
+export function aiUsedToday(): number {
+  if (typeof window === "undefined") return 0;
+  return Number(localStorage.getItem(aiKey()) ?? 0);
+}
+export function bumpAi(): number {
+  const next = aiUsedToday() + 1;
+  if (typeof window !== "undefined") localStorage.setItem(aiKey(), String(next));
+  return next;
+}
