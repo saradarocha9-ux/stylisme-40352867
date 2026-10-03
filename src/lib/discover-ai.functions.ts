@@ -75,10 +75,10 @@ MODO: ${modeTxt}${tweakTxt}
 Regras: nunca invente ids; nunca cite preços, lojas, links ou estoque; coerência de formalidade, tecido e estação; "alternative" = uma substituição mais econômica ou confortável em 1 frase.
 Responda APENAS JSON: {"looks":[{"title":"","occasion":"","why":"relação com as preferências (1-2 frases)","ownedIds":["id"],"toAdd":["descrição da peça"],"alternative":""}]}`;
 
-    const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const res = await fetch("https://ai.gateway.lovable.dev/v1/responses", {
       method: "POST",
       headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ model: "google/gemini-3.6-flash", messages: [{ role: "user", content: prompt }] }),
+      body: JSON.stringify({ model: "openai/gpt-6-astra", input: prompt }),
     });
     if (!res.ok) {
       console.error("[discoverLooks]", res.status, await res.text());
@@ -86,8 +86,14 @@ Responda APENAS JSON: {"looks":[{"title":"","occasion":"","why":"relação com a
       if (res.status === 402) throw new Error("Créditos de IA esgotados.");
       throw new Error("Não consegui montar os looks agora.");
     }
-    const json = (await res.json()) as { choices?: { message?: { content?: string } }[] };
-    const m = (json.choices?.[0]?.message?.content ?? "").match(/\{[\s\S]*\}/);
+    const json = (await res.json()) as {
+      output_text?: string;
+      output?: { content?: { type?: string; text?: string }[] }[];
+    };
+    const text =
+      json.output_text ??
+      (json.output ?? []).flatMap((o) => o.content ?? []).filter((c) => c.type === "output_text").map((c) => c.text ?? "").join("");
+    const m = text.match(/\{[\s\S]*\}/);
     if (!m) throw new Error("Resposta inesperada da IA.");
     const parsed = JSON.parse(m[0]) as { looks?: Partial<DiscoverLook>[] };
 
