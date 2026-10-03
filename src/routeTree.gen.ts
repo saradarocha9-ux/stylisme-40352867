@@ -32,6 +32,7 @@ import { Route as AppHelpRouteImport } from './routes/app.help'
 import { Route as AppFeedRouteImport } from './routes/app.feed'
 import { Route as AppFavoritesRouteImport } from './routes/app.favorites'
 import { Route as AppEditProfileRouteImport } from './routes/app.edit-profile'
+import { Route as AppDiscoverRouteImport } from './routes/app.discover'
 import { Route as AppAiRouteImport } from './routes/app.ai'
 import { Route as AppUUserIdRouteImport } from './routes/app.u.$userId'
 import { Route as AppLookPostIdRouteImport } from './routes/app.look.$postId'
@@ -152,6 +153,11 @@ const AppEditProfileRoute = AppEditProfileRouteImport.update({
   path: '/edit-profile',
   getParentRoute: () => AppRoute,
 } as any)
+const AppDiscoverRoute = AppDiscoverRouteImport.update({
+  id: '/discover',
+  path: '/discover',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppAiRoute = AppAiRouteImport.update({
   id: '/ai',
   path: '/ai',
@@ -178,6 +184,7 @@ export interface FileRoutesByFullPath {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/termos': typeof TermosRoute
   '/app/ai': typeof AppAiRoute
+  '/app/discover': typeof AppDiscoverRoute
   '/app/edit-profile': typeof AppEditProfileRoute
   '/app/favorites': typeof AppFavoritesRoute
   '/app/feed': typeof AppFeedRoute
@@ -205,6 +212,7 @@ export interface FileRoutesByTo {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/termos': typeof TermosRoute
   '/app/ai': typeof AppAiRoute
+  '/app/discover': typeof AppDiscoverRoute
   '/app/edit-profile': typeof AppEditProfileRoute
   '/app/favorites': typeof AppFavoritesRoute
   '/app/feed': typeof AppFeedRoute
@@ -234,6 +242,7 @@ export interface FileRoutesById {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/termos': typeof TermosRoute
   '/app/ai': typeof AppAiRoute
+  '/app/discover': typeof AppDiscoverRoute
   '/app/edit-profile': typeof AppEditProfileRoute
   '/app/favorites': typeof AppFavoritesRoute
   '/app/feed': typeof AppFeedRoute
@@ -264,6 +273,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/termos'
     | '/app/ai'
+    | '/app/discover'
     | '/app/edit-profile'
     | '/app/favorites'
     | '/app/feed'
@@ -291,6 +301,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/termos'
     | '/app/ai'
+    | '/app/discover'
     | '/app/edit-profile'
     | '/app/favorites'
     | '/app/feed'
@@ -319,6 +330,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/termos'
     | '/app/ai'
+    | '/app/discover'
     | '/app/edit-profile'
     | '/app/favorites'
     | '/app/feed'
@@ -513,6 +525,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppEditProfileRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/discover': {
+      id: '/app/discover'
+      path: '/discover'
+      fullPath: '/app/discover'
+      preLoaderRoute: typeof AppDiscoverRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/ai': {
       id: '/app/ai'
       path: '/ai'
@@ -539,6 +558,7 @@ declare module '@tanstack/react-router' {
 
 interface AppRouteChildren {
   AppAiRoute: typeof AppAiRoute
+  AppDiscoverRoute: typeof AppDiscoverRoute
   AppEditProfileRoute: typeof AppEditProfileRoute
   AppFavoritesRoute: typeof AppFavoritesRoute
   AppFeedRoute: typeof AppFeedRoute
@@ -559,6 +579,7 @@ interface AppRouteChildren {
 
 const AppRouteChildren: AppRouteChildren = {
   AppAiRoute: AppAiRoute,
+  AppDiscoverRoute: AppDiscoverRoute,
   AppEditProfileRoute: AppEditProfileRoute,
   AppFavoritesRoute: AppFavoritesRoute,
   AppFeedRoute: AppFeedRoute,

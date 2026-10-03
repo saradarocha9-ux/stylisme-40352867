@@ -5,6 +5,7 @@ import { useStore, actions, type Category } from "@/lib/store";
 import { Logo } from "@/components/Logo";
 import { AddGarmentSheet } from "@/components/AddGarmentSheet";
 import { StreakCard } from "@/components/StreakCard";
+import { NextLookCard } from "@/components/NextLookCard";
 
 import { tap } from "@/lib/haptics";
 
@@ -64,6 +65,9 @@ function Wardrobe() {
         <div className="mt-6 animate-rise">
           <StreakCard gamify={state.gamify} />
         </div>
+      )}
+      {state.garments.length > 0 && (
+        <div className="mt-4 animate-rise"><NextLookCard /></div>
       )}
 
 
