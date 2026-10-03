@@ -1,4 +1,6 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useEffect } from "react";
+import { useSession } from "@/hooks/use-session";
 import { ArrowRight, CalendarDays, Camera, Check, Shirt, Sparkles, Wand2 } from "lucide-react";
 import { Logo } from "@/components/Logo";
 
@@ -27,6 +29,12 @@ const benefits = [
 ];
 
 function Home() {
+  const { session, loading } = useSession();
+  const navigate = useNavigate();
+  // Quem já entrou (inclusive voltando do Google) vai direto para o app.
+  useEffect(() => {
+    if (!loading && session) void navigate({ to: "/app", replace: true });
+  }, [loading, session, navigate]);
   return (
     <main className="min-h-screen bg-background">
       <nav className="mx-auto flex max-w-6xl items-center justify-between px-5 py-5">
