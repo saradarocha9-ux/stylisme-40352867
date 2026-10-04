@@ -103,3 +103,37 @@ export async function listCampaignResults(campaignIds: string[]) {
   if (error) throw new Error(error.message);
   return data;
 }
+
+export type StoreEventKind = "store_view" | "product_view" | "website_click" | "product_click";
+
+function visitSession() {
+  const key = "stylisme:campaign-session";
+  let v = sessionStorage.getItem(key);
+  if (!v) { v = crypto.randomUUID(); sessionStorage.setItem(key, v); }
+  return v;
+}
+
+/** Registra visitas e cliques reais nas páginas públicas da loja (1 visualização por hora por sessão). */
+export async function trackStoreEvent(storeId: string, kind: StoreEventKind, productId: string | null = null) {
+  try {
+    const session = visitSession();
+    const bucket = kind.endsWith("_view") ? Math.floor(Date.now() / 3600000) : Date.now();
+    const user = (await supabase.auth.getSession()).data.session?.user.id ?? null;
+    await supabase.from("store_events").insert({ store_id: storeId, product_id: productId, user_id: user, kind, session_key: session, dedupe_key: `${storeId}:${productId ?? "-"}:${kind}:${session}:${bucket}` });
+  } catch { /* estatística nunca bloqueia a página */ }
+}
+
+export async function listStoreEvents(storeId: string, sinceDays = 30) {
+  const since = new Date(Date.now() - sinceDays * 864e5).toISOString();
+  const { data, error } = await supabase.from("store_events").select("kind,product_id,session_key,user_id,created_at").eq("store_id", storeId).gte("created_at", since).limit(10000);
+  if (error) throw new Error(error.message);
+  return data;
+}
+
+export async function listCampaignEventsDetailed(campaignIds: string[], sinceDays = 30) {
+  if (!campaignIds.length) return [];
+  const since = new Date(Date.now() - sinceDays * 864e5).toISOString();
+  const { data, error } = await supabase.from("campaign_events").select("campaign_id,kind,session_key,placement,created_at").in("campaign_id", campaignIds).gte("created_at", since).limit(10000);
+  if (error) throw new Error(error.message);
+  return data;
+}
