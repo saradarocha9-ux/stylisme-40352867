@@ -792,6 +792,10 @@ export type Database = {
         Args: { _store_id: string; _user_id?: string }
         Returns: boolean
       }
+      refund_daily_usage: {
+        Args: { _kind: string; _user_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
