@@ -137,3 +137,9 @@ export async function listCampaignEventsDetailed(campaignIds: string[], sinceDay
   if (error) throw new Error(error.message);
   return data;
 }
+
+export async function setProductPublished(id: string, published: boolean) {
+  const { data, error } = await supabase.from("store_products").update({ published, updated_at: new Date().toISOString() }).eq("id", id).select("id");
+  if (error) throw new Error(error.message);
+  if (!data?.length) throw new Error("Sem permissão para alterar este produto.");
+}
