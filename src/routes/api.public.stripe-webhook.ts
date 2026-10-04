@@ -16,18 +16,20 @@ export const Route = createFileRoute("/api/public/stripe-webhook")({
     catch { return new Response("Assinatura inválida", { status: 401 }); }
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const payloadHash = createHash("sha256").update(body).digest("hex");
-    const inserted = await supabaseAdmin.from("subscription_events").insert({ provider_event_id:event.id,event_type:event.type,payload_hash:payloadHash }).select("provider_event_id").maybeSingle();
-    if (inserted.error?.code === "23505") return new Response("ok");
-    if (inserted.error) return new Response("Falha de registro", { status: 500 });
+    const existing = await supabaseAdmin.from("subscription_events").select("provider_event_id").eq("provider_event_id", event.id).maybeSingle();
+    if (existing.data) return new Response("ok");
+    if (existing.error) return new Response("Falha de consulta", { status: 500 });
     const object = event.data.object as { customer?: string | { id?: string }; status?: string; metadata?: { user_id?: string } };
     const customerId = typeof object.customer === "string" ? object.customer : object.customer?.id;
     let userId = object.metadata?.user_id;
     if (!userId && customerId) { const customer = await stripe.customers.retrieve(customerId); if (!customer.deleted) userId = customer.metadata.user_id; }
     if (userId && event.type.startsWith("customer.subscription.")) {
       const premium = ["active","trialing"].includes(object.status ?? "");
-      await supabaseAdmin.from("profiles").update({ plan: premium ? "premium" : "free" }).eq("id", userId);
-      await supabaseAdmin.from("subscription_events").update({ user_id:userId }).eq("provider_event_id",event.id);
+      const updated = await supabaseAdmin.from("profiles").update({ plan: premium ? "premium" : "free" }).eq("id", userId);
+      if (updated.error) return new Response("Falha ao atualizar assinatura", { status: 500 });
     }
+    const inserted = await supabaseAdmin.from("subscription_events").insert({ provider_event_id:event.id,event_type:event.type,payload_hash:payloadHash,user_id:userId??null });
+    if (inserted.error && inserted.error.code !== "23505") return new Response("Falha de registro", { status: 500 });
     return new Response("ok");
   } } },
 });

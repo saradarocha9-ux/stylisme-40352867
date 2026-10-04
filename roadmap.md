@@ -1,13 +1,13 @@
 # Roadmap
 
-- [ ] Corrigir a experiência de “Seu próximo look” e validar limites no servidor.
-- [ ] Completar a comunidade “Inspire-se”, incluindo salvar, exportar, denúncia e moderação.
-- [ ] Criar descoberta de lojas e publicidade segmentada com métricas deduplicadas.
-- [ ] Criar portal de lojas, produtos e fluxo completo de campanhas.
-- [ ] Criar administração segura com papéis separados e auditoria.
-- [ ] Completar pagamento, métricas operacionais, termos, privacidade e procedimentos.
-- [ ] Criar lista de espera, indicadores e materiais verificáveis para lançamento/investidores.
-- [ ] Validar os fluxos centrais em celular e computador.
+- [x] Corrigir a experiência de “Seu próximo look” e validar limites no servidor.
+- [x] Completar a comunidade “Inspire-se”, incluindo salvar, exportar, denúncia e moderação.
+- [ ] Concluir segmentação por cidade e limites de frequência para campanhas de parceiros.
+- [x] Criar portal de lojas, produtos, imagens e fluxo de campanhas.
+- [x] Criar administração segura com papéis separados e auditoria.
+- [x] Completar pagamento, métricas operacionais, termos, privacidade e procedimentos.
+- [x] Criar lista de espera, indicadores e materiais verificáveis para lançamento/investidores.
+- [ ] Validar quotas e moderação com contas Free, Premium e administradora separadas.
 
 ## Dependências externas
 
