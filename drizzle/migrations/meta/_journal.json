@@ -43,6 +43,13 @@
       "when": 1791134493886,
       "tag": "0005_secure_store_asset_uploads",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1791134737903,
+      "tag": "0006_protect_subscription_plan",
+      "breakpoints": true
     }
   ]
 }
