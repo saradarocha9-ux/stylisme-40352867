@@ -45,9 +45,11 @@ export const analyzeColorPalette = createServerFn({ method: "POST" })
     if (!data?.dataUrl?.startsWith("data:image/")) throw new Error("Imagem inválida.");
     return data;
   })
-  .handler(async ({ data }): Promise<ColorAnalysis> => {
+  .handler(async ({ data, context }): Promise<ColorAnalysis> => {
     const key = process.env.LOVABLE_API_KEY;
     if (!key) throw new Error("IA indisponível no momento.");
+    const { runWithDailyQuota } = await import("./quota.server");
+    return runWithDailyQuota({ supabase: context.supabase, userId: context.userId, kind: "ai", action: async () => {
 
     const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -104,4 +106,5 @@ export const analyzeColorPalette = createServerFn({ method: "POST" })
       metals: Array.isArray(p.metals) ? p.metals.map(String).slice(0, 3) : [],
       tips: Array.isArray(p.tips) ? p.tips.map(String).slice(0, 4) : [],
     };
+    }});
   });

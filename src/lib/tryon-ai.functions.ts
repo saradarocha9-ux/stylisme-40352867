@@ -18,9 +18,11 @@ export const detectTryOnFit = createServerFn({ method: "POST" })
     }
     return data;
   })
-  .handler(async ({ data }): Promise<DetectedTryOnFit> => {
+  .handler(async ({ data, context }): Promise<DetectedTryOnFit> => {
     const key = process.env.LOVABLE_API_KEY;
     if (!key) throw new Error("Encaixe inteligente indisponível.");
+    const { runWithDailyQuota } = await import("./quota.server");
+    return runWithDailyQuota({ supabase: context.supabase, userId: context.userId, kind: "tryon", action: async () => {
 
     const prompt = `Você é um sistema de visão computacional para sobreposição de roupa em uma foto, não um gerador de imagem. A IMAGEM 1 é a pessoa e a IMAGEM 2 é a peça já recortada e sem margens transparentes, da categoria "${data.category}".
 
@@ -82,4 +84,5 @@ x e y são o CENTRO visual da peça. width e height são frações da largura e 
       rotation: Number.isFinite(rotation) ? Math.min(15, Math.max(-15, rotation)) : 0,
       confidence: Number.isFinite(confidence) ? Math.min(1, Math.max(0, confidence)) : 0.5,
     };
+    }});
   });

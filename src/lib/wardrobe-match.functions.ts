@@ -29,9 +29,11 @@ export const matchWardrobe = createServerFn({ method: "POST" })
       throw new Error("Cadastre peças no seu armário para comparar.");
     return { ...data, wardrobe: data.wardrobe.slice(0, 80), lookGarments: data.lookGarments.slice(0, 10) };
   })
-  .handler(async ({ data }): Promise<WardrobeMatch> => {
+  .handler(async ({ data, context }): Promise<WardrobeMatch> => {
     const key = process.env.LOVABLE_API_KEY;
     if (!key) throw new Error("IA indisponível no momento.");
+    const { runWithDailyQuota } = await import("./quota.server");
+    return runWithDailyQuota({ supabase: context.supabase, userId: context.userId, kind: "ai", action: async () => {
 
     const prompt = `Você é uma consultora de moda. Compare as peças de um look de outra pessoa com o guarda-roupa de quem está olhando e diga o que ela já tem de parecido.
 
@@ -94,4 +96,5 @@ Responda APENAS com JSON válido, sem markdown:
         tip: String(m?.tip ?? ""),
       })).filter((m) => m.piece),
     };
+    }});
   });

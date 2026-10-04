@@ -21,9 +21,11 @@ export const analyzeGarment = createServerFn({ method: "POST" })
     if (!data?.dataUrl?.startsWith("data:image/")) throw new Error("Imagem inválida.");
     return data;
   })
-  .handler(async ({ data }): Promise<GarmentAnalysis> => {
+  .handler(async ({ data, context }): Promise<GarmentAnalysis> => {
     const key = process.env.LOVABLE_API_KEY;
     if (!key) throw new Error("IA indisponível no momento.");
+    const { runWithDailyQuota } = await import("./quota.server");
+    return runWithDailyQuota({ supabase: context.supabase, userId: context.userId, kind: "ai", action: async () => {
 
     const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -65,4 +67,5 @@ export const analyzeGarment = createServerFn({ method: "POST" })
       occasions: Array.isArray(parsed.occasions) ? parsed.occasions.map(String) : [],
       seasons: Array.isArray(parsed.seasons) ? parsed.seasons.map(String) : [],
     };
+    }});
   });

@@ -13,7 +13,9 @@ export const removeBgRemote = createServerFn({ method: "POST" })
     }
     return data;
   })
-  .handler(async ({ data }): Promise<{ dataUrl: string; mode: "alpha" | "whitebg" }> => {
+  .handler(async ({ data, context }): Promise<{ dataUrl: string; mode: "alpha" | "whitebg" }> => {
+    const { runWithDailyQuota } = await import("./quota.server");
+    return runWithDailyQuota({ supabase: context.supabase, userId: context.userId, kind: "ai", action: async () => {
     const apiKey: string | undefined = process.env.REMOVE_BG_API_KEY;
     const base64 = data.dataUrl.split(",")[1] ?? "";
 
@@ -97,5 +99,6 @@ Regras: preserve exatamente a cor, a estampa, a textura, o formato e todos os de
     }
     if (!out) throw new Error("Não foi possível remover o fundo da imagem.");
     return { dataUrl: out, mode: "whitebg" };
+    }});
   });
 
