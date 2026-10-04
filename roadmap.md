@@ -1,13 +1,16 @@
 # Roadmap
 
-- [x] Corrigir a experiência de “Seu próximo look” e validar limites no servidor.
-- [x] Completar a comunidade “Inspire-se”, incluindo salvar, exportar, denúncia e moderação.
-- [x] Concluir segmentação por cidade e limites de frequência para campanhas de parceiros.
-- [x] Criar portal de lojas, produtos, imagens e fluxo de campanhas.
-- [x] Criar administração segura com papéis separados e auditoria.
-- [x] Completar pagamento, métricas operacionais, termos, privacidade e procedimentos.
-- [x] Criar lista de espera, indicadores e materiais verificáveis para lançamento/investidores.
+- [x] Corrigir a experiência de “Seu próximo look” e aplicar limites de IA no servidor.
+- [x] Implementar “Inspire-se” com salvar, exportar, denúncia e moderação.
+- [x] Implementar segmentação básica por cidade, vigência e intervalo de uma hora entre anúncios inseridos.
+- [x] Criar portal de lojas, produtos, imagens e fluxo de campanhas com revisão.
+- [x] Criar administração com papéis separados, proteção de assinatura e auditoria.
+- [ ] Validar pagamento real, confirmação, cancelamento e repetição de eventos do processador.
+- [x] Atualizar termos, privacidade, operação, lista de espera e materiais sem apresentar metas como resultados.
+- [ ] Medir custo real de IA, armazenamento, suporte, moderação e capacidade.
+- [ ] Testar isolamento entre duas lojas, campanhas vencidas/reprovadas, edição após aprovação e destinos inválidos.
 - [ ] Validar quotas e moderação com contas Free, Premium e administradora separadas.
+- [ ] Fazer teste guiado com pessoas novas e com armários vazios e pequenos.
 
 ## Dependências externas
 
