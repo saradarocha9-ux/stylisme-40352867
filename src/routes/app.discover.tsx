@@ -6,6 +6,7 @@ import { useStore, actions } from "@/lib/store";
 import { useSubscription } from "@/hooks/use-subscription";
 import { FREE_AI_DAILY, aiUsedToday, bumpAi } from "@/lib/plan-limits";
 import { discoverLooks, type Budget, type DiscoverLook, type DiscoverMode, type DiscoverPrefs } from "@/lib/discover-ai.functions";
+import preferenceBoard from "@/assets/style-preference-board.jpg";
 
 export const Route = createFileRoute("/app/discover")({
   head: () => ({
@@ -32,12 +33,12 @@ const MODES: { id: DiscoverMode; title: string; text: string; icon: React.Elemen
 ];
 
 const VISUAL_LOOKS = [
-  { id: "Jeans, camiseta branca e tênis", hint: "Básico descontraído" },
-  { id: "Calça de alfaiataria, camisa e mocassim", hint: "Arrumado clássico" },
-  { id: "Vestido fluido e sandália", hint: "Leve e romântico" },
-  { id: "Moletom amplo, cargo e tênis robusto", hint: "Streetwear" },
-  { id: "Tricô neutro, saia midi e bota", hint: "Minimalista" },
-  { id: "Legging, top e jaqueta corta-vento", hint: "Esportivo" },
+  { id: "Jeans, camiseta branca e tênis", hint: "Básico descontraído", position: "0% 0%" },
+  { id: "Calça de alfaiataria, camisa e mocassim", hint: "Arrumado clássico", position: "50% 0%" },
+  { id: "Vestido fluido e sandália", hint: "Leve e romântico", position: "100% 0%" },
+  { id: "Moletom amplo, cargo e tênis robusto", hint: "Streetwear", position: "0% 100%" },
+  { id: "Tricô neutro, saia midi e bota", hint: "Minimalista", position: "50% 100%" },
+  { id: "Legging, top e jaqueta corta-vento", hint: "Esportivo", position: "100% 100%" },
 ];
 const OCCASIONS = ["Trabalho", "Faculdade", "Passeio", "Jantar", "Festa", "Viagem", "Academia", "Praia"];
 const BUDGETS: { id: Budget; label: string }[] = [
@@ -175,12 +176,13 @@ function DiscoverPage() {
               {VISUAL_LOOKS.map((v) => {
                 const yes = prefs.liked.includes(v.id), no = prefs.disliked.includes(v.id);
                 return (
-                  <div key={v.id} className="flex items-center justify-between gap-2 rounded-2xl border border-border p-3">
-                    <div><p className="text-sm">{v.id}</p><p className="text-[11px] text-muted-foreground">{v.hint}</p></div>
-                    <div className="flex gap-1">
+                   <div key={v.id} className="overflow-hidden rounded-2xl border border-border bg-card">
+                     <div role="img" aria-label={v.id} className="aspect-[3/4] bg-cover" style={{ backgroundImage: `url(${preferenceBoard})`, backgroundPosition: v.position, backgroundSize: "300% 200%" }} />
+                     <div className="flex items-center justify-between gap-2 p-3"><div><p className="text-sm">{v.id}</p><p className="text-[11px] text-muted-foreground">{v.hint}</p></div>
+                     <div className="flex gap-1">
                       <button aria-label="Usaria" onClick={() => rate(v.id, true)} className={pill(yes) + " p-2"}><Check size={13} /></button>
                       <button aria-label="Não usaria" onClick={() => rate(v.id, false)} className={pill(no) + " p-2"}><X size={13} /></button>
-                    </div>
+                     </div></div>
                   </div>
                 );
               })}
