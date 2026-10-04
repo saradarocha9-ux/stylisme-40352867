@@ -115,7 +115,7 @@ function FeedPage() {
         </div>
       ) : (
         <div className="mt-5 grid grid-cols-2 gap-3">
-          <PartnerCampaignCard />
+          <PartnerCampaignCard variant="horizontal" />
           {posts.map((p) => (
             <article key={p.id} className="animate-rise overflow-hidden rounded-3xl bg-card shadow-soft">
               <Link to="/app/look/$postId" params={{ postId: p.id }} className="block">
