@@ -50,6 +50,13 @@
       "when": 1791134737903,
       "tag": "0006_protect_subscription_plan",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1791134760446,
+      "tag": "0007_allow_trusted_moderation_and_secure_membership",
+      "breakpoints": true
     }
   ]
 }

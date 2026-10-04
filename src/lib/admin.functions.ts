@@ -28,12 +28,15 @@ export const moderateEntity = createServerFn({ method: "POST" }).middleware([req
   .handler(async ({ data, context }) => {
     await ensureAdmin(context, true);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    if (data.kind === "store") await supabaseAdmin.from("stores").update(data.decision === "approve" ? { status: "verified", verified_at: new Date().toISOString(), rejection_reason: null } : { status: "rejected", rejection_reason: data.reason || "Revisão necessária" }).eq("id", data.id);
-    if (data.kind === "campaign") await supabaseAdmin.from("store_campaigns").update(data.decision === "approve" ? { status: "approved", approved_at: new Date().toISOString(), approved_by: context.userId, rejection_reason: null } : { status: "rejected", rejection_reason: data.reason || "Revisão necessária" }).eq("id", data.id);
+    let operationError: { message: string } | null = null;
+    if (data.kind === "store") operationError = (await supabaseAdmin.from("stores").update(data.decision === "approve" ? { status: "verified", verified_at: new Date().toISOString(), rejection_reason: null } : { status: "rejected", rejection_reason: data.reason || "Revisão necessária" }).eq("id", data.id)).error;
+    if (data.kind === "campaign") operationError = (await supabaseAdmin.from("store_campaigns").update(data.decision === "approve" ? { status: "approved", approved_at: new Date().toISOString(), approved_by: context.userId, rejection_reason: null } : { status: "rejected", rejection_reason: data.reason || "Revisão necessária" }).eq("id", data.id)).error;
     if (data.kind === "report") {
-      if (data.decision === "suspend" && data.postId) await supabaseAdmin.from("look_posts").update({ suspended_at: new Date().toISOString(), suspension_reason: data.reason || "Conteúdo em revisão" }).eq("id", data.postId);
-      await supabaseAdmin.from("content_reports").update({ status: "resolved", resolution_note: data.reason || data.decision, reviewed_by: context.userId, reviewed_at: new Date().toISOString() }).eq("id", data.id);
+      if (data.decision === "suspend" && data.postId) operationError = (await supabaseAdmin.from("look_posts").update({ suspended_at: new Date().toISOString(), suspension_reason: data.reason || "Conteúdo em revisão" }).eq("id", data.postId)).error;
+      if (!operationError) operationError = (await supabaseAdmin.from("content_reports").update({ status: "resolved", resolution_note: data.reason || data.decision, reviewed_by: context.userId, reviewed_at: new Date().toISOString() }).eq("id", data.id)).error;
     }
-    await supabaseAdmin.from("audit_log").insert({ actor_id: context.userId, action: data.decision, entity_type: data.kind, entity_id: data.id, metadata: { reason: data.reason ?? "" } });
+    if (operationError) throw new Error(operationError.message);
+    const audit = await supabaseAdmin.from("audit_log").insert({ actor_id: context.userId, action: data.decision, entity_type: data.kind, entity_id: data.id, metadata: { reason: data.reason ?? "" } });
+    if (audit.error) throw new Error(audit.error.message);
     return { ok: true };
   });
