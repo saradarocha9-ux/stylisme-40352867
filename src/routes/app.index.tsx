@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Plus, Search, Heart, Trash2, Crown, Camera, ScanSearch, Wand2, ArrowRight } from "lucide-react";
 import { useStore, actions, type Category } from "@/lib/store";
 import { Logo } from "@/components/Logo";
@@ -8,6 +8,7 @@ import { StreakCard } from "@/components/StreakCard";
 import { NextLookCard } from "@/components/NextLookCard";
 
 import { tap } from "@/lib/haptics";
+import { listFeed, type FeedPost } from "@/lib/community";
 
 export const Route = createFileRoute("/app/")({
   head: () => ({
@@ -32,6 +33,11 @@ function Wardrobe() {
   const [query, setQuery] = useState("");
   const [cat, setCat] = useState<(typeof CATEGORIES)[number]>("Tudo");
   const [adding, setAdding] = useState(false);
+  const [inspirations, setInspirations] = useState<FeedPost[]>([]);
+
+  useEffect(() => {
+    void listFeed({ sort: "recentes" }).then((posts) => setInspirations(posts.slice(0, 4))).catch(() => undefined);
+  }, []);
 
   const filtered = useMemo(() => {
     return state.garments.filter((g) => {
@@ -66,9 +72,7 @@ function Wardrobe() {
           <StreakCard gamify={state.gamify} />
         </div>
       )}
-      {state.garments.length > 0 && (
-        <div className="mt-4 animate-rise"><NextLookCard /></div>
-      )}
+      <div className="mt-4 animate-rise"><NextLookCard /></div>
 
 
       <div className="mt-6 flex items-center gap-2 rounded-full border border-border bg-card px-4 py-3 shadow-soft">
@@ -167,6 +171,18 @@ function Wardrobe() {
           <button onClick={() => setAdding(true)} className="shrink-0 rounded-full bg-foreground px-4 py-2 text-xs text-primary-foreground">Adicionar outra</button>
         </div>
       )}
+
+      <section className="mt-8 border-t border-border pt-6">
+        <div className="flex items-end justify-between">
+          <div><p className="text-[10px] uppercase tracking-[0.24em] text-muted-foreground">Comunidade</p><h2 className="font-display text-2xl">Inspire-se</h2></div>
+          <Link to="/app/feed" className="text-xs underline">Ver todos</Link>
+        </div>
+        {inspirations.length > 0 ? (
+          <div className="mt-3 grid grid-cols-4 gap-2">
+            {inspirations.map((post) => <Link key={post.id} to="/app/look/$postId" params={{ postId: post.id }} className="aspect-[3/4] overflow-hidden rounded-xl bg-muted">{post.imageUrl && <img src={post.imageUrl} alt={post.title} className="h-full w-full object-cover" />}</Link>)}
+          </div>
+        ) : <p className="mt-3 text-sm text-muted-foreground">Os looks publicados aparecem aqui.</p>}
+      </section>
 
       {adding && <AddGarmentSheet onClose={() => setAdding(false)} />}
     </div>

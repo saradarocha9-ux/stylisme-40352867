@@ -5,7 +5,7 @@ import { tap } from "@/lib/haptics";
 const items = [
   { to: "/app", label: "Armário", icon: Shirt },
   { to: "/app/looks", label: "Provador", icon: UserSquare2 },
-  { to: "/app/feed", label: "Feed", icon: Compass },
+  { to: "/app/feed", label: "Inspire-se", icon: Compass },
   { to: "/app/ai", label: "IA", icon: Wand2 },
   { to: "/app/palette", label: "Cores", icon: Palette },
   { to: "/app/profile", label: "Perfil", icon: User },

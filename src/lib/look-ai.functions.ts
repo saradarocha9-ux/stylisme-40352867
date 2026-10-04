@@ -33,9 +33,12 @@ export const generateSmartLooks = createServerFn({ method: "POST" })
       throw new Error("Cadastre pelo menos 2 peças no armário.");
     return { ...data, garments: data.garments.slice(0, 80) };
   })
-  .handler(async ({ data }): Promise<SmartLook[]> => {
+  .handler(async ({ data, context }): Promise<SmartLook[]> => {
     const key = process.env.LOVABLE_API_KEY;
     if (!key) throw new Error("IA indisponível no momento.");
+
+    const { runWithDailyQuota } = await import("./quota.server");
+    return runWithDailyQuota({ supabase: context.supabase, userId: context.userId, kind: "ai", limit: 3, action: async () => {
 
     const prompt = `Você é uma stylist profissional de moda com olho crítico. Monte 3 looks REAIS e vestíveis usando SOMENTE as peças do guarda-roupa abaixo.
 
@@ -131,4 +134,5 @@ Responda APENAS com JSON válido, sem markdown:
 
     if (!looks.length) throw new Error("Não encontrei combinações coerentes com essas peças.");
     return looks;
+    }});
   });

@@ -33,7 +33,7 @@ export interface FeedPost {
   category: string;
   imageUrl: string;
   garments: PostGarment[];
-  /** Curtidas exibidas (aplica o piso da conta oficial, quando for o caso). */
+  /** Curtidas reais exibidas. */
   likes: number;
   /** Curtidas reais gravadas no banco — base de todo cálculo. */
   realLikes: number;
@@ -108,7 +108,7 @@ export async function listFeed(opts: { sort: FeedSort; category?: string }): Pro
   const { data, error } = await query;
   if (error) throw new Error(error.message);
   const posts = await hydrate((data ?? []) as unknown as Row[]);
-  // Ordena pelas curtidas exibidas (a conta oficial tem contagem de vitrine).
+  // Ordena exclusivamente pelas curtidas reais.
   return opts.sort === "populares" ? posts.sort((a, b) => b.likes - a.likes) : posts;
 }
 
@@ -203,6 +203,23 @@ export async function publishLook(input: {
 
 export async function deletePost(post: FeedPost) {
   const { error } = await supabase.from("look_posts").delete().eq("id", post.id);
+  if (error) throw new Error(error.message);
+}
+
+export async function saveInspiration(postId: string) {
+  const { data } = await supabase.auth.getUser();
+  const userId = data.user?.id;
+  if (!userId) throw new Error("Entre na sua conta para salvar.");
+  const { error } = await supabase.from("saved_inspirations").upsert({ user_id: userId, post_id: postId });
+  if (error) throw new Error(error.message);
+}
+
+export async function reportPost(postId: string, reason: "spam" | "assédio" | "conteúdo impróprio" | "direitos autorais" | "outro", details = "") {
+  const { data } = await supabase.auth.getUser();
+  const reporterId = data.user?.id;
+  if (!reporterId) throw new Error("Entre na sua conta para denunciar.");
+  const { error } = await supabase.from("content_reports").insert({ reporter_id: reporterId, post_id: postId, reason, details });
+  if (error?.code === "23505") throw new Error("Você já denunciou esta publicação.");
   if (error) throw new Error(error.message);
 }
 
