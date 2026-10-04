@@ -43,6 +43,7 @@ import { Route as AppAiRouteImport } from './routes/app.ai'
 import { Route as AppAdminRouteImport } from './routes/app.admin'
 import { Route as AppUUserIdRouteImport } from './routes/app.u.$userId'
 import { Route as AppLookPostIdRouteImport } from './routes/app.look.$postId'
+import { Route as ApiPublicStripeWebhookRouteImport } from './routes/api.public.stripe-webhook'
 
 const WaitlistRoute = WaitlistRouteImport.update({
   id: '/waitlist',
@@ -215,6 +216,11 @@ const AppLookPostIdRoute = AppLookPostIdRouteImport.update({
   path: '/look/$postId',
   getParentRoute: () => AppRoute,
 } as any)
+const ApiPublicStripeWebhookRoute = ApiPublicStripeWebhookRouteImport.update({
+  id: '/api/public/stripe-webhook',
+  path: '/api/public/stripe-webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -249,6 +255,7 @@ export interface FileRoutesByFullPath {
   '/loja/$slug': typeof LojaSlugRoute
   '/produto/$productId': typeof ProdutoProductIdRoute
   '/app/': typeof AppIndexRoute
+  '/api/public/stripe-webhook': typeof ApiPublicStripeWebhookRoute
   '/app/look/$postId': typeof AppLookPostIdRoute
   '/app/u/$userId': typeof AppUUserIdRoute
 }
@@ -284,6 +291,7 @@ export interface FileRoutesByTo {
   '/loja/$slug': typeof LojaSlugRoute
   '/produto/$productId': typeof ProdutoProductIdRoute
   '/app': typeof AppIndexRoute
+  '/api/public/stripe-webhook': typeof ApiPublicStripeWebhookRoute
   '/app/look/$postId': typeof AppLookPostIdRoute
   '/app/u/$userId': typeof AppUUserIdRoute
 }
@@ -321,6 +329,7 @@ export interface FileRoutesById {
   '/loja/$slug': typeof LojaSlugRoute
   '/produto/$productId': typeof ProdutoProductIdRoute
   '/app/': typeof AppIndexRoute
+  '/api/public/stripe-webhook': typeof ApiPublicStripeWebhookRoute
   '/app/look/$postId': typeof AppLookPostIdRoute
   '/app/u/$userId': typeof AppUUserIdRoute
 }
@@ -359,6 +368,7 @@ export interface FileRouteTypes {
     | '/loja/$slug'
     | '/produto/$productId'
     | '/app/'
+    | '/api/public/stripe-webhook'
     | '/app/look/$postId'
     | '/app/u/$userId'
   fileRoutesByTo: FileRoutesByTo
@@ -394,6 +404,7 @@ export interface FileRouteTypes {
     | '/loja/$slug'
     | '/produto/$productId'
     | '/app'
+    | '/api/public/stripe-webhook'
     | '/app/look/$postId'
     | '/app/u/$userId'
   id:
@@ -430,6 +441,7 @@ export interface FileRouteTypes {
     | '/loja/$slug'
     | '/produto/$productId'
     | '/app/'
+    | '/api/public/stripe-webhook'
     | '/app/look/$postId'
     | '/app/u/$userId'
   fileRoutesById: FileRoutesById
@@ -447,6 +459,7 @@ export interface RootRouteChildren {
   GuiaMelhoresAppsDeGuardaRoupaRoute: typeof GuiaMelhoresAppsDeGuardaRoupaRoute
   LojaSlugRoute: typeof LojaSlugRoute
   ProdutoProductIdRoute: typeof ProdutoProductIdRoute
+  ApiPublicStripeWebhookRoute: typeof ApiPublicStripeWebhookRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -689,6 +702,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppLookPostIdRouteImport
       parentRoute: typeof AppRoute
     }
+    '/api/public/stripe-webhook': {
+      id: '/api/public/stripe-webhook'
+      path: '/api/public/stripe-webhook'
+      fullPath: '/api/public/stripe-webhook'
+      preLoaderRoute: typeof ApiPublicStripeWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -757,6 +777,7 @@ const rootRouteChildren: RootRouteChildren = {
   GuiaMelhoresAppsDeGuardaRoupaRoute: GuiaMelhoresAppsDeGuardaRoupaRoute,
   LojaSlugRoute: LojaSlugRoute,
   ProdutoProductIdRoute: ProdutoProductIdRoute,
+  ApiPublicStripeWebhookRoute: ApiPublicStripeWebhookRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
