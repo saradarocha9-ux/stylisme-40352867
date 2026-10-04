@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Shirt, UserSquare2, Wand2, Palette, User, Compass, LayoutDashboard } from "lucide-react";
+import { Shirt, UserSquare2, Wand2, Palette, User, Compass, LayoutDashboard, Store } from "lucide-react";
 import { useSession } from "@/hooks/use-session";
 import { isOfficialUser } from "@/lib/official";
 import { tap } from "@/lib/haptics";
@@ -8,6 +8,7 @@ const items = [
   { to: "/app", label: "Armário", icon: Shirt },
   { to: "/app/looks", label: "Provador", icon: UserSquare2 },
   { to: "/app/feed", label: "Inspire-se", icon: Compass },
+  { to: "/app/partners", label: "Lojas", icon: Store },
   { to: "/app/ai", label: "IA", icon: Wand2 },
   { to: "/app/palette", label: "Cores", icon: Palette },
   { to: "/app/profile", label: "Perfil", icon: User },

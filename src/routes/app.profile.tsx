@@ -148,7 +148,6 @@ function ProfilePage() {
         <Row to="/app/subscription" icon={CreditCard} label="Minha assinatura" />
         <Row to="/app/planner" icon={CalendarDays} label="Planejar meus looks" />
         <Row to="/app/stats" icon={BarChart3} label="Estatísticas" />
-        <Row to="/app/partners" icon={Store} label="Lojas parceiras" />
         <Row to="/app/store-portal" icon={Building2} label="Portal da minha loja" />
         {canModerate && <Row to="/app/admin" icon={Shield} label="Administração" />}
         <Row to="/app/settings" icon={Settings} label="Configurações" />
