@@ -781,6 +781,17 @@ export type Database = {
           used: number
         }[]
       }
+      create_store_with_owner: {
+        Args: {
+          _description: string
+          _instagram_url: string
+          _name: string
+          _service_area: Json
+          _slug: string
+          _website_url: string
+        }
+        Returns: string
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -794,6 +805,10 @@ export type Database = {
       }
       refund_daily_usage: {
         Args: { _kind: string; _user_id: string }
+        Returns: undefined
+      }
+      submit_store_campaign: {
+        Args: { _campaign_id: string }
         Returns: undefined
       }
     }
