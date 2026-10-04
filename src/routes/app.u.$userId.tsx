@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { ArrowLeft, Heart, Loader2, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { listUserPosts, timeAgo, type FeedPost } from "@/lib/community";
+import { listUserPosts, getFollowInfo, setFollow, timeAgo, type FeedPost } from "@/lib/community";
 import { getProfile, type CloudProfile } from "@/lib/profile";
 
 export const Route = createFileRoute("/app/u/$userId")({
@@ -26,6 +26,8 @@ function PublicProfilePage() {
   const [profile, setProfile] = useState<CloudProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [me, setMe] = useState<string | null>(null);
+  const [follow, setFollowState] = useState({ followers: 0, following: 0, isFollowing: false });
+  const [busyFollow, setBusyFollow] = useState(false);
 
   useEffect(() => {
     let alive = true;
@@ -41,6 +43,7 @@ function PublicProfilePage() {
         setPosts(list);
         setProfile(prof);
         setMe(auth.user?.id ?? null);
+        void getFollowInfo(userId).then((f) => alive && setFollowState(f));
       } catch (e) {
         toast.error(e instanceof Error ? e.message : "Não consegui carregar o perfil.");
       } finally {
@@ -51,6 +54,14 @@ function PublicProfilePage() {
   }, [userId]);
 
   const isMe = me === userId;
+  async function toggleFollow() {
+    setBusyFollow(true);
+    const next = !follow.isFollowing;
+    setFollowState((f) => ({ ...f, isFollowing: next, followers: f.followers + (next ? 1 : -1) }));
+    try { await setFollow(userId, next); }
+    catch (e) { toast.error(e instanceof Error ? e.message : "Não consegui atualizar."); setFollowState(await getFollowInfo(userId)); }
+    finally { setBusyFollow(false); }
+  }
   const author = posts[0];
   const likes = posts.reduce((sum, p) => sum + p.likes, 0);
   const name = profile?.name || author?.authorName || "Stylisme";
@@ -79,8 +90,17 @@ function PublicProfilePage() {
             </a>
           )}
           <p className="mt-2 text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
-            {posts.length} look{posts.length === 1 ? "" : "s"} · {likes} curtida{likes === 1 ? "" : "s"}
+            {posts.length} look{posts.length === 1 ? "" : "s"} · {follow.followers} seguidor{follow.followers === 1 ? "" : "es"} · {follow.following} seguindo · {likes} curtida{likes === 1 ? "" : "s"}
           </p>
+          {!isMe && me && (
+            <button
+              onClick={() => void toggleFollow()}
+              disabled={busyFollow}
+              className={"press mt-4 w-full rounded-full py-3 text-xs uppercase tracking-[0.2em] " + (follow.isFollowing ? "border border-border" : "bg-foreground text-primary-foreground")}
+            >
+              {follow.isFollowing ? "Seguindo" : "Seguir"}
+            </button>
+          )}
         </div>
       </div>
 
