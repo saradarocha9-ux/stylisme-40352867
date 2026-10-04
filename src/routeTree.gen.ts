@@ -19,6 +19,8 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AppRouteImport } from './routes/app'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppIndexRouteImport } from './routes/app.index'
+import { Route as ProdutoProductIdRouteImport } from './routes/produto.$productId'
+import { Route as LojaSlugRouteImport } from './routes/loja.$slug'
 import { Route as GuiaMelhoresAppsDeGuardaRoupaRouteImport } from './routes/guia.melhores-apps-de-guarda-roupa'
 import { Route as AppSubscriptionRouteImport } from './routes/app.subscription'
 import { Route as AppStorePortalRouteImport } from './routes/app.store-portal'
@@ -39,8 +41,6 @@ import { Route as AppEditProfileRouteImport } from './routes/app.edit-profile'
 import { Route as AppDiscoverRouteImport } from './routes/app.discover'
 import { Route as AppAiRouteImport } from './routes/app.ai'
 import { Route as AppAdminRouteImport } from './routes/app.admin'
-import { Route as ProdutoRouteImport } from './routes/produto.'
-import { Route as LojaRouteImport } from './routes/loja.'
 import { Route as AppUUserIdRouteImport } from './routes/app.u.$userId'
 import { Route as AppLookPostIdRouteImport } from './routes/app.look.$postId'
 
@@ -93,6 +93,16 @@ const AppIndexRoute = AppIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AppRoute,
+} as any)
+const ProdutoProductIdRoute = ProdutoProductIdRouteImport.update({
+  id: '/produto/$productId',
+  path: '/produto/$productId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LojaSlugRoute = LojaSlugRouteImport.update({
+  id: '/loja/$slug',
+  path: '/loja/$slug',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const GuiaMelhoresAppsDeGuardaRoupaRoute =
   GuiaMelhoresAppsDeGuardaRoupaRouteImport.update({
@@ -195,16 +205,6 @@ const AppAdminRoute = AppAdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => AppRoute,
 } as any)
-const ProdutoRoute = ProdutoRouteImport.update({
-  id: '/produto/',
-  path: '/produto/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LojaRoute = LojaRouteImport.update({
-  id: '/loja/',
-  path: '/loja/',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AppUUserIdRoute = AppUUserIdRouteImport.update({
   id: '/u/$userId',
   path: '/u/$userId',
@@ -226,8 +226,6 @@ export interface FileRoutesByFullPath {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/termos': typeof TermosRoute
   '/waitlist': typeof WaitlistRoute
-  '/loja/': typeof LojaRoute
-  '/produto/': typeof ProdutoRoute
   '/app/admin': typeof AppAdminRoute
   '/app/ai': typeof AppAiRoute
   '/app/discover': typeof AppDiscoverRoute
@@ -248,6 +246,8 @@ export interface FileRoutesByFullPath {
   '/app/store-portal': typeof AppStorePortalRoute
   '/app/subscription': typeof AppSubscriptionRoute
   '/guia/melhores-apps-de-guarda-roupa': typeof GuiaMelhoresAppsDeGuardaRoupaRoute
+  '/loja/$slug': typeof LojaSlugRoute
+  '/produto/$productId': typeof ProdutoProductIdRoute
   '/app/': typeof AppIndexRoute
   '/app/look/$postId': typeof AppLookPostIdRoute
   '/app/u/$userId': typeof AppUUserIdRoute
@@ -261,8 +261,6 @@ export interface FileRoutesByTo {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/termos': typeof TermosRoute
   '/waitlist': typeof WaitlistRoute
-  '/loja': typeof LojaRoute
-  '/produto': typeof ProdutoRoute
   '/app/admin': typeof AppAdminRoute
   '/app/ai': typeof AppAiRoute
   '/app/discover': typeof AppDiscoverRoute
@@ -283,6 +281,8 @@ export interface FileRoutesByTo {
   '/app/store-portal': typeof AppStorePortalRoute
   '/app/subscription': typeof AppSubscriptionRoute
   '/guia/melhores-apps-de-guarda-roupa': typeof GuiaMelhoresAppsDeGuardaRoupaRoute
+  '/loja/$slug': typeof LojaSlugRoute
+  '/produto/$productId': typeof ProdutoProductIdRoute
   '/app': typeof AppIndexRoute
   '/app/look/$postId': typeof AppLookPostIdRoute
   '/app/u/$userId': typeof AppUUserIdRoute
@@ -298,8 +298,6 @@ export interface FileRoutesById {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/termos': typeof TermosRoute
   '/waitlist': typeof WaitlistRoute
-  '/loja/': typeof LojaRoute
-  '/produto/': typeof ProdutoRoute
   '/app/admin': typeof AppAdminRoute
   '/app/ai': typeof AppAiRoute
   '/app/discover': typeof AppDiscoverRoute
@@ -320,6 +318,8 @@ export interface FileRoutesById {
   '/app/store-portal': typeof AppStorePortalRoute
   '/app/subscription': typeof AppSubscriptionRoute
   '/guia/melhores-apps-de-guarda-roupa': typeof GuiaMelhoresAppsDeGuardaRoupaRoute
+  '/loja/$slug': typeof LojaSlugRoute
+  '/produto/$productId': typeof ProdutoProductIdRoute
   '/app/': typeof AppIndexRoute
   '/app/look/$postId': typeof AppLookPostIdRoute
   '/app/u/$userId': typeof AppUUserIdRoute
@@ -336,8 +336,6 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/termos'
     | '/waitlist'
-    | '/loja/'
-    | '/produto/'
     | '/app/admin'
     | '/app/ai'
     | '/app/discover'
@@ -358,6 +356,8 @@ export interface FileRouteTypes {
     | '/app/store-portal'
     | '/app/subscription'
     | '/guia/melhores-apps-de-guarda-roupa'
+    | '/loja/$slug'
+    | '/produto/$productId'
     | '/app/'
     | '/app/look/$postId'
     | '/app/u/$userId'
@@ -371,8 +371,6 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/termos'
     | '/waitlist'
-    | '/loja'
-    | '/produto'
     | '/app/admin'
     | '/app/ai'
     | '/app/discover'
@@ -393,6 +391,8 @@ export interface FileRouteTypes {
     | '/app/store-portal'
     | '/app/subscription'
     | '/guia/melhores-apps-de-guarda-roupa'
+    | '/loja/$slug'
+    | '/produto/$productId'
     | '/app'
     | '/app/look/$postId'
     | '/app/u/$userId'
@@ -407,8 +407,6 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/termos'
     | '/waitlist'
-    | '/loja/'
-    | '/produto/'
     | '/app/admin'
     | '/app/ai'
     | '/app/discover'
@@ -429,6 +427,8 @@ export interface FileRouteTypes {
     | '/app/store-portal'
     | '/app/subscription'
     | '/guia/melhores-apps-de-guarda-roupa'
+    | '/loja/$slug'
+    | '/produto/$productId'
     | '/app/'
     | '/app/look/$postId'
     | '/app/u/$userId'
@@ -444,9 +444,9 @@ export interface RootRouteChildren {
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermosRoute: typeof TermosRoute
   WaitlistRoute: typeof WaitlistRoute
-  LojaRoute: typeof LojaRoute
-  ProdutoRoute: typeof ProdutoRoute
   GuiaMelhoresAppsDeGuardaRoupaRoute: typeof GuiaMelhoresAppsDeGuardaRoupaRoute
+  LojaSlugRoute: typeof LojaSlugRoute
+  ProdutoProductIdRoute: typeof ProdutoProductIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -520,6 +520,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/app/'
       preLoaderRoute: typeof AppIndexRouteImport
       parentRoute: typeof AppRoute
+    }
+    '/produto/$productId': {
+      id: '/produto/$productId'
+      path: '/produto/$productId'
+      fullPath: '/produto/$productId'
+      preLoaderRoute: typeof ProdutoProductIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/loja/$slug': {
+      id: '/loja/$slug'
+      path: '/loja/$slug'
+      fullPath: '/loja/$slug'
+      preLoaderRoute: typeof LojaSlugRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/guia/melhores-apps-de-guarda-roupa': {
       id: '/guia/melhores-apps-de-guarda-roupa'
@@ -661,20 +675,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAdminRouteImport
       parentRoute: typeof AppRoute
     }
-    '/produto/': {
-      id: '/produto/'
-      path: '/produto'
-      fullPath: '/produto/'
-      preLoaderRoute: typeof ProdutoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/loja/': {
-      id: '/loja/'
-      path: '/loja'
-      fullPath: '/loja/'
-      preLoaderRoute: typeof LojaRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/app/u/$userId': {
       id: '/app/u/$userId'
       path: '/u/$userId'
@@ -754,9 +754,9 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermosRoute: TermosRoute,
   WaitlistRoute: WaitlistRoute,
-  LojaRoute: LojaRoute,
-  ProdutoRoute: ProdutoRoute,
   GuiaMelhoresAppsDeGuardaRoupaRoute: GuiaMelhoresAppsDeGuardaRoupaRoute,
+  LojaSlugRoute: LojaSlugRoute,
+  ProdutoProductIdRoute: ProdutoProductIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
