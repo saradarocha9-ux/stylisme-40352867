@@ -29,6 +29,13 @@
       "when": 1791134290296,
       "tag": "0003_harden_marketplace_and_usage_rules",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1791134454885,
+      "tag": "0004_restrict_security_definer_execution",
+      "breakpoints": true
     }
   ]
 }
