@@ -20,9 +20,11 @@ export const generateVirtualTryOn = createServerFn({ method: "POST" })
     }
     return data;
   })
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
     const key = process.env.LOVABLE_API_KEY;
     if (!key) throw new Error("Provador inteligente indisponível.");
+    const { runWithDailyQuota } = await import("./quota.server");
+    return runWithDailyQuota({ supabase: context.supabase, userId: context.userId, kind: "tryon", limit: 3, action: async () => {
 
     const layerRank: Record<string, number> = {
       Vestido: 10,
@@ -135,4 +137,5 @@ Regras obrigatórias:
       throw new Error("O provador não conseguiu gerar a imagem desta vez. Use uma foto de corpo inteiro, nítida e de frente, e tente novamente.");
     }
     return { imageUrl };
+    }});
   });

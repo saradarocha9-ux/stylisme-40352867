@@ -48,9 +48,11 @@ export const discoverLooks = createServerFn({ method: "POST" })
     if (d.mode === "own" && (d.garments?.length ?? 0) < 2) throw new Error("Cadastre pelo menos 2 peças para usar o que você tem.");
     return { ...d, garments: (d.garments ?? []).slice(0, 80), feedback: (d.feedback ?? []).slice(-10) };
   })
-  .handler(async ({ data }): Promise<DiscoverLook[]> => {
+  .handler(async ({ data, context }): Promise<DiscoverLook[]> => {
     const key = process.env.LOVABLE_API_KEY;
     if (!key) throw new Error("IA indisponível no momento.");
+    const { runWithDailyQuota } = await import("./quota.server");
+    return runWithDailyQuota({ supabase: context.supabase, userId: context.userId, kind: "ai", limit: 3, action: async () => {
     const p = data.prefs;
     const noBuy = p.budget === "none" || data.mode === "own";
 
@@ -118,4 +120,5 @@ Responda APENAS JSON: {"looks":[{"title":"","occasion":"","why":"relação com a
     }
     if (!out.length) throw new Error("Não encontrei combinações que respeitem suas preferências. Ajuste as escolhas ou cadastre mais peças.");
     return out;
+    }});
   });

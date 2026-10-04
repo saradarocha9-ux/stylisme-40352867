@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1791134026826,
+      "tag": "0000_stylisme_marketplace_moderation_quotas",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1791134078638,
+      "tag": "0001_add_usage_refund_and_publication_limit",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1791134151312,
+      "tag": "0002_add_public_campaign_reads_and_store_creation",
+      "breakpoints": true
+    }
+  ]
+}

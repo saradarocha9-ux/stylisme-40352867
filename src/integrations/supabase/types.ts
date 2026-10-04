@@ -109,6 +109,77 @@ export type Database = {
           },
         ]
       }
+      audit_log: {
+        Row: {
+          action: string
+          actor_id: string | null
+          created_at: string
+          entity_id: string | null
+          entity_type: string
+          id: string
+          metadata: Json
+        }
+        Insert: {
+          action: string
+          actor_id?: string | null
+          created_at?: string
+          entity_id?: string | null
+          entity_type: string
+          id?: string
+          metadata?: Json
+        }
+        Update: {
+          action?: string
+          actor_id?: string | null
+          created_at?: string
+          entity_id?: string | null
+          entity_type?: string
+          id?: string
+          metadata?: Json
+        }
+        Relationships: []
+      }
+      campaign_events: {
+        Row: {
+          campaign_id: string
+          created_at: string
+          dedupe_key: string
+          id: string
+          kind: string
+          placement: string
+          session_key: string
+          user_id: string | null
+        }
+        Insert: {
+          campaign_id: string
+          created_at?: string
+          dedupe_key: string
+          id?: string
+          kind: string
+          placement?: string
+          session_key: string
+          user_id?: string | null
+        }
+        Update: {
+          campaign_id?: string
+          created_at?: string
+          dedupe_key?: string
+          id?: string
+          kind?: string
+          placement?: string
+          session_key?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_events_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "store_campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       color_analyses: {
         Row: {
           analysis: Json
@@ -151,6 +222,77 @@ export type Database = {
         }
         Relationships: []
       }
+      content_reports: {
+        Row: {
+          created_at: string
+          details: string
+          id: string
+          post_id: string
+          reason: string
+          reporter_id: string
+          resolution_note: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: Database["public"]["Enums"]["report_status"]
+        }
+        Insert: {
+          created_at?: string
+          details?: string
+          id?: string
+          post_id: string
+          reason: string
+          reporter_id: string
+          resolution_note?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["report_status"]
+        }
+        Update: {
+          created_at?: string
+          details?: string
+          id?: string
+          post_id?: string
+          reason?: string
+          reporter_id?: string
+          resolution_note?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["report_status"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "content_reports_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "look_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      daily_usage: {
+        Row: {
+          kind: string
+          updated_at: string
+          usage_date: string
+          used: number
+          user_id: string
+        }
+        Insert: {
+          kind: string
+          updated_at?: string
+          usage_date?: string
+          used?: number
+          user_id: string
+        }
+        Update: {
+          kind?: string
+          updated_at?: string
+          usage_date?: string
+          used?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       look_likes: {
         Row: {
           created_at: string
@@ -187,7 +329,10 @@ export type Database = {
           garments: Json
           id: string
           image_path: string
+          is_editorial: boolean
           likes_count: number
+          suspended_at: string | null
+          suspension_reason: string | null
           title: string
           user_id: string
         }
@@ -200,7 +345,10 @@ export type Database = {
           garments?: Json
           id?: string
           image_path: string
+          is_editorial?: boolean
           likes_count?: number
+          suspended_at?: string | null
+          suspension_reason?: string | null
           title: string
           user_id: string
         }
@@ -213,7 +361,10 @@ export type Database = {
           garments?: Json
           id?: string
           image_path?: string
+          is_editorial?: boolean
           likes_count?: number
+          suspended_at?: string | null
+          suspension_reason?: string | null
           title?: string
           user_id?: string
         }
@@ -224,6 +375,7 @@ export type Database = {
           avatar_url: string | null
           banner_url: string | null
           bio: string
+          city: string | null
           id: string
           joined_at: string
           language: string
@@ -238,6 +390,7 @@ export type Database = {
           avatar_url?: string | null
           banner_url?: string | null
           bio?: string
+          city?: string | null
           id: string
           joined_at?: string
           language?: string
@@ -252,6 +405,7 @@ export type Database = {
           avatar_url?: string | null
           banner_url?: string | null
           bio?: string
+          city?: string | null
           id?: string
           joined_at?: string
           language?: string
@@ -305,15 +459,373 @@ export type Database = {
           },
         ]
       }
+      saved_inspirations: {
+        Row: {
+          created_at: string
+          post_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          post_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          post_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "saved_inspirations_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "look_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      store_campaigns: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          created_at: string
+          cta: string
+          destination_url: string
+          ends_at: string | null
+          headline: string
+          id: string
+          image_path: string | null
+          name: string
+          product_id: string | null
+          rejection_reason: string | null
+          revision: number
+          starts_at: string | null
+          status: Database["public"]["Enums"]["campaign_status"]
+          store_id: string
+          submitted_at: string | null
+          targeting: Json
+          updated_at: string
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          cta: string
+          destination_url: string
+          ends_at?: string | null
+          headline: string
+          id?: string
+          image_path?: string | null
+          name: string
+          product_id?: string | null
+          rejection_reason?: string | null
+          revision?: number
+          starts_at?: string | null
+          status?: Database["public"]["Enums"]["campaign_status"]
+          store_id: string
+          submitted_at?: string | null
+          targeting?: Json
+          updated_at?: string
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          cta?: string
+          destination_url?: string
+          ends_at?: string | null
+          headline?: string
+          id?: string
+          image_path?: string | null
+          name?: string
+          product_id?: string | null
+          rejection_reason?: string | null
+          revision?: number
+          starts_at?: string | null
+          status?: Database["public"]["Enums"]["campaign_status"]
+          store_id?: string
+          submitted_at?: string | null
+          targeting?: Json
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "store_campaigns_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "store_products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "store_campaigns_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      store_members: {
+        Row: {
+          created_at: string
+          id: string
+          member_role: string
+          store_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          member_role?: string
+          store_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          member_role?: string
+          store_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "store_members_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      store_products: {
+        Row: {
+          category: string
+          created_at: string
+          description: string
+          destination_url: string | null
+          id: string
+          image_path: string | null
+          name: string
+          price_cents: number | null
+          published: boolean
+          service_area: Json
+          store_id: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          description?: string
+          destination_url?: string | null
+          id?: string
+          image_path?: string | null
+          name: string
+          price_cents?: number | null
+          published?: boolean
+          service_area?: Json
+          store_id: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string
+          destination_url?: string | null
+          id?: string
+          image_path?: string | null
+          name?: string
+          price_cents?: number | null
+          published?: boolean
+          service_area?: Json
+          store_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "store_products_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      stores: {
+        Row: {
+          created_at: string
+          description: string
+          id: string
+          instagram_url: string | null
+          logo_path: string | null
+          name: string
+          rejection_reason: string | null
+          service_area: Json
+          slug: string
+          status: Database["public"]["Enums"]["store_status"]
+          updated_at: string
+          verified_at: string | null
+          website_url: string | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string
+          id?: string
+          instagram_url?: string | null
+          logo_path?: string | null
+          name: string
+          rejection_reason?: string | null
+          service_area?: Json
+          slug: string
+          status?: Database["public"]["Enums"]["store_status"]
+          updated_at?: string
+          verified_at?: string | null
+          website_url?: string | null
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          id?: string
+          instagram_url?: string | null
+          logo_path?: string | null
+          name?: string
+          rejection_reason?: string | null
+          service_area?: Json
+          slug?: string
+          status?: Database["public"]["Enums"]["store_status"]
+          updated_at?: string
+          verified_at?: string | null
+          website_url?: string | null
+        }
+        Relationships: []
+      }
+      subscription_events: {
+        Row: {
+          event_type: string
+          payload_hash: string
+          processed_at: string
+          provider_event_id: string
+          user_id: string | null
+        }
+        Insert: {
+          event_type: string
+          payload_hash: string
+          processed_at?: string
+          provider_event_id: string
+          user_id?: string | null
+        }
+        Update: {
+          event_type?: string
+          payload_hash?: string
+          processed_at?: string
+          provider_event_id?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      waitlist_entries: {
+        Row: {
+          city: string | null
+          created_at: string
+          email: string
+          id: string
+          source: string
+        }
+        Insert: {
+          city?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          source?: string
+        }
+        Update: {
+          city?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          source?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      consume_daily_usage: {
+        Args: { _free_limit: number; _kind: string }
+        Returns: {
+          allowed: boolean
+          remaining: number
+          used: number
+        }[]
+      }
+      create_store_with_owner: {
+        Args: {
+          _description: string
+          _instagram_url: string
+          _name: string
+          _service_area: Json
+          _slug: string
+          _website_url: string
+        }
+        Returns: string
+      }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      is_store_member: {
+        Args: { _store_id: string; _user_id?: string }
+        Returns: boolean
+      }
+      refund_daily_usage: {
+        Args: { _kind: string; _user_id: string }
+        Returns: undefined
+      }
+      submit_store_campaign: {
+        Args: { _campaign_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "moderator" | "user"
+      campaign_status:
+        | "draft"
+        | "submitted"
+        | "under_review"
+        | "approved"
+        | "scheduled"
+        | "active"
+        | "paused"
+        | "rejected"
+        | "ended"
+      report_status: "open" | "under_review" | "resolved" | "dismissed"
+      store_status: "pending" | "verified" | "rejected" | "suspended"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -440,6 +952,21 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "moderator", "user"],
+      campaign_status: [
+        "draft",
+        "submitted",
+        "under_review",
+        "approved",
+        "scheduled",
+        "active",
+        "paused",
+        "rejected",
+        "ended",
+      ],
+      report_status: ["open", "under_review", "resolved", "dismissed"],
+      store_status: ["pending", "verified", "rejected", "suspended"],
+    },
   },
 } as const

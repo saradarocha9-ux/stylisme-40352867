@@ -1,10 +1,10 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
-import { ArrowLeft, Heart, Loader2, Search, Share2, Shirt, Trash2 } from "lucide-react";
+import { ArrowLeft, Bookmark, Download, Flag, Heart, Loader2, Search, Share2, Shirt, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { applyLikeToggle, deletePost, getPost, timeAgo, toggleLike, type FeedPost } from "@/lib/community";
+import { applyLikeToggle, deletePost, getPost, reportPost, saveInspiration, timeAgo, toggleLike, type FeedPost } from "@/lib/community";
 import { matchWardrobe, type WardrobeMatch } from "@/lib/wardrobe-match.functions";
 import { useStore, actions } from "@/lib/store";
 import { tap } from "@/lib/haptics";
@@ -77,6 +77,28 @@ function LookPostPage() {
     } catch { /* cancelado */ }
   }
 
+  async function download(format: "publicação" | "story") {
+    if (!post || me !== post.userId) return;
+    const image = new Image(); image.crossOrigin = "anonymous"; image.src = post.imageUrl;
+    await image.decode();
+    const width = 1080, height = format === "story" ? 1920 : 1350;
+    const canvas = document.createElement("canvas"); canvas.width = width; canvas.height = height;
+    const ctx = canvas.getContext("2d"); if (!ctx) return;
+    ctx.fillStyle = "#11110f"; ctx.fillRect(0, 0, width, height);
+    const scale = Math.min(width / image.width, height / image.height);
+    ctx.drawImage(image, (width - image.width * scale) / 2, (height - image.height * scale) / 2, image.width * scale, image.height * scale);
+    const a = document.createElement("a"); a.download = `stylisme-${format}.jpg`; a.href = canvas.toDataURL("image/jpeg", .92); a.click();
+  }
+
+  async function report() {
+    if (!post) return;
+    const raw = prompt("Motivo: spam, assédio, conteúdo impróprio, direitos autorais ou outro");
+    const allowed = ["spam", "assédio", "conteúdo impróprio", "direitos autorais", "outro"] as const;
+    const reason = allowed.find((item) => item === raw?.trim().toLowerCase());
+    if (!reason) return;
+    try { await reportPost(post.id, reason); toast.success("Denúncia enviada para análise."); } catch (e) { toast.error(e instanceof Error ? e.message : "Não consegui denunciar."); }
+  }
+
   async function compare() {
     if (!post) return;
     tap();
@@ -141,7 +163,7 @@ function LookPostPage() {
       <div className="px-5 pt-10 text-center">
         <p className="text-sm text-muted-foreground">Este look não está mais disponível.</p>
         <Link to="/app/feed" className="mt-4 inline-block rounded-full bg-foreground px-5 py-2.5 text-xs uppercase tracking-[0.2em] text-primary-foreground">
-          Voltar ao feed
+          Voltar ao Inspire-se
         </Link>
       </div>
     );
@@ -151,7 +173,7 @@ function LookPostPage() {
     <div className="px-5 pt-8">
       <div className="flex items-center justify-between">
         <Link to="/app/feed" className="press flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-muted-foreground">
-          <ArrowLeft size={16} /> Feed
+          <ArrowLeft size={16} /> Inspire-se
         </Link>
         {me === post.userId && (
           <button onClick={() => void remove()} className="press rounded-full p-2 text-destructive" aria-label="Apagar look">
@@ -197,6 +219,9 @@ function LookPostPage() {
         <button onClick={() => void share()} className="press flex flex-1 items-center justify-center gap-2 rounded-full bg-card py-3 text-sm shadow-soft">
           <Share2 size={16} /> Compartilhar
         </button>
+      </div>
+      <div className="mt-2 flex flex-wrap justify-center gap-2">
+        {me === post.userId ? <><button onClick={() => void download("publicação")} className="inline-flex items-center gap-1 rounded-full border border-border px-3 py-2 text-xs"><Download size={13} /> Baixar publicação</button><button onClick={() => void download("story")} className="inline-flex items-center gap-1 rounded-full border border-border px-3 py-2 text-xs"><Download size={13} /> Baixar story</button></> : <><button onClick={() => void saveInspiration(post.id).then(() => toast.success("Inspiração salva."))} className="inline-flex items-center gap-1 rounded-full border border-border px-3 py-2 text-xs"><Bookmark size={13} /> Salvar inspiração</button><button onClick={() => void report()} className="inline-flex items-center gap-1 rounded-full border border-border px-3 py-2 text-xs"><Flag size={13} /> Denunciar</button></>}
       </div>
 
       {post.garments.length > 0 && (
