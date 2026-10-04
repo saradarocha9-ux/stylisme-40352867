@@ -18,7 +18,10 @@ export function PartnerCampaignCard({ placement = "inspire-se" }: { placement?: 
     const created = crypto.randomUUID(); sessionStorage.setItem(key, created); setSessionKey(created);
   }, []);
   useEffect(() => {
-    if (isPremium) return;
+    if (isPremium || !sessionKey) return;
+    const frequencyKey = `stylisme:campaign-shown:${placement}`;
+    const lastShown = Number(localStorage.getItem(frequencyKey) ?? 0);
+    if (Date.now() - lastShown < 60 * 60 * 1000) return;
     const now = new Date().toISOString();
     void supabase.from("store_campaigns").select("*, stores(name,status)").eq("status", "active").or(`starts_at.is.null,starts_at.lte.${now}`).or(`ends_at.is.null,ends_at.gt.${now}`).limit(12).then(({ data }) => {
       const rows = (data ?? []) as unknown as LiveCampaign[];
@@ -29,10 +32,13 @@ export function PartnerCampaignCard({ placement = "inspire-se" }: { placement?: 
           const targeting = row.targeting as { scope?: string; cities?: string[] } | null;
           return targeting?.scope !== "city" || Boolean(city && targeting.cities?.some((item) => item.trim().toLocaleLowerCase("pt-BR") === city));
         });
-        if (eligible.length) setCampaign(eligible[Math.floor(Math.random() * eligible.length)] ?? null);
+        if (eligible.length) {
+          setCampaign(eligible[Math.floor(Math.random() * eligible.length)] ?? null);
+          localStorage.setItem(frequencyKey, String(Date.now()));
+        }
       });
     });
-  }, [isPremium]);
+  }, [isPremium, placement, sessionKey]);
   useEffect(() => { if (campaign && sessionKey) void record(campaign.id, "impression", placement, sessionKey); }, [campaign, placement, sessionKey]);
   useEffect(() => { if (campaign?.image_path) void storeAssetUrl(campaign.image_path).then(setImageUrl); }, [campaign]);
   if (isPremium || !campaign) return null;
