@@ -210,8 +210,8 @@ export async function saveInspiration(postId: string) {
   const { data } = await supabase.auth.getUser();
   const userId = data.user?.id;
   if (!userId) throw new Error("Entre na sua conta para salvar.");
-  const { error } = await supabase.from("saved_inspirations").upsert({ user_id: userId, post_id: postId });
-  if (error) throw new Error(error.message);
+  const { error } = await supabase.from("saved_inspirations").insert({ user_id: userId, post_id: postId });
+  if (error && error.code !== "23505") throw new Error(error.message);
 }
 
 export async function reportPost(postId: string, reason: "spam" | "assédio" | "conteúdo impróprio" | "direitos autorais" | "outro", details = "") {

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { ExternalLink } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useSubscription } from "@/hooks/use-subscription";
@@ -10,21 +10,30 @@ export function PartnerCampaignCard({ placement = "inspire-se" }: { placement?: 
   const { isPremium } = useSubscription();
   const [campaign, setCampaign] = useState<LiveCampaign | null>(null);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
-  const sessionKey = useMemo(() => {
+  const [sessionKey, setSessionKey] = useState("");
+  useEffect(() => {
     const key = "stylisme:campaign-session";
     const existing = sessionStorage.getItem(key);
-    if (existing) return existing;
-    const created = crypto.randomUUID(); sessionStorage.setItem(key, created); return created;
+    if (existing) { setSessionKey(existing); return; }
+    const created = crypto.randomUUID(); sessionStorage.setItem(key, created); setSessionKey(created);
   }, []);
   useEffect(() => {
     if (isPremium) return;
     const now = new Date().toISOString();
     void supabase.from("store_campaigns").select("*, stores(name,status)").eq("status", "active").or(`starts_at.is.null,starts_at.lte.${now}`).or(`ends_at.is.null,ends_at.gt.${now}`).limit(12).then(({ data }) => {
       const rows = (data ?? []) as unknown as LiveCampaign[];
-      if (rows.length) setCampaign(rows[Math.floor(Math.random() * rows.length)] ?? null);
+      void supabase.auth.getUser().then(async ({ data: auth }) => {
+        let city = "";
+        if (auth.user) city = (await supabase.from("profiles").select("city").eq("id", auth.user.id).maybeSingle()).data?.city?.trim().toLocaleLowerCase("pt-BR") ?? "";
+        const eligible = rows.filter((row) => {
+          const targeting = row.targeting as { scope?: string; cities?: string[] } | null;
+          return targeting?.scope !== "city" || Boolean(city && targeting.cities?.some((item) => item.trim().toLocaleLowerCase("pt-BR") === city));
+        });
+        if (eligible.length) setCampaign(eligible[Math.floor(Math.random() * eligible.length)] ?? null);
+      });
     });
   }, [isPremium]);
-  useEffect(() => { if (campaign) void record(campaign.id, "impression", placement, sessionKey); }, [campaign, placement, sessionKey]);
+  useEffect(() => { if (campaign && sessionKey) void record(campaign.id, "impression", placement, sessionKey); }, [campaign, placement, sessionKey]);
   useEffect(() => { if (campaign?.image_path) void storeAssetUrl(campaign.image_path).then(setImageUrl); }, [campaign]);
   if (isPremium || !campaign) return null;
   const url = safeExternalUrl(campaign.destination_url);
