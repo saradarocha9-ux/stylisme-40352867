@@ -22,7 +22,14 @@ export const Route = createFileRoute("/api/public/stripe-webhook")({
     const object = event.data.object as { customer?: string | { id?: string }; status?: string; metadata?: { user_id?: string } };
     const customerId = typeof object.customer === "string" ? object.customer : object.customer?.id;
     let userId = object.metadata?.user_id;
-    if (!userId && customerId) { const customer = await stripe.customers.retrieve(customerId); if (!customer.deleted) userId = customer.metadata.user_id; }
+    if (!userId && customerId) {
+      try {
+        const customer = await stripe.customers.retrieve(customerId);
+        if (!customer.deleted) userId = customer.metadata.user_id;
+      } catch (error) {
+        console.error("[stripe-webhook] cliente não encontrado", customerId, error);
+      }
+    }
     if (userId && event.type.startsWith("customer.subscription.")) {
       const premium = ["active","trialing"].includes(object.status ?? "");
       const updated = await supabaseAdmin.from("profiles").update({ plan: premium ? "premium" : "free" }).eq("id", userId);

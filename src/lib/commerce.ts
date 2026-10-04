@@ -13,6 +13,13 @@ export async function storeAssetUrl(path: string | null) {
 
 export async function uploadStoreAsset(storeId: string, file: File, kind: "product" | "campaign") {
   if (!file.type.startsWith("image/") || file.size > 8 * 1024 * 1024) throw new Error("Escolha uma imagem de até 8 MB.");
+  const { data: auth, error: authError } = await supabase.auth.getUser();
+  if (authError || !auth.user) throw new Error("Entre na sua conta para enviar imagens.");
+  const { data: isMember, error: membershipError } = await supabase.rpc("is_store_member", {
+    _store_id: storeId,
+    _user_id: auth.user.id,
+  });
+  if (membershipError || !isMember) throw new Error("Você não tem permissão para enviar imagens para esta loja.");
   const extension = file.type.includes("png") ? "png" : file.type.includes("webp") ? "webp" : "jpg";
   const path = `${storeId}/${kind}/${crypto.randomUUID()}.${extension}`;
   const { error } = await supabase.storage.from("store-assets").upload(path, file, { contentType: file.type, upsert: false });

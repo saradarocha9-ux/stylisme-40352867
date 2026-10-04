@@ -5,6 +5,7 @@
 - [x] Implementar segmentação básica por cidade, vigência e intervalo de uma hora entre anúncios inseridos.
 - [x] Criar portal de lojas, produtos, imagens e fluxo de campanhas com revisão.
 - [x] Criar administração com papéis separados, proteção de assinatura e auditoria.
+- [x] Fechar chamadas diretas que escapavam dos limites Free nas ferramentas inteligentes e reforçar envio de imagens de lojas.
 - [ ] Validar pagamento real, confirmação, cancelamento e repetição de eventos do processador.
 - [x] Atualizar termos, privacidade, operação, lista de espera e materiais sem apresentar metas como resultados.
 - [ ] Medir custo real de IA, armazenamento, suporte, moderação e capacidade.
