@@ -11,6 +11,7 @@ export function PartnerPlanCard({ store }: { store: Store }) {
   const sync = useServerFn(syncPartnerPlan);
   const [plan, setPlan] = useState<{ tier: string | null; until: string | null }>({ tier: store.partner_tier, until: store.partner_until });
   const [busy, setBusy] = useState<PartnerTier | null>(null);
+  const [billing, setBilling] = useState<"monthly" | "yearly">("monthly");
 
   useEffect(() => {
     if (store.status !== "verified") return;
@@ -40,7 +41,7 @@ export function PartnerPlanCard({ store }: { store: Store }) {
   async function buy(tier: PartnerTier) {
     setBusy(tier);
     try {
-      const { url } = await checkout({ data: { storeId: store.id, tier } });
+      const { url } = await checkout({ data: { storeId: store.id, tier, billing } });
       if (url) window.location.href = url;
     } catch (e) { toast.error(e instanceof Error ? e.message : "Não foi possível abrir o pagamento."); setBusy(null); }
   }
@@ -49,14 +50,21 @@ export function PartnerPlanCard({ store }: { store: Store }) {
     <section className="mt-6">
       <h2 className="font-display text-2xl">Escolha seu plano de parceiro</h2>
       <p className="mt-1 text-xs text-muted-foreground">Você pode criar campanhas e enviá-las para análise. Depois de aprovadas, elas só aparecem no Stylisme com um plano pago.</p>
+      <div className="mt-3 inline-flex rounded-full border border-border p-1 text-xs">
+        {(["monthly", "yearly"] as const).map((b) => (
+          <button key={b} onClick={() => setBilling(b)} className={"rounded-full px-4 py-1.5 " + (billing === b ? "bg-foreground text-primary-foreground" : "text-muted-foreground")}>
+            {b === "monthly" ? "Mensal" : "Anual · economize"}
+          </button>
+        ))}
+      </div>
       <div className="mt-3 grid gap-3 sm:grid-cols-3">
         {(Object.keys(PARTNER_PLANS) as PartnerTier[]).map((t) => {
           const p = PARTNER_PLANS[t];
           return (
             <div key={t} className="rounded-2xl bg-card p-4 shadow-soft">
               <p className="font-display text-xl">{p.name}</p>
-              <p className="mt-1 text-lg">{p.year}</p>
-              <p className="text-[11px] text-muted-foreground">{p.month}</p>
+              <p className="mt-1 text-lg">{billing === "monthly" ? p.monthly : p.year}</p>
+              <p className="text-[11px] text-muted-foreground">{billing === "monthly" ? "cobrado todo mês · cancele quando quiser" : p.month}</p>
               <p className="mt-2 text-xs">{p.reach}</p>
               <Button className="mt-3 w-full" disabled={busy !== null} onClick={() => void buy(t)}>{busy === t ? "Abrindo…" : "Assinar"}</Button>
             </div>

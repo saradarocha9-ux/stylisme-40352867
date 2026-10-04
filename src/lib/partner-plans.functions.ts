@@ -22,9 +22,9 @@ async function ensureMember(context: { supabase: any }, storeId: string) {
 }
 
 export const createPartnerCheckout = createServerFn({ method: "POST" }).middleware([requireSupabaseAuth])
-  .inputValidator((d: { storeId: string; tier: PartnerTier }) => {
+  .inputValidator((d: { storeId: string; tier: PartnerTier; billing?: "monthly" | "yearly" }) => {
     if (!PARTNER_PLANS[d.tier]) throw new Error("Plano inválido.");
-    return d;
+    return { ...d, billing: d.billing === "monthly" ? "monthly" as const : "yearly" as const };
   })
   .handler(async ({ data, context }) => {
     await ensureMember(context, data.storeId);
@@ -33,11 +33,12 @@ export const createPartnerCheckout = createServerFn({ method: "POST" }).middlewa
     if (store.partner_until && new Date(store.partner_until) > new Date()) throw new Error("Esta loja já tem um plano ativo.");
     const email = typeof context.claims.email === "string" ? context.claims.email : undefined;
     const stripe = await getStripe();
-    const meta = { kind: "store_partner", store_id: data.storeId, tier: data.tier, user_id: context.userId };
+    const meta = { kind: "store_partner", store_id: data.storeId, tier: data.tier, billing: data.billing, user_id: context.userId };
+    const plan = PARTNER_PLANS[data.tier];
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
       customer_email: email,
-      line_items: [{ price: PARTNER_PLANS[data.tier].priceId, quantity: 1 }],
+      line_items: [{ price: data.billing === "monthly" ? plan.monthlyPriceId : plan.priceId, quantity: 1 }],
       metadata: meta,
       subscription_data: { metadata: meta },
       success_url: `${origin()}/app/store-portal?partner_session={CHECKOUT_SESSION_ID}`,
