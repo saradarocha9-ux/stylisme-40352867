@@ -137,7 +137,7 @@ function FeedPage() {
                     </span>
                     <span className="truncate">{p.authorName}</span>
                   </Link>
-                   <div className="flex items-center gap-2"><button onClick={() => void saveInspiration(p.id).then(() => toast.success("Inspiração salva."))} className="press" aria-label="Salvar inspiração"><Bookmark size={14} /></button><button onClick={() => void like(p)} className="press flex items-center gap-1 text-[11px]" aria-label="Curtir"><Heart size={14} className={p.likedByMe ? "fill-destructive text-destructive" : "text-muted-foreground"} />{p.likes}</button></div>
+                   <div className="flex items-center gap-2"><button onClick={() => void saveInspiration(p.id).then(() => toast.success("Inspiração salva.")).catch((e) => toast.error(e instanceof Error ? e.message : "Não consegui salvar."))} className="press" aria-label="Salvar inspiração"><Bookmark size={14} /></button><button onClick={() => void like(p)} className="press flex items-center gap-1 text-[11px]" aria-label="Curtir"><Heart size={14} className={p.likedByMe ? "fill-destructive text-destructive" : "text-muted-foreground"} />{p.likes}</button></div>
                 </div>
                 <p className="mt-1 text-[10px] uppercase tracking-[0.16em] text-muted-foreground">{timeAgo(p.createdAt)}</p>
                 <Link to="/app/look/$postId" params={{ postId: p.id }} className="mt-2 flex items-center gap-1 text-[10px] font-medium text-foreground">

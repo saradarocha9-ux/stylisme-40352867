@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { Crown, Settings, LogOut, ChevronRight, User as UserIcon, CreditCard, BarChart3, Users, HelpCircle, Lightbulb, Images, PlusCircle, Shield, CalendarDays } from "lucide-react";
+import { Crown, Settings, LogOut, ChevronRight, User as UserIcon, CreditCard, BarChart3, Users, HelpCircle, Lightbulb, Images, PlusCircle, Shield, CalendarDays, Building2, Store } from "lucide-react";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useStore, ACHIEVEMENTS } from "@/lib/store";
@@ -32,12 +32,19 @@ function ProfilePage() {
   const [uid, setUid] = useState<string | null>(null);
   const [cloud, setCloud] = useState<CloudProfile | null>(null);
   const [publishedCount, setPublishedCount] = useState(0);
+  const [canModerate, setCanModerate] = useState(false);
   const { isPremium } = useSubscription();
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
       setEmail(data.user?.email ?? "");
       setUid(data.user?.id ?? null);
-      if (data.user?.id) void listUserPosts(data.user.id).then((posts) => setPublishedCount(posts.length)).catch(() => {});
+      if (data.user?.id) {
+        void listUserPosts(data.user.id).then((posts) => setPublishedCount(posts.length)).catch(() => {});
+        void Promise.all([
+          supabase.rpc("has_role", { _user_id: data.user.id, _role: "admin" }),
+          supabase.rpc("has_role", { _user_id: data.user.id, _role: "moderator" }),
+        ]).then(([a, m]) => setCanModerate(!!a.data || !!m.data));
+      }
     });
     getMyProfile().then(setCloud).catch(() => {});
   }, []);
@@ -141,6 +148,9 @@ function ProfilePage() {
         <Row to="/app/subscription" icon={CreditCard} label="Minha assinatura" />
         <Row to="/app/planner" icon={CalendarDays} label="Planejar meus looks" />
         <Row to="/app/stats" icon={BarChart3} label="Estatísticas" />
+        <Row to="/app/partners" icon={Store} label="Lojas parceiras" />
+        <Row to="/app/store-portal" icon={Building2} label="Portal da minha loja" />
+        {canModerate && <Row to="/app/admin" icon={Shield} label="Administração" />}
         <Row to="/app/settings" icon={Settings} label="Configurações" />
         <ExternalRow href="https://stylismeteam.com/" icon={Users} label="Saber sobre a equipe Stylisme" />
         <Row to="/privacidade" icon={Shield} label="Política de Privacidade" />

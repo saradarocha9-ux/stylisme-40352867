@@ -80,7 +80,7 @@ function LookPostPage() {
   async function download(format: "publicação" | "story") {
     if (!post || me !== post.userId) return;
     const image = new Image(); image.crossOrigin = "anonymous"; image.src = post.imageUrl;
-    await image.decode();
+    try { await image.decode(); } catch { toast.error("Não consegui preparar a imagem para baixar."); return; }
     const width = 1080, height = format === "story" ? 1920 : 1350;
     const canvas = document.createElement("canvas"); canvas.width = width; canvas.height = height;
     const ctx = canvas.getContext("2d"); if (!ctx) return;
@@ -221,7 +221,7 @@ function LookPostPage() {
         </button>
       </div>
       <div className="mt-2 flex flex-wrap justify-center gap-2">
-        {me === post.userId ? <><button onClick={() => void download("publicação")} className="inline-flex items-center gap-1 rounded-full border border-border px-3 py-2 text-xs"><Download size={13} /> Baixar publicação</button><button onClick={() => void download("story")} className="inline-flex items-center gap-1 rounded-full border border-border px-3 py-2 text-xs"><Download size={13} /> Baixar story</button></> : <><button onClick={() => void saveInspiration(post.id).then(() => toast.success("Inspiração salva."))} className="inline-flex items-center gap-1 rounded-full border border-border px-3 py-2 text-xs"><Bookmark size={13} /> Salvar inspiração</button><button onClick={() => void report()} className="inline-flex items-center gap-1 rounded-full border border-border px-3 py-2 text-xs"><Flag size={13} /> Denunciar</button></>}
+         {me === post.userId ? <><button onClick={() => void download("publicação")} className="inline-flex items-center gap-1 rounded-full border border-border px-3 py-2 text-xs"><Download size={13} /> Baixar publicação</button><button onClick={() => void download("story")} className="inline-flex items-center gap-1 rounded-full border border-border px-3 py-2 text-xs"><Download size={13} /> Baixar story</button></> : <><button onClick={() => void saveInspiration(post.id).then(() => toast.success("Inspiração salva.")).catch((e) => toast.error(e instanceof Error ? e.message : "Não consegui salvar."))} className="inline-flex items-center gap-1 rounded-full border border-border px-3 py-2 text-xs"><Bookmark size={13} /> Salvar inspiração</button><button onClick={() => void report()} className="inline-flex items-center gap-1 rounded-full border border-border px-3 py-2 text-xs"><Flag size={13} /> Denunciar</button></>}
       </div>
 
       {post.garments.length > 0 && (

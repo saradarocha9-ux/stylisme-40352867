@@ -52,7 +52,7 @@ export const discoverLooks = createServerFn({ method: "POST" })
     const key = process.env.LOVABLE_API_KEY;
     if (!key) throw new Error("IA indisponível no momento.");
     const { runWithDailyQuota } = await import("./quota.server");
-    return runWithDailyQuota({ supabase: context.supabase, userId: context.userId, kind: "ai", limit: 3, action: async () => {
+    return runWithDailyQuota({ supabase: context.supabase, userId: context.userId, kind: "ai", action: async () => {
     const p = data.prefs;
     const noBuy = p.budget === "none" || data.mode === "own";
 
