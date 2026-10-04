@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { Crown, Settings, LogOut, ChevronRight, User as UserIcon, CreditCard, BarChart3, Users, HelpCircle, Lightbulb, Images, PlusCircle, Shield, CalendarDays, Building2, Store } from "lucide-react";
+import { Crown, Settings, LogOut, ChevronRight, User as UserIcon, CreditCard, BarChart3, HelpCircle, Lightbulb, Images, PlusCircle, Shield, CalendarDays, Building2, Store } from "lucide-react";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useStore, ACHIEVEMENTS } from "@/lib/store";
@@ -152,7 +152,6 @@ function ProfilePage() {
         <Row to="/app/store-portal" icon={Building2} label="Portal da minha loja" />
         {canModerate && <Row to="/app/admin" icon={Shield} label="Administração" />}
         <Row to="/app/settings" icon={Settings} label="Configurações" />
-        <ExternalRow href="https://stylismeteam.com/" icon={Users} label="Saber sobre a equipe Stylisme" />
         <Row to="/privacidade" icon={Shield} label="Política de Privacidade" />
         <Row onClick={signOut} icon={LogOut} label="Sair" danger />
       </div>
@@ -174,20 +173,6 @@ function Row({ to, onClick, icon: Icon, label, danger }: { to?: string; onClick?
   if (to) return <Link to={to} className={cls}>{content}</Link>;
   return <button onClick={onClick} className={cls}>{content}</button>;
 }
-
-
-function ExternalRow({ href, icon: Icon, label }: { href: string; icon: React.ElementType; label: string }) {
-  return (
-    <a href={href} target="_blank" rel="noopener noreferrer" className="flex w-full items-center justify-between border-b border-border px-5 py-4 text-left">
-      <div className="flex items-center gap-3">
-        <Icon size={18} strokeWidth={1.5} />
-        <span className="text-sm">{label}</span>
-      </div>
-      <ChevronRight size={16} className="text-muted-foreground" />
-    </a>
-  );
-}
-
 function Stat({ label, value }: { label: string; value: number }) {
   return (
     <div className="rounded-2xl bg-card p-3 shadow-soft">

@@ -4,7 +4,7 @@ import { Logo } from "@/components/Logo";
 import { PLAN_RULES } from "@/lib/plan-limits";
 
 export const Route = createFileRoute("/premium")({
-  head: () => ({ meta: [{ title: "Planos Free e Premium — Stylisme" }, { name: "description", content: "Compare os planos do Stylisme. Premium por R$ 24,90 ao mês, com IA ilimitada, calendário, estatísticas e sem anúncios." }, { property: "og:title", content: "Stylisme Premium — R$ 24,90 por mês" }, { property: "og:description", content: "IA ilimitada, calendário de looks, estatísticas, provador no corpo, sincronização e sem anúncios." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
+  head: () => ({ meta: [{ title: "Planos Free e Premium — Stylisme" }, { name: "description", content: "Compare os planos do Stylisme. Premium por R$ 24,90 ao mês, sem limite diário de IA, com calendário, estatísticas e sem anúncios." }, { property: "og:title", content: "Stylisme Premium — R$ 24,90 por mês" }, { property: "og:description", content: "IA sem limite diário, calendário de looks, estatísticas, provador no corpo e sem anúncios." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: PublicPremium,
 });
 

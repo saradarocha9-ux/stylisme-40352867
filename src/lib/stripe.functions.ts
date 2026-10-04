@@ -1,8 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { getRequestHeader } from "@tanstack/react-start/server";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import type { SupabaseClient } from "@supabase/supabase-js";
-import type { Database } from "@/integrations/supabase/types";
 
 // Stylisme Premium price (BRL 24,90/mo)
 export const PREMIUM_PRICE_ID = "price_1TvnaiKGRX9cr4A84ODJyQmY";
@@ -69,11 +67,12 @@ export const checkSubscription = createServerFn({ method: "GET" })
   .handler(async ({ context }): Promise<SubscriptionStatus> => {
     const email = getEmail(context.claims);
     const stripe = await getStripe();
+    const { data: profile } = await context.supabase.from("profiles").select("plan").eq("id", context.userId).maybeSingle();
+    const accountPremium = profile?.plan === "premium";
 
     const customers = await stripe.customers.list({ email, limit: 1 });
     if (customers.data.length === 0) {
-      await syncProfilePlan(context.supabase, context.userId, false);
-      return { subscribed: false, subscriptionEnd: null, cancelAtPeriodEnd: false, productId: null };
+      return { subscribed: accountPremium, subscriptionEnd: null, cancelAtPeriodEnd: false, productId: null };
     }
     const customerId = customers.data[0].id;
 
@@ -84,8 +83,7 @@ export const checkSubscription = createServerFn({ method: "GET" })
     });
 
     if (subs.data.length === 0) {
-      await syncProfilePlan(context.supabase, context.userId, false);
-      return { subscribed: false, subscriptionEnd: null, cancelAtPeriodEnd: false, productId: null };
+      return { subscribed: accountPremium, subscriptionEnd: null, cancelAtPeriodEnd: false, productId: null };
     }
 
     const sub = subs.data[0];
@@ -93,8 +91,6 @@ export const checkSubscription = createServerFn({ method: "GET" })
     const periodEnd = (item as unknown as { current_period_end?: number }).current_period_end
       ?? (sub as unknown as { current_period_end?: number }).current_period_end
       ?? null;
-
-    await syncProfilePlan(context.supabase, context.userId, true);
 
     return {
       subscribed: true,
@@ -122,15 +118,3 @@ export const openCustomerPortal = createServerFn({ method: "POST" })
     });
     return { url: portal.url };
   });
-
-async function syncProfilePlan(
-  supabase: SupabaseClient<Database>,
-  userId: string,
-  subscribed: boolean,
-) {
-  try {
-    await supabase.from("profiles").update({ plan: subscribed ? "premium" : "free" }).eq("id", userId);
-  } catch (e) {
-    console.error("[stripe] failed to sync profile plan", e);
-  }
-}
