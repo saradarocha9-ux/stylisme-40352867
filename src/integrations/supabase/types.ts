@@ -773,14 +773,23 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      consume_daily_usage: {
-        Args: { _free_limit: number; _kind: string }
-        Returns: {
-          allowed: boolean
-          remaining: number
-          used: number
-        }[]
-      }
+      consume_daily_usage:
+        | {
+            Args: { _kind: string }
+            Returns: {
+              allowed: boolean
+              remaining: number
+              used: number
+            }[]
+          }
+        | {
+            Args: { _free_limit: number; _kind: string }
+            Returns: {
+              allowed: boolean
+              remaining: number
+              used: number
+            }[]
+          }
       create_store_with_owner: {
         Args: {
           _description: string
