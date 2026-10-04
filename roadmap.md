@@ -19,4 +19,4 @@
 - [ ] Definir orçamento, prazo das metas e investimento buscado.
 - [ ] Escolher duração/horário da campanha e contratar criadores.
 
-- [ ] Criar mais looks variados/alternativos jovens no Inspire-se (conta oficial, 0 curtidas)
+- [x] Criar mais looks variados/alternativos jovens no Inspire-se (conta oficial, 0 curtidas)
