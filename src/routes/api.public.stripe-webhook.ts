@@ -19,7 +19,7 @@ export const Route = createFileRoute("/api/public/stripe-webhook")({
     const existing = await supabaseAdmin.from("subscription_events").select("provider_event_id").eq("provider_event_id", event.id).maybeSingle();
     if (existing.data) return new Response("ok");
     if (existing.error) return new Response("Falha de consulta", { status: 500 });
-    const object = event.data.object as { customer?: string | { id?: string }; status?: string; metadata?: { user_id?: string } };
+    const object = event.data.object as { customer?: string | { id?: string }; status?: string; metadata?: { user_id?: string; kind?: string; store_id?: string; tier?: string }; id?: string; items?: { data?: { current_period_end?: number }[] } };
     const customerId = typeof object.customer === "string" ? object.customer : object.customer?.id;
     let userId = object.metadata?.user_id;
     if (!userId && customerId) {
@@ -30,7 +30,14 @@ export const Route = createFileRoute("/api/public/stripe-webhook")({
         console.error("[stripe-webhook] cliente não encontrado", customerId, error);
       }
     }
-    if (userId && event.type.startsWith("customer.subscription.")) {
+    const isStorePlan = object.metadata?.kind === "store_partner";
+    if (isStorePlan && object.metadata?.store_id && event.type.startsWith("customer.subscription.")) {
+      const live = ["active","trialing"].includes(object.status ?? "");
+      const end = object.items?.data?.[0]?.current_period_end;
+      const upd = await supabaseAdmin.from("stores").update(live && end ? { partner_tier: object.metadata.tier ?? null, partner_until: new Date(end * 1000).toISOString(), partner_subscription_id: object.id ?? null } : { partner_until: new Date().toISOString() }).eq("id", object.metadata.store_id);
+      if (upd.error) return new Response("Falha ao atualizar loja", { status: 500 });
+    }
+    if (!isStorePlan && userId && event.type.startsWith("customer.subscription.")) {
       const premium = ["active","trialing"].includes(object.status ?? "");
       const updated = await supabaseAdmin.from("profiles").update({ plan: premium ? "premium" : "free" }).eq("id", userId);
       if (updated.error) return new Response("Falha ao atualizar assinatura", { status: 500 });

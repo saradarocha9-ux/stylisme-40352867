@@ -725,6 +725,9 @@ export type Database = {
           instagram_url: string | null
           logo_path: string | null
           name: string
+          partner_subscription_id: string | null
+          partner_tier: string | null
+          partner_until: string | null
           rejection_reason: string | null
           service_area: Json
           slug: string
@@ -740,6 +743,9 @@ export type Database = {
           instagram_url?: string | null
           logo_path?: string | null
           name: string
+          partner_subscription_id?: string | null
+          partner_tier?: string | null
+          partner_until?: string | null
           rejection_reason?: string | null
           service_area?: Json
           slug: string
@@ -755,6 +761,9 @@ export type Database = {
           instagram_url?: string | null
           logo_path?: string | null
           name?: string
+          partner_subscription_id?: string | null
+          partner_tier?: string | null
+          partner_until?: string | null
           rejection_reason?: string | null
           service_area?: Json
           slug?: string
@@ -839,6 +848,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      campaign_fits_partner_plan: {
+        Args: { _store_id: string; _targeting: Json }
+        Returns: boolean
+      }
       consume_daily_usage:
         | {
             Args: { _kind: string }
