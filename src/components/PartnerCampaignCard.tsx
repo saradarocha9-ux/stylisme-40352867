@@ -23,7 +23,7 @@ export function PartnerCampaignCard({ placement = "inspire-se" }: { placement?: 
     const lastShown = Number(localStorage.getItem(frequencyKey) ?? 0);
     if (Date.now() - lastShown < 60 * 60 * 1000) return;
     const now = new Date().toISOString();
-    void supabase.from("store_campaigns").select("*, stores(name,status)").eq("status", "active").or(`starts_at.is.null,starts_at.lte.${now}`).or(`ends_at.is.null,ends_at.gt.${now}`).limit(12).then(({ data }) => {
+    void supabase.from("store_campaigns").select("*, stores(name,status)").in("status", ["approved", "active"]).or(`starts_at.is.null,starts_at.lte.${now}`).or(`ends_at.is.null,ends_at.gt.${now}`).limit(12).then(({ data }) => {
       const rows = (data ?? []) as unknown as LiveCampaign[];
       void supabase.auth.getUser().then(async ({ data: auth }) => {
         let city = "";
