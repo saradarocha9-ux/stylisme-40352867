@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { createHash } from "crypto";
+import type { Event as StripeEvent } from "stripe";
 
 export const Route = createFileRoute("/api/public/stripe-webhook")({
   server: { handlers: { POST: async ({ request }) => {
@@ -11,7 +12,7 @@ export const Route = createFileRoute("/api/public/stripe-webhook")({
     if (!secret || !key) return new Response("Webhook não configurado", { status: 503 });
     const { default: Stripe } = await import("stripe");
     const stripe = new Stripe(key);
-    let event: Stripe.Event;
+    let event: StripeEvent;
     try { event = await stripe.webhooks.constructEventAsync(body, signature, secret); }
     catch { return new Response("Assinatura inválida", { status: 401 }); }
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");

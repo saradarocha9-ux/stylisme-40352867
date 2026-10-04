@@ -18,7 +18,7 @@ export function PartnerCampaignCard({ placement = "inspire-se" }: { placement?: 
   useEffect(() => {
     if (isPremium) return;
     const now = new Date().toISOString();
-    void supabase.from("store_campaigns").select("*, stores(name,status)").eq("status", "active").lte("starts_at", now).gt("ends_at", now).limit(12).then(({ data }) => {
+    void supabase.from("store_campaigns").select("*, stores(name,status)").eq("status", "active").or(`starts_at.is.null,starts_at.lte.${now}`).or(`ends_at.is.null,ends_at.gt.${now}`).limit(12).then(({ data }) => {
       const rows = (data ?? []) as unknown as LiveCampaign[];
       if (rows.length) setCampaign(rows[Math.floor(Math.random() * rows.length)] ?? null);
     });
