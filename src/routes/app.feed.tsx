@@ -71,7 +71,7 @@ function FeedPage() {
       </div>
 
       <div className="mt-5 flex gap-2">
-        {(["populares", "recentes"] as FeedSort[]).map((s) => (
+        {(["populares", "recentes", "seguindo"] as FeedSort[]).map((s) => (
           <button
             key={s}
             onClick={() => { tap(); setSort(s); }}
@@ -80,7 +80,7 @@ function FeedPage() {
               (sort === s ? "bg-foreground text-primary-foreground" : "border border-border text-muted-foreground")
             }
           >
-            {s === "populares" ? "Mais relevantes" : "Última hora"}
+            {s === "populares" ? "Relevantes" : s === "recentes" ? "Recentes" : "Seguindo"}
           </button>
         ))}
       </div>

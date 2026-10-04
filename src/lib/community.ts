@@ -13,7 +13,7 @@ export const FEED_CATEGORIES = [
   { id: "inverno", label: "Inverno" },
 ] as const;
 
-export type FeedSort = "populares" | "recentes";
+export type FeedSort = "populares" | "recentes" | "seguindo";
 
 export interface PostGarment {
   name: string;
@@ -101,6 +101,11 @@ const COLUMNS = "id, user_id, author_name, author_avatar, title, caption, catego
 
 export async function listFeed(opts: { sort: FeedSort; category?: string }): Promise<FeedPost[]> {
   let query = supabase.from("look_posts").select(COLUMNS).is("suspended_at", null).limit(60);
+  if (opts.sort === "seguindo") {
+    const ids = await listFollowingIds();
+    if (!ids.length) return [];
+    query = query.in("user_id", ids);
+  }
   query = opts.sort === "populares"
     ? query.order("likes_count", { ascending: false }).order("created_at", { ascending: false })
     : query.order("created_at", { ascending: false });
@@ -250,4 +255,30 @@ export async function countMyPostsToday(): Promise<number> {
     .eq("user_id", me)
     .gte("created_at", start.toISOString());
   return count ?? 0;
+}
+
+export async function listFollowingIds(): Promise<string[]> {
+  const me = (await supabase.auth.getUser()).data.user?.id;
+  if (!me) return [];
+  const { data } = await supabase.from("follows").select("following_id").eq("follower_id", me);
+  return (data ?? []).map((r) => r.following_id);
+}
+
+export async function getFollowInfo(userId: string) {
+  const me = (await supabase.auth.getUser()).data.user?.id ?? null;
+  const [followers, following, mine] = await Promise.all([
+    supabase.from("follows").select("follower_id", { count: "exact", head: true }).eq("following_id", userId),
+    supabase.from("follows").select("following_id", { count: "exact", head: true }).eq("follower_id", userId),
+    me ? supabase.from("follows").select("following_id").eq("follower_id", me).eq("following_id", userId).maybeSingle() : Promise.resolve({ data: null }),
+  ]);
+  return { followers: followers.count ?? 0, following: following.count ?? 0, isFollowing: !!mine.data };
+}
+
+export async function setFollow(userId: string, follow: boolean) {
+  const me = (await supabase.auth.getUser()).data.user?.id;
+  if (!me) throw new Error("Entre na sua conta para seguir.");
+  const { error } = follow
+    ? await supabase.from("follows").insert({ follower_id: me, following_id: userId })
+    : await supabase.from("follows").delete().eq("follower_id", me).eq("following_id", userId);
+  if (error && error.code !== "23505") throw new Error(error.message);
 }
