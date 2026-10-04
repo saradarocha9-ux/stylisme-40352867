@@ -138,8 +138,9 @@ function PrivacyPage() {
           <p>
             Dados de conta, publicações, análises e interações são armazenados no backend do app (Lovable Cloud), com
             criptografia em trânsito e autenticação por sessão. As fotos do corpo e do rosto mostradas em “Minhas fotos”
-            ficam somente no aparelho; miniaturas de análises de cor podem ser salvas na nuvem. Cada usuário acessa seus
-            próprios dados, exceto publicações escolhidas para a comunidade e páginas públicas de parceiros.
+            ficam no armazenamento local do aparelho. Quando você salva uma análise de cor, uma miniatura da foto também
+            é armazenada de forma privada na nuvem e pode ser apagada em Configurações. Cada usuário acessa seus próprios
+            dados, exceto publicações escolhidas para a comunidade e páginas públicas de parceiros.
           </p>
           <p>
             Embora adotemos boas práticas de segurança, nenhum sistema é 100% invulnerável. Por isso, não envie senhas,
@@ -151,7 +152,7 @@ function PrivacyPage() {
           <p>Você pode:</p>
           <ul className="list-disc space-y-1.5 pl-5">
             <li>Exportar seus dados em Configurações → Exportar meus dados.</li>
-            <li>Excluir sua conta e todos os dados associados em Configurações → Excluir minha conta.</li>
+            <li>Excluir sua conta, publicações e arquivos associados em Configurações → Excluir minha conta.</li>
             <li>Deixar de publicar looks no feed a qualquer momento.</li>
             <li>Entrar em contato pelo email acima para dúvidas, correções ou revogação de consentimento.</li>
           </ul>

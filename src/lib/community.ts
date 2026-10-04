@@ -100,7 +100,7 @@ async function hydrate(rows: Row[]): Promise<FeedPost[]> {
 const COLUMNS = "id, user_id, author_name, author_avatar, title, caption, category, image_path, garments, likes_count, created_at";
 
 export async function listFeed(opts: { sort: FeedSort; category?: string }): Promise<FeedPost[]> {
-  let query = supabase.from("look_posts").select(COLUMNS).limit(60);
+  let query = supabase.from("look_posts").select(COLUMNS).is("suspended_at", null).limit(60);
   query = opts.sort === "populares"
     ? query.order("likes_count", { ascending: false }).order("created_at", { ascending: false })
     : query.order("created_at", { ascending: false });
@@ -123,7 +123,7 @@ export async function listUserPosts(userId: string): Promise<FeedPost[]> {
 }
 
 export async function getPost(id: string): Promise<FeedPost | null> {
-  const { data, error } = await supabase.from("look_posts").select(COLUMNS).eq("id", id).maybeSingle();
+  const { data, error } = await supabase.from("look_posts").select(COLUMNS).eq("id", id).is("suspended_at", null).maybeSingle();
   if (error) throw new Error(error.message);
   if (!data) return null;
   return (await hydrate([data as unknown as Row]))[0] ?? null;
