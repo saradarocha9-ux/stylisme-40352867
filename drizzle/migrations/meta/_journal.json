@@ -71,6 +71,13 @@
       "when": 1791136946060,
       "tag": "0009_follows",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1791138707704,
+      "tag": "0010_store_partner_plans",
+      "breakpoints": true
     }
   ]
 }
