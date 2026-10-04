@@ -7,16 +7,14 @@ export async function runWithDailyQuota<T>(input: {
   supabase: SupabaseClient<Database>;
   userId: string;
   kind: UsageKind;
-  limit: number;
   action: () => Promise<T>;
 }): Promise<T> {
   const { data, error } = await input.supabase.rpc("consume_daily_usage", {
     _kind: input.kind,
-    _free_limit: input.limit,
   });
   if (error) throw new Error("Não foi possível conferir seu limite agora.");
   const usage = data?.[0];
-  if (!usage?.allowed) throw new Error(`Você usou as ${input.limit} gerações de hoje no plano Free.`);
+  if (!usage?.allowed) throw new Error("Você usou as 3 ações de hoje no plano Free.");
 
   try {
     return await input.action();

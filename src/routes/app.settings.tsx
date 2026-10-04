@@ -6,6 +6,8 @@ import { useTheme } from "@/lib/theme";
 import { getMyProfile, saveProfile } from "@/lib/profile";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useServerFn } from "@tanstack/react-start";
+import { deleteMyAccount } from "@/lib/account.functions";
 
 export const Route = createFileRoute("/app/settings")({
   head: () => ({
@@ -30,6 +32,7 @@ function SettingsPage() {
   const [name, setName] = useState(state.profile.name);
   const [email, setEmail] = useState(state.profile.email);
   const [saving, setSaving] = useState(false);
+  const deleteAccountNow = useServerFn(deleteMyAccount);
 
   useEffect(() => {
     let active = true;
@@ -76,10 +79,16 @@ function SettingsPage() {
     URL.revokeObjectURL(url);
   }
 
-  function deleteAccount() {
+  async function deleteAccount() {
     if (confirm("Excluir sua conta apagará todos os dados. Continuar?")) {
-      actions.wipe();
-      navigate({ to: "/" });
+      try {
+        await deleteAccountNow();
+        actions.wipe();
+        await supabase.auth.signOut();
+        await navigate({ to: "/", replace: true });
+      } catch (error) {
+        toast.error(error instanceof Error ? error.message : "Não foi possível excluir sua conta.");
+      }
     }
   }
 
@@ -147,7 +156,7 @@ function SettingsPage() {
           <span className="flex items-center gap-2"><Shield size={16} strokeWidth={1.5} /> Política de Privacidade</span>
           <span className="text-muted-foreground">→</span>
         </Link>
-        <button onClick={deleteAccount} className="w-full rounded-2xl bg-card p-4 text-left text-sm text-destructive shadow-soft">Excluir minha conta</button>
+        <button onClick={() => void deleteAccount()} className="w-full rounded-2xl bg-card p-4 text-left text-sm text-destructive shadow-soft">Excluir minha conta</button>
       </section>
     </div>
   );

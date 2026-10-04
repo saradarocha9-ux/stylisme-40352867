@@ -38,7 +38,7 @@ export const generateSmartLooks = createServerFn({ method: "POST" })
     if (!key) throw new Error("IA indisponível no momento.");
 
     const { runWithDailyQuota } = await import("./quota.server");
-    return runWithDailyQuota({ supabase: context.supabase, userId: context.userId, kind: "ai", limit: 3, action: async () => {
+    return runWithDailyQuota({ supabase: context.supabase, userId: context.userId, kind: "ai", action: async () => {
 
     const prompt = `Você é uma stylist profissional de moda com olho crítico. Monte 3 looks REAIS e vestíveis usando SOMENTE as peças do guarda-roupa abaixo.
 

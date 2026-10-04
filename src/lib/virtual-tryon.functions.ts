@@ -24,7 +24,7 @@ export const generateVirtualTryOn = createServerFn({ method: "POST" })
     const key = process.env.LOVABLE_API_KEY;
     if (!key) throw new Error("Provador inteligente indisponível.");
     const { runWithDailyQuota } = await import("./quota.server");
-    return runWithDailyQuota({ supabase: context.supabase, userId: context.userId, kind: "tryon", limit: 3, action: async () => {
+    return runWithDailyQuota({ supabase: context.supabase, userId: context.userId, kind: "tryon", action: async () => {
 
     const layerRank: Record<string, number> = {
       Vestido: 10,

@@ -95,6 +95,8 @@ function PrivacyPage() {
             <li>Para analisar sua coloração pessoal e gerar recomendações de cores e looks.</li>
             <li>Para sincronizar seu armário, looks e perfil entre dispositivos.</li>
             <li>Para exibir looks publicados no feed da comunidade, quando você escolher compartilhar.</li>
+            <li>Para receber e analisar denúncias, proteger a comunidade e registrar decisões administrativas.</li>
+            <li>Para mostrar campanhas conforme localização selecionada, estilo ou ocasião e medir impressões e cliques sem tratá-los como vendas.</li>
             <li>Para gerenciar seu plano Free ou Premium e processar pagamentos via Stripe.</li>
           </ul>
         </Section>
@@ -123,11 +125,22 @@ function PrivacyPage() {
           </ul>
         </Section>
 
+        <Section title="4.1. Lojas parceiras e campanhas">
+          <p>
+            Lojas fornecem seus próprios dados comerciais, produtos, destinos, preços opcionais e áreas atendidas. Uma
+            campanha patrocinada é identificada e não altera a avaliação independente feita pela Stylisme AI. Podemos
+            registrar a exibição visível e o clique com proteção contra repetição. Ao abrir um destino externo, a
+            política de privacidade do parceiro também se aplica.
+          </p>
+        </Section>
+
         <Section title="5. Armazenamento e segurança">
           <p>
-            Seus dados são armazenados no backend do app (Lovable Cloud) com criptografia em trânsito e autenticação por
-            sessão. Cada usuário acessa apenas seus próprios dados, exceto quando decide publicar um look no feed da
-            comunidade.
+            Dados de conta, publicações, análises e interações são armazenados no backend do app (Lovable Cloud), com
+            criptografia em trânsito e autenticação por sessão. As fotos do corpo e do rosto mostradas em “Minhas fotos”
+            ficam no armazenamento local do aparelho. Quando você salva uma análise de cor, uma miniatura da foto também
+            é armazenada de forma privada na nuvem e pode ser apagada em Configurações. Cada usuário acessa seus próprios
+            dados, exceto publicações escolhidas para a comunidade e páginas públicas de parceiros.
           </p>
           <p>
             Embora adotemos boas práticas de segurança, nenhum sistema é 100% invulnerável. Por isso, não envie senhas,
@@ -139,7 +152,7 @@ function PrivacyPage() {
           <p>Você pode:</p>
           <ul className="list-disc space-y-1.5 pl-5">
             <li>Exportar seus dados em Configurações → Exportar meus dados.</li>
-            <li>Excluir sua conta e todos os dados associados em Configurações → Excluir minha conta.</li>
+            <li>Excluir sua conta, publicações e arquivos associados em Configurações → Excluir minha conta.</li>
             <li>Deixar de publicar looks no feed a qualquer momento.</li>
             <li>Entrar em contato pelo email acima para dúvidas, correções ou revogação de consentimento.</li>
           </ul>
@@ -195,7 +208,7 @@ function PrivacyPage() {
       </div>
 
       <p className="mt-8 text-center text-xs text-muted-foreground">
-        Última atualização: 3 de agosto de 2026.
+        Última atualização: 4 de outubro de 2026.
       </p>
       <SponsoredAd placement="privacy" className="pb-6" />
     </main>

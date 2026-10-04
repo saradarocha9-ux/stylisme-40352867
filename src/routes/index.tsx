@@ -47,7 +47,7 @@ function Home() {
           <p className="text-[11px] uppercase tracking-[0.24em] text-gold">Inteligência para o seu armário</p>
           <h1 className="mt-4 font-display text-5xl leading-[1.02] sm:text-7xl">Escolha o que vestir com as roupas que você já tem.</h1>
           <p className="mt-6 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">Organize suas peças, receba combinações para cada ocasião e visualize o resultado no seu corpo.</p>
-          <div className="mt-8 flex flex-wrap gap-3"><Link to="/auth" className="press-gold inline-flex items-center gap-2 rounded-full bg-foreground px-6 py-3.5 text-sm text-primary-foreground">Começar grátis <ArrowRight size={16} /></Link><Link to="/premium" className="rounded-full border border-border px-6 py-3.5 text-sm">Ver planos</Link></div>
+          <div className="mt-8 flex flex-wrap gap-3"><Link to="/auth" className="press-gold inline-flex items-center gap-2 rounded-full bg-foreground px-6 py-3.5 text-sm text-primary-foreground">Começar grátis <ArrowRight size={16} /></Link><Link to="/premium" className="rounded-full border border-border px-6 py-3.5 text-sm">Ver planos</Link><Link to="/waitlist" className="rounded-full border border-border px-6 py-3.5 text-sm">Lista de espera</Link></div>
           <p className="mt-4 text-xs text-muted-foreground">Plano Free com 3 gerações por dia. Não é preciso cartão.</p>
         </div>
 
@@ -63,7 +63,7 @@ function Home() {
 
       <section className="border-t border-border py-16"><div className="mx-auto max-w-3xl px-5 text-center"><h2 className="font-display text-4xl">Comece com o essencial.</h2><p className="mt-3 text-muted-foreground">Cadastre duas peças e peça sua primeira combinação. O Stylisme aprende com suas escolhas.</p><ul className="mx-auto mt-6 grid max-w-xl gap-2 text-left text-sm sm:grid-cols-2">{["Fundo removido automaticamente", "Detalhes identificados pela IA", "3 gerações grátis por dia", "Fotos privadas por padrão"].map((item) => <li key={item} className="flex items-center gap-2"><Check size={14} className="text-gold" /> {item}</li>)}</ul><Link to="/auth" className="mt-8 inline-flex items-center gap-2 rounded-full bg-foreground px-7 py-3.5 text-sm text-primary-foreground">Criar meu armário <ArrowRight size={16} /></Link></div></section>
 
-      <footer className="border-t border-border py-8"><div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-5 text-xs text-muted-foreground"><span>© 2026 Stylisme</span><div className="flex gap-4"><Link to="/premium">Planos</Link><Link to="/privacidade">Privacidade</Link><Link to="/termos">Termos</Link></div></div></footer>
+      <footer className="border-t border-border py-8"><div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-5 text-xs text-muted-foreground"><span>© 2026 Stylisme</span><div className="flex gap-4"><Link to="/premium">Planos</Link><Link to="/waitlist">Lista de espera</Link><Link to="/privacidade">Privacidade</Link><Link to="/termos">Termos</Link></div></div></footer>
     </main>
   );
 }

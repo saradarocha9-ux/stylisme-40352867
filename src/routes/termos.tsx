@@ -68,7 +68,7 @@ function TermsPage() {
           </p>
           <p>
             Funcionalidades incluem cadastro de peças, remoção automática de fundo, montagem de looks com IA, provador
-            virtual, análise de coloração pessoal, feed da comunidade e assinatura Premium.
+            virtual, análise de coloração pessoal, comunidade Inspire-se, catálogo de parceiros e assinatura Premium.
           </p>
         </Section>
 
@@ -109,6 +109,15 @@ function TermsPage() {
           </ul>
         </Section>
 
+        <Section title="5.1. Comunidade e moderação">
+          <p>
+            Publicar é sempre uma escolha explícita. Outras pessoas podem curtir, salvar a publicação dentro do app,
+            compartilhar o link e denunciá-la. Salvar uma inspiração não autoriza reutilizar a imagem fora do Stylisme.
+            Conteúdo editorial e demonstrações serão identificados. Podemos suspender conteúdo durante uma análise e
+            registrar a decisão de moderação.
+          </p>
+        </Section>
+
         <Section title="6. Propriedade intelectual">
           <p>
             O nome Stylisme, logotipo, layout, código, modelos de IA e demais materiais do app são de nossa propriedade
@@ -147,6 +156,12 @@ function TermsPage() {
             privacidade de cada rede.
           </p>
           <p>A assinatura Premium remove os anúncios dentro do app.</p>
+          <p>
+            Lojas verificadas podem cadastrar produtos e contratar campanhas separadamente. Campanhas são analisadas,
+            identificadas como patrocinadas e podem direcionar ao site, produto ou Instagram informado pela loja.
+            Preços e disponibilidade são responsabilidade do parceiro e podem mudar. Impressões e cliques medidos não
+            representam vendas. Pessoas Premium podem acessar voluntariamente o catálogo de parceiros.
+          </p>
         </Section>
 
         <Section title="10. Disponibilidade e modificações">
@@ -194,7 +209,7 @@ function TermsPage() {
       </div>
 
       <p className="mt-8 text-center text-xs text-muted-foreground">
-        Última atualização: 5 de setembro de 2026.
+        Última atualização: 4 de outubro de 2026.
       </p>
       <SponsoredAd placement="privacy" className="pb-6" />
     </main>

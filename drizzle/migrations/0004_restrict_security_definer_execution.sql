@@ -1,0 +1,18 @@
+REVOKE EXECUTE ON FUNCTION public.consume_daily_usage(text) FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION public.consume_daily_usage(text) TO authenticated, service_role;
+REVOKE EXECUTE ON FUNCTION public.consume_daily_usage(text, integer) FROM PUBLIC, anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.consume_daily_usage(text, integer) TO service_role;
+REVOKE EXECUTE ON FUNCTION public.create_store_with_owner(text,text,text,text,text,jsonb) FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION public.create_store_with_owner(text,text,text,text,text,jsonb) TO authenticated, service_role;
+REVOKE EXECUTE ON FUNCTION public.has_role(uuid, public.app_role) FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION public.has_role(uuid, public.app_role) TO authenticated, service_role;
+REVOKE EXECUTE ON FUNCTION public.is_store_member(uuid, uuid) FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION public.is_store_member(uuid, uuid) TO authenticated, service_role;
+REVOKE EXECUTE ON FUNCTION public.submit_store_campaign(uuid) FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION public.submit_store_campaign(uuid) TO authenticated, service_role;
+REVOKE EXECUTE ON FUNCTION public.refund_daily_usage(uuid, text) FROM PUBLIC, anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.refund_daily_usage(uuid, text) TO service_role;
+REVOKE EXECUTE ON FUNCTION public.enforce_free_publication_limit() FROM PUBLIC, anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.protect_campaign_review_fields() FROM PUBLIC, anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.protect_membership_roles() FROM PUBLIC, anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.protect_store_review_fields() FROM PUBLIC, anon, authenticated;
