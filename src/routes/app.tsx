@@ -1,3 +1,4 @@
+import { PartnerCampaignCard } from "@/components/PartnerCampaignCard";
 import { createFileRoute, Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useEffect, useRef } from "react";
 import { BottomNav } from "@/components/BottomNav";
@@ -78,6 +79,7 @@ function AppLayout() {
         <Outlet />
       </div>
       <BottomNav />
+      {showAds && <aside aria-label="Patrocinado" className="fixed right-4 top-1/2 z-10 hidden -translate-y-1/2 2xl:block"><PartnerCampaignCard placement="lateral" variant="vertical" /></aside>}
       {showAds && <SponsoredAd key={placement} placement={placement} />}
     </div>
   );
