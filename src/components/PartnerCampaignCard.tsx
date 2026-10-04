@@ -6,7 +6,7 @@ import { safeExternalUrl, storeAssetUrl, type Campaign } from "@/lib/commerce";
 
 type LiveCampaign = Campaign & { stores: { name: string; status: string } | null };
 
-export function PartnerCampaignCard({ placement = "inspire-se" }: { placement?: string }) {
+export function PartnerCampaignCard({ placement = "inspire-se", variant = "horizontal" }: { placement?: string; variant?: "horizontal" | "vertical" }) {
   const { isPremium } = useSubscription();
   const [campaign, setCampaign] = useState<LiveCampaign | null>(null);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
@@ -43,6 +43,9 @@ export function PartnerCampaignCard({ placement = "inspire-se" }: { placement?: 
   useEffect(() => { if (campaign?.image_path) void storeAssetUrl(campaign.image_path).then(setImageUrl); }, [campaign]);
   if (isPremium || !campaign) return null;
   const url = safeExternalUrl(campaign.destination_url);
-  return <article className="col-span-2 overflow-hidden rounded-3xl border border-gold/30 bg-card shadow-soft"><div className="aspect-[16/7] bg-muted">{imageUrl&&<img src={imageUrl} alt="" className="h-full w-full object-cover"/>}</div><div className="p-4"><p className="text-[9px] uppercase tracking-[0.2em] text-gold">Patrocinado · {campaign.stores?.name}</p><h2 className="mt-1 font-display text-2xl">Seu próximo look pode estar aqui</h2><p className="mt-1 text-sm text-muted-foreground">{campaign.headline}</p>{url&&<a href={url} target="_blank" rel="noopener noreferrer" onClick={()=>void record(campaign.id,"click",placement,sessionKey)} className="mt-4 inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-2.5 text-xs text-primary-foreground">{campaign.cta} <ExternalLink size={13}/></a>}</div></article>;
+  const label = <p className="truncate text-[9px] uppercase tracking-[0.2em] text-gold">Patrocinado · {campaign.stores?.name}</p>;
+  const go = () => void record(campaign.id, "click", placement, sessionKey);
+  if (variant === "vertical") return <a href={url ?? undefined} target="_blank" rel="noopener noreferrer sponsored" onClick={go} className="block w-44 overflow-hidden rounded-2xl border border-border/60 bg-card/80 opacity-90 shadow-soft transition hover:opacity-100"><div className="aspect-[3/4] bg-muted">{imageUrl&&<img src={imageUrl} alt="" className="h-full w-full object-cover"/>}</div><div className="space-y-1 p-3">{label}<p className="line-clamp-3 text-xs">{campaign.headline}</p><span className="inline-flex items-center gap-1 text-[11px] underline">{campaign.cta} <ExternalLink size={11}/></span></div></a>;
+  return <a href={url ?? undefined} target="_blank" rel="noopener noreferrer sponsored" onClick={go} className="col-span-2 flex items-center gap-3 overflow-hidden rounded-2xl border border-border/60 bg-card/80 p-2 pr-4 shadow-soft"><div className="h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-muted">{imageUrl&&<img src={imageUrl} alt="" className="h-full w-full object-cover"/>}</div><div className="min-w-0 flex-1">{label}<p className="line-clamp-2 text-xs">{campaign.headline}</p></div><span className="inline-flex shrink-0 items-center gap-1 text-[11px] underline">{campaign.cta} <ExternalLink size={11}/></span></a>;
 }
 async function record(campaignId:string,kind:"impression"|"click",placement:string,sessionKey:string){const bucket=kind==="impression"?Math.floor(Date.now()/3600000):Date.now();await supabase.from("campaign_events").insert({campaign_id:campaignId,user_id:(await supabase.auth.getUser()).data.user?.id??null,kind,placement,session_key:sessionKey,dedupe_key:`${campaignId}:${sessionKey}:${kind}:${bucket}`});}

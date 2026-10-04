@@ -11,6 +11,7 @@ export const FEED_CATEGORIES = [
   { id: "academia", label: "Academia" },
   { id: "pets", label: "Pets" },
   { id: "inverno", label: "Inverno" },
+  { id: "alternativo", label: "Alternativo" },
 ] as const;
 
 export type FeedSort = "populares" | "recentes" | "seguindo";

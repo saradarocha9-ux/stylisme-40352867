@@ -11,7 +11,7 @@ export async function storeAssetUrl(path: string | null) {
   return error ? null : data.signedUrl;
 }
 
-export async function uploadStoreAsset(storeId: string, file: File, kind: "product" | "campaign") {
+export async function uploadStoreAsset(storeId: string, file: File, kind: "product" | "campaign" | "logo" | "banner") {
   if (!file.type.startsWith("image/") || file.size > 8 * 1024 * 1024) throw new Error("Escolha uma imagem de até 8 MB.");
   const { data: auth, error: authError } = await supabase.auth.getUser();
   if (authError || !auth.user) throw new Error("Entre na sua conta para enviar imagens.");
@@ -142,4 +142,9 @@ export async function setProductPublished(id: string, published: boolean) {
   const { data, error } = await supabase.from("store_products").update({ published, updated_at: new Date().toISOString() }).eq("id", id).select("id");
   if (error) throw new Error(error.message);
   if (!data?.length) throw new Error("Sem permissão para alterar este produto.");
+}
+
+export async function updateStore(id: string, input: { name: string; description: string; website_url: string | null; instagram_url: string | null; logo_path?: string | null; banner_path?: string | null }) {
+  const { error } = await supabase.from("stores").update(input).eq("id", id);
+  if (error) throw new Error(error.message);
 }
