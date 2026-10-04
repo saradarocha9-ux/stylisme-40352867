@@ -2,13 +2,14 @@ import { useEffect, useMemo, useState } from "react";
 import { ExternalLink } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useSubscription } from "@/hooks/use-subscription";
-import { safeExternalUrl, type Campaign } from "@/lib/commerce";
+import { safeExternalUrl, storeAssetUrl, type Campaign } from "@/lib/commerce";
 
 type LiveCampaign = Campaign & { stores: { name: string; status: string } | null };
 
 export function PartnerCampaignCard({ placement = "inspire-se" }: { placement?: string }) {
   const { isPremium } = useSubscription();
   const [campaign, setCampaign] = useState<LiveCampaign | null>(null);
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
   const sessionKey = useMemo(() => {
     const key = "stylisme:campaign-session";
     const existing = sessionStorage.getItem(key);
@@ -24,8 +25,9 @@ export function PartnerCampaignCard({ placement = "inspire-se" }: { placement?: 
     });
   }, [isPremium]);
   useEffect(() => { if (campaign) void record(campaign.id, "impression", placement, sessionKey); }, [campaign, placement, sessionKey]);
+  useEffect(() => { if (campaign?.image_path) void storeAssetUrl(campaign.image_path).then(setImageUrl); }, [campaign]);
   if (isPremium || !campaign) return null;
   const url = safeExternalUrl(campaign.destination_url);
-  return <article className="col-span-2 overflow-hidden rounded-3xl border border-gold/30 bg-card shadow-soft"><div className="aspect-[16/7] bg-muted"/><div className="p-4"><p className="text-[9px] uppercase tracking-[0.2em] text-gold">Patrocinado · {campaign.stores?.name}</p><h2 className="mt-1 font-display text-2xl">Seu próximo look pode estar aqui</h2><p className="mt-1 text-sm text-muted-foreground">{campaign.headline}</p>{url&&<a href={url} target="_blank" rel="noopener noreferrer" onClick={()=>void record(campaign.id,"click",placement,sessionKey)} className="mt-4 inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-2.5 text-xs text-primary-foreground">{campaign.cta} <ExternalLink size={13}/></a>}</div></article>;
+  return <article className="col-span-2 overflow-hidden rounded-3xl border border-gold/30 bg-card shadow-soft"><div className="aspect-[16/7] bg-muted">{imageUrl&&<img src={imageUrl} alt="" className="h-full w-full object-cover"/>}</div><div className="p-4"><p className="text-[9px] uppercase tracking-[0.2em] text-gold">Patrocinado · {campaign.stores?.name}</p><h2 className="mt-1 font-display text-2xl">Seu próximo look pode estar aqui</h2><p className="mt-1 text-sm text-muted-foreground">{campaign.headline}</p>{url&&<a href={url} target="_blank" rel="noopener noreferrer" onClick={()=>void record(campaign.id,"click",placement,sessionKey)} className="mt-4 inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-2.5 text-xs text-primary-foreground">{campaign.cta} <ExternalLink size={13}/></a>}</div></article>;
 }
 async function record(campaignId:string,kind:"impression"|"click",placement:string,sessionKey:string){const bucket=kind==="impression"?Math.floor(Date.now()/3600000):Date.now();await supabase.from("campaign_events").insert({campaign_id:campaignId,user_id:(await supabase.auth.getUser()).data.user?.id??null,kind,placement,session_key:sessionKey,dedupe_key:`${campaignId}:${sessionKey}:${kind}:${bucket}`});}
