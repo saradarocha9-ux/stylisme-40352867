@@ -1,5 +1,7 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Shirt, UserSquare2, Wand2, Palette, User, Compass } from "lucide-react";
+import { Shirt, UserSquare2, Wand2, Palette, User, Compass, LayoutDashboard } from "lucide-react";
+import { useSession } from "@/hooks/use-session";
+import { isOfficialUser } from "@/lib/official";
 import { tap } from "@/lib/haptics";
 
 const items = [
@@ -11,17 +13,26 @@ const items = [
   { to: "/app/profile", label: "Perfil", icon: User },
 ] as const;
 
+const officialItems = [
+  { to: "/app/admin", label: "Painel", icon: LayoutDashboard },
+  { to: "/app/feed", label: "Inspire-se", icon: Compass },
+  { to: "/app/profile", label: "Perfil", icon: User },
+] as const;
+
 export function BottomNav() {
   const { location } = useRouterState();
+  const { session } = useSession();
+  const official = isOfficialUser(session?.user.id, session?.user.email);
+  const list: readonly { to: string; label: string; icon: typeof User }[] = official ? officialItems : items;
   return (
     <nav className="fixed bottom-0 inset-x-0 z-40 border-t border-border bg-background/70 backdrop-blur-2xl">
-      <div className="mx-auto grid max-w-md grid-cols-6 lg:max-w-3xl">
-        {items.map(({ to, label, icon: Icon }) => {
+      <div className="mx-auto grid max-w-md lg:max-w-3xl" style={{ gridTemplateColumns: `repeat(${list.length}, minmax(0, 1fr))` }}>
+        {list.map(({ to, label, icon: Icon }) => {
           const active = location.pathname === to || (to !== "/app" && location.pathname.startsWith(to));
           return (
             <Link
               key={to}
-              to={to}
+              to={to as "/app"}
               onClick={() => tap()}
               className="press-gold relative flex flex-col items-center gap-1 py-3 text-[10px] uppercase tracking-[0.14em]"
             >
