@@ -1,0 +1,31 @@
+import { useEffect, useMemo, useState } from "react";
+import { ExternalLink } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useSubscription } from "@/hooks/use-subscription";
+import { safeExternalUrl, type Campaign } from "@/lib/commerce";
+
+type LiveCampaign = Campaign & { stores: { name: string; status: string } | null };
+
+export function PartnerCampaignCard({ placement = "inspire-se" }: { placement?: string }) {
+  const { isPremium } = useSubscription();
+  const [campaign, setCampaign] = useState<LiveCampaign | null>(null);
+  const sessionKey = useMemo(() => {
+    const key = "stylisme:campaign-session";
+    const existing = sessionStorage.getItem(key);
+    if (existing) return existing;
+    const created = crypto.randomUUID(); sessionStorage.setItem(key, created); return created;
+  }, []);
+  useEffect(() => {
+    if (isPremium) return;
+    const now = new Date().toISOString();
+    void supabase.from("store_campaigns").select("*, stores(name,status)").eq("status", "active").lte("starts_at", now).gt("ends_at", now).limit(12).then(({ data }) => {
+      const rows = (data ?? []) as unknown as LiveCampaign[];
+      if (rows.length) setCampaign(rows[Math.floor(Math.random() * rows.length)] ?? null);
+    });
+  }, [isPremium]);
+  useEffect(() => { if (campaign) void record(campaign.id, "impression", placement, sessionKey); }, [campaign, placement, sessionKey]);
+  if (isPremium || !campaign) return null;
+  const url = safeExternalUrl(campaign.destination_url);
+  return <article className="col-span-2 overflow-hidden rounded-3xl border border-gold/30 bg-card shadow-soft"><div className="aspect-[16/7] bg-muted"/><div className="p-4"><p className="text-[9px] uppercase tracking-[0.2em] text-gold">Patrocinado · {campaign.stores?.name}</p><h2 className="mt-1 font-display text-2xl">Seu próximo look pode estar aqui</h2><p className="mt-1 text-sm text-muted-foreground">{campaign.headline}</p>{url&&<a href={url} target="_blank" rel="noopener noreferrer" onClick={()=>void record(campaign.id,"click",placement,sessionKey)} className="mt-4 inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-2.5 text-xs text-primary-foreground">{campaign.cta} <ExternalLink size={13}/></a>}</div></article>;
+}
+async function record(campaignId:string,kind:"impression"|"click",placement:string,sessionKey:string){const bucket=kind==="impression"?Math.floor(Date.now()/3600000):Date.now();await supabase.from("campaign_events").insert({campaign_id:campaignId,user_id:(await supabase.auth.getUser()).data.user?.id??null,kind,placement,session_key:sessionKey,dedupe_key:`${campaignId}:${sessionKey}:${kind}:${bucket}`});}
