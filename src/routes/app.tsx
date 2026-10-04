@@ -5,6 +5,10 @@ import { useSession } from "@/hooks/use-session";
 import { Logo } from "@/components/Logo";
 import { SponsoredAd } from "@/components/SponsoredAd";
 import { useStore } from "@/lib/store";
+import { isOfficialUser } from "@/lib/official";
+
+/** A conta oficial é só painel: sem armário, provador, IA ou cores. */
+const OFFICIAL_BLOCKED = /^\/app(\/(looks|ai|palette|planner|stats|discover|ideas|favorites|partners|store-portal|premium|subscription))?\/?$/;
 
 export const Route = createFileRoute("/app")({
   head: () => ({
@@ -42,8 +46,13 @@ function AppLayout() {
   const { state } = useStore();
   // Sem anúncios na assinatura nem no primeiro uso (até a pessoa ter 3 peças e conseguir gerar um resultado).
   const noAdsPath = /^\/app\/(premium|subscription)/.test(pathname);
-  const showAds = !noAdsPath && state.garments.length >= 3;
+  const official = isOfficialUser(session?.user.id, session?.user.email);
+  const showAds = !official && !noAdsPath && state.garments.length >= 3;
   const placement = PLACEMENTS[pathname.replace(/(.)\/$/, "$1")] ?? "app-corner";
+
+  useEffect(() => {
+    if (official && OFFICIAL_BLOCKED.test(pathname)) void navigate({ to: "/app/admin", replace: true });
+  }, [official, pathname, navigate]);
 
   useEffect(() => {
     if (loading || session || redirectingRef.current) return;
