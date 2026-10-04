@@ -719,6 +719,7 @@ export type Database = {
       }
       stores: {
         Row: {
+          banner_path: string | null
           created_at: string
           description: string
           id: string
@@ -737,6 +738,7 @@ export type Database = {
           website_url: string | null
         }
         Insert: {
+          banner_path?: string | null
           created_at?: string
           description?: string
           id?: string
@@ -755,6 +757,7 @@ export type Database = {
           website_url?: string | null
         }
         Update: {
+          banner_path?: string | null
           created_at?: string
           description?: string
           id?: string
