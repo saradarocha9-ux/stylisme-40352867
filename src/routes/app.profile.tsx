@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { Crown, Settings, LogOut, ChevronRight, User as UserIcon, CreditCard, BarChart3, HelpCircle, Lightbulb, Images, PlusCircle, Shield, CalendarDays, Building2, Store } from "lucide-react";
+import { Crown, Settings, LogOut, ChevronRight, User as UserIcon, CreditCard, BarChart3, HelpCircle, Lightbulb, Images, PlusCircle, Shield, CalendarDays, Building2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useStore, ACHIEVEMENTS } from "@/lib/store";
@@ -148,7 +148,6 @@ function ProfilePage() {
         <Row to="/app/subscription" icon={CreditCard} label="Minha assinatura" />
         <Row to="/app/planner" icon={CalendarDays} label="Planejar meus looks" />
         <Row to="/app/stats" icon={BarChart3} label="Estatísticas" />
-        <Row to="/app/partners" icon={Store} label="Lojas parceiras" />
         <Row to="/app/store-portal" icon={Building2} label="Portal da minha loja" />
         {canModerate && <Row to="/app/admin" icon={Shield} label="Administração" />}
         <Row to="/app/settings" icon={Settings} label="Configurações" />
