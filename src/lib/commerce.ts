@@ -5,6 +5,21 @@ export type Store = Database["public"]["Tables"]["stores"]["Row"];
 export type Product = Database["public"]["Tables"]["store_products"]["Row"];
 export type Campaign = Database["public"]["Tables"]["store_campaigns"]["Row"];
 
+export async function storeAssetUrl(path: string | null) {
+  if (!path) return null;
+  const { data, error } = await supabase.storage.from("store-assets").createSignedUrl(path, 60 * 60);
+  return error ? null : data.signedUrl;
+}
+
+export async function uploadStoreAsset(storeId: string, file: File, kind: "product" | "campaign") {
+  if (!file.type.startsWith("image/") || file.size > 8 * 1024 * 1024) throw new Error("Escolha uma imagem de até 8 MB.");
+  const extension = file.type.includes("png") ? "png" : file.type.includes("webp") ? "webp" : "jpg";
+  const path = `${storeId}/${kind}/${crypto.randomUUID()}.${extension}`;
+  const { error } = await supabase.storage.from("store-assets").upload(path, file, { contentType: file.type, upsert: false });
+  if (error) throw new Error(error.message);
+  return path;
+}
+
 export function safeExternalUrl(value: string | null) {
   if (!value) return null;
   try { const url = new URL(value); return url.protocol === "https:" ? url.toString() : null; } catch { return null; }
@@ -73,4 +88,11 @@ export async function createCampaign(input: Database["public"]["Tables"]["store_
 
 export async function submitCampaign(id: string) {
   const { error } = await supabase.rpc("submit_store_campaign", { _campaign_id: id }); if (error) throw new Error(error.message);
+}
+
+export async function listCampaignResults(campaignIds: string[]) {
+  if (!campaignIds.length) return [];
+  const { data, error } = await supabase.from("campaign_events").select("campaign_id,kind").in("campaign_id", campaignIds);
+  if (error) throw new Error(error.message);
+  return data;
 }

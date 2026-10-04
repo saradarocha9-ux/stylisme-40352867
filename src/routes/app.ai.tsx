@@ -102,7 +102,7 @@ function AiPage() {
       labels = looks.map((l) => ({ title: l.title, why: l.why }));
     } catch (e) {
       console.error(e);
-      options = localOptions();
+      setMsgs((m) => [...m, { role: "ai", text: e instanceof Error ? e.message : "Não consegui gerar agora. Tente novamente." }]);
     } finally {
       setLoading(false);
     }
