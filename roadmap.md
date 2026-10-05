@@ -24,4 +24,4 @@
 - [x] Dar mais espaço visual à barra inferior no celular mantendo Lojas no meio (verificado em 390px).
 - [x] Adicionar pesquisa de usuários e looks no Inspire-se; pesquisar lojas somente na aba Lojas (busca e abertura verificadas; lojas sem registros disponíveis).
 - [ ] Criar e publicar 30 novos editoriais: 5 por estilo, seis estilos variados, pela conta oficial e sem curtidas artificiais.
-- [ ] Acrescentar mais 5 alternativos e 5 casuais, totalizando 40 novos looks.
+- [ ] Refazer os 5 alternativos extras com visual punk/goth/grunge marcante (não casual), depois criar 5 casuais; publicar os 40 novos looks.
