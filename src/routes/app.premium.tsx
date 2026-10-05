@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { Check, Crown, ArrowLeft, Sparkles, CalendarDays, BarChart3, Cloud, Zap, Loader2 } from "lucide-react";
-import { FREE_PLANNED_LOOKS, FREE_TRYON_DAILY, PLAN_RULES } from "@/lib/plan-limits";
+import { FREE_TRYON_DAILY, PLAN_RULES } from "@/lib/plan-limits";
 import { useEffect, useState } from "react";
 import { useSearch } from "@tanstack/react-router";
 import { createCheckout } from "@/lib/stripe.functions";
@@ -28,7 +28,7 @@ export const Route = createFileRoute("/app/premium")({
 const benefits = [
   { icon: Sparkles, title: "IA sem limite diário", desc: "No Free são 3 gerações por dia. Aqui, quantas quiser — sempre com até 3 sugestões por vez." },
   { icon: Zap, title: "Provador no corpo sem limite", desc: `No Free são ${FREE_TRYON_DAILY} provas por dia na sua foto. No Premium, prove quantas combinações quiser.` },
-  { icon: CalendarDays, title: "Calendário semanal e mensal", desc: `No Free, até ${FREE_PLANNED_LOOKS} looks agendados em lista. No Premium, planejamento ilimitado com visão de semana e mês.` },
+  { icon: CalendarDays, title: "Planejamento exclusivo Premium", desc: "Agende looks sem limite e acompanhe sua lista, semana ou mês. Planejamento não está disponível no Free." },
   { icon: BarChart3, title: "Estatísticas do armário", desc: "Veja peças esquecidas, cor e categoria mais usadas para decidir o que usar mais, doar ou evitar comprar repetido." },
   { icon: Cloud, title: "Sem anúncios", desc: "Nenhuma publicidade em nenhuma tela." },
 ];
