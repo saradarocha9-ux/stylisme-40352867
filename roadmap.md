@@ -23,3 +23,4 @@
 - [x] Criar novos editoriais variados e publicar pelo Stylisme com curtidas reais (4 publicados, foto e abertura verificadas).
 - [x] Dar mais espaço visual à barra inferior no celular mantendo Lojas no meio (verificado em 390px).
 - [x] Adicionar pesquisa de usuários e looks no Inspire-se; pesquisar lojas somente na aba Lojas (busca e abertura verificadas; lojas sem registros disponíveis).
+- [ ] Criar e publicar 30 novos editoriais: 5 por estilo, seis estilos variados, pela conta oficial e sem curtidas artificiais.
