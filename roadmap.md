@@ -20,6 +20,6 @@
 - [ ] Escolher duração/horário da campanha e contratar criadores.
 
 - [x] Criar mais looks variados/alternativos jovens no Inspire-se (conta oficial, 0 curtidas)
-- [ ] Criar novos editoriais variados e publicar pelo Stylisme com curtidas reais.
-- [ ] Dar mais espaço visual à barra inferior no celular mantendo Lojas no meio.
-- [ ] Adicionar pesquisa de usuários e looks no Inspire-se; pesquisar lojas somente na aba Lojas.
+- [x] Criar novos editoriais variados e publicar pelo Stylisme com curtidas reais (4 publicados, foto e abertura verificadas).
+- [x] Dar mais espaço visual à barra inferior no celular mantendo Lojas no meio (verificado em 390px).
+- [x] Adicionar pesquisa de usuários e looks no Inspire-se; pesquisar lojas somente na aba Lojas (busca e abertura verificadas; lojas sem registros disponíveis).
