@@ -26,16 +26,19 @@ export function BottomNav() {
   const official = isOfficialUser(session?.user.id, session?.user.email);
   const list: readonly { to: string; label: string; icon: typeof User }[] = official ? officialItems : items;
   return (
-    <nav className="fixed bottom-0 inset-x-0 z-40 border-t border-border bg-background/70 backdrop-blur-2xl">
-      <div className="mx-auto grid max-w-md lg:max-w-3xl" style={{ gridTemplateColumns: `repeat(${list.length}, minmax(0, 1fr))` }}>
+    <nav aria-label="Navegação principal" className="fixed bottom-0 inset-x-0 z-40 border-t border-border bg-background/70 backdrop-blur-2xl">
+      <div className={"mx-auto grid max-w-md items-center gap-1 px-1 py-1.5 sm:gap-2 sm:px-3 lg:max-w-3xl " + (official ? "grid-cols-3" : "grid-cols-7")}>
         {list.map(({ to, label, icon: Icon }) => {
           const active = location.pathname === to || (to !== "/app" && location.pathname.startsWith(to));
           return (
             <Link
               key={to}
               to={to as "/app"}
+              aria-label={label}
+              aria-current={active ? "page" : undefined}
+              title={label}
               onClick={() => tap()}
-              className="press-gold relative flex flex-col items-center gap-1 py-3 text-[10px] uppercase tracking-[0.14em]"
+              className="press-gold relative flex h-14 min-w-0 flex-col items-center justify-center gap-2 text-[9px] tracking-normal sm:text-[10px]"
             >
               <span
                 className={
@@ -45,7 +48,7 @@ export function BottomNav() {
               />
               <span
                 className={
-                  "absolute inset-x-3 inset-y-1.5 rounded-2xl bg-foreground/[0.06] transition-all duration-500 " +
+                  "absolute inset-x-0.5 inset-y-0.5 rounded-lg bg-foreground/[0.06] transition-all duration-500 " +
                   (active ? "opacity-100 scale-100" : "opacity-0 scale-90")
                 }
               />
@@ -54,10 +57,10 @@ export function BottomNav() {
                 strokeWidth={1.5}
                 className={
                   "relative transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] " +
-                  (active ? "text-foreground -translate-y-0.5 scale-110 drop-shadow-[0_2px_8px_oklch(0.78_0.13_85/0.45)]" : "text-muted-foreground")
+                   (active ? "text-foreground -translate-y-0.5 scale-110" : "text-muted-foreground")
                 }
               />
-              <span className={"relative transition-colors duration-300 " + (active ? "text-foreground" : "text-muted-foreground")}>{label}</span>
+              <span className={"relative whitespace-nowrap leading-none transition-colors duration-300 " + (active || official ? "text-foreground" : "sr-only sm:not-sr-only sm:text-muted-foreground")}>{label}</span>
             </Link>
           );
         })}

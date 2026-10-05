@@ -1,11 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useCallback, useEffect, useState } from "react";
-import { Bookmark, Heart, Loader2, Plus, Sparkles, Search } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Bookmark, Heart, Loader2, Plus, Sparkles, Search, X, User } from "lucide-react";
 import { toast } from "sonner";
-import { FEED_CATEGORIES, applyLikeToggle, listFeed, saveInspiration, timeAgo, toggleLike, type FeedPost, type FeedSort } from "@/lib/community";
+import { FEED_CATEGORIES, applyLikeToggle, listFeed, searchCommunityUsers, saveInspiration, timeAgo, toggleLike, type CommunityUser, type FeedPost, type FeedSort } from "@/lib/community";
 import { tap } from "@/lib/haptics";
 import { isOfficialUser } from "@/lib/official";
 import { PartnerCampaignCard } from "@/components/PartnerCampaignCard";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/app/feed")({
   head: () => ({
@@ -28,17 +29,36 @@ function FeedPage() {
   const [category, setCategory] = useState("todos");
   const [posts, setPosts] = useState<FeedPost[]>([]);
   const [loading, setLoading] = useState(true);
+  const [query, setQuery] = useState("");
+  const [search, setSearch] = useState("");
+  const [users, setUsers] = useState<CommunityUser[]>([]);
+  const requestId = useRef(0);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setSearch(query.trim()), 300);
+    return () => clearTimeout(timer);
+  }, [query]);
 
   const load = useCallback(async () => {
+    const id = ++requestId.current;
     setLoading(true);
     try {
-      setPosts(await listFeed({ sort, category }));
+      const [nextPosts, nextUsers] = await Promise.all([
+        listFeed({ sort, category, search }),
+        search ? searchCommunityUsers(search) : Promise.resolve([]),
+      ]);
+      if (id !== requestId.current) return;
+      setPosts(nextPosts);
+      setUsers(nextUsers);
     } catch (e) {
+      if (id !== requestId.current) return;
+      setPosts([]);
+      setUsers([]);
       toast.error(e instanceof Error ? e.message : "Não consegui carregar os looks.");
     } finally {
-      setLoading(false);
+      if (id === requestId.current) setLoading(false);
     }
-  }, [sort, category]);
+  }, [sort, category, search]);
 
   useEffect(() => { void load(); }, [load]);
 
@@ -68,6 +88,12 @@ function FeedPage() {
         >
           <Plus size={14} /> Ver no corpo
         </Link>
+      </div>
+
+      <div role="search" className="mt-5 flex min-h-12 items-center gap-3 rounded-lg border border-input bg-card px-3">
+        <Search size={18} className="shrink-0 text-muted-foreground" />
+        <input type="search" aria-label="Pesquisar usuários ou looks" placeholder="Pesquisar usuários ou looks" value={query} onChange={(e) => setQuery(e.target.value)} maxLength={80} className="min-w-0 flex-1 bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground" />
+        {query && <Button variant="ghost" size="icon" aria-label="Limpar pesquisa" onClick={() => { setQuery(""); setSearch(""); }}><X /></Button>}
       </div>
 
       <div className="mt-5 flex gap-2">
@@ -100,6 +126,15 @@ function FeedPage() {
         ))}
       </div>
 
+      {!loading && search && <section className="mt-5" aria-label="Usuários encontrados">
+        <h2 className="text-sm font-medium">Usuários</h2>
+        {users.length ? <div className="mt-2 divide-y divide-border">{users.map((user) => <Link key={user.id} to="/app/u/$userId" params={{ userId: user.id }} className="flex min-h-14 items-center gap-3 py-2">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-muted"><User size={18} /></span>
+          <span className="min-w-0"><span className="block truncate text-sm font-medium">{user.name}</span>{user.username && <span className="block truncate text-xs text-muted-foreground">@{user.username.replace(/^@/, "")}</span>}</span>
+        </Link>)}</div> : <p className="mt-2 text-sm text-muted-foreground">Nenhum usuário encontrado.</p>}
+        <h2 className="mt-5 text-sm font-medium">Looks</h2>
+      </section>}
+
       {loading ? (
         <div className="mt-16 flex flex-col items-center gap-3 text-muted-foreground">
           <Loader2 className="animate-spin" size={22} />
@@ -108,14 +143,14 @@ function FeedPage() {
       ) : posts.length === 0 ? (
         <div className="mt-16 flex flex-col items-center gap-3 px-6 text-center text-muted-foreground">
           <Sparkles size={26} strokeWidth={1.3} />
-          <p className="text-sm">Ainda não há looks por aqui nessa seleção.</p>
-          <Link to="/app/looks" className="press-gold mt-1 rounded-full bg-foreground px-5 py-2.5 text-xs uppercase tracking-[0.2em] text-primary-foreground">
+          <p className="text-sm">{search ? "Nenhum look encontrado nessa seleção." : "Ainda não há looks por aqui nessa seleção."}</p>
+          {!search && <Link to="/app/looks" className="press-gold mt-1 rounded-full bg-foreground px-5 py-2.5 text-xs uppercase tracking-[0.2em] text-primary-foreground">
             Criar o primeiro look
-          </Link>
+          </Link>}
         </div>
       ) : (
         <div className="mt-5 grid grid-cols-2 gap-3">
-          <PartnerCampaignCard variant="horizontal" />
+          {!search && <PartnerCampaignCard variant="horizontal" />}
           {posts.map((p) => (
             <article key={p.id} className="animate-rise overflow-hidden rounded-3xl bg-card shadow-soft">
               <Link to="/app/look/$postId" params={{ postId: p.id }} className="block">
