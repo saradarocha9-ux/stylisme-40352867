@@ -100,8 +100,27 @@ async function hydrate(rows: Row[]): Promise<FeedPost[]> {
 
 const COLUMNS = "id, user_id, author_name, author_avatar, title, caption, category, image_path, garments, likes_count, created_at";
 
-export async function listFeed(opts: { sort: FeedSort; category?: string }): Promise<FeedPost[]> {
+export function searchPattern(value: string) {
+  return value.trim().replace(/^@/, "").replace(/[%_(),.\\]/g, " ").replace(/\s+/g, " ").slice(0, 80);
+}
+
+export interface CommunityUser { id: string; name: string; username: string | null }
+
+export async function searchCommunityUsers(term: string): Promise<CommunityUser[]> {
+  const text = searchPattern(term);
+  if (!text) return [];
+  const { data, error } = await supabase.from("public_profiles")
+    .select("id, name, username")
+    .or(`name.ilike.%${text}%,username.ilike.%${text}%`)
+    .order("name").limit(20);
+  if (error) throw new Error(error.message);
+  return data ?? [];
+}
+
+export async function listFeed(opts: { sort: FeedSort; category?: string; search?: string }): Promise<FeedPost[]> {
   let query = supabase.from("look_posts").select(COLUMNS).is("suspended_at", null).limit(60);
+  const text = searchPattern(opts.search ?? "");
+  if (text) query = query.or(`title.ilike.%${text}%,caption.ilike.%${text}%,author_name.ilike.%${text}%`);
   if (opts.sort === "seguindo") {
     const ids = await listFollowingIds();
     if (!ids.length) return [];
