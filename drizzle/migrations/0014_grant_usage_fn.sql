@@ -1,0 +1,1 @@
+GRANT EXECUTE ON FUNCTION public.consume_daily_usage(text, integer) TO authenticated;
