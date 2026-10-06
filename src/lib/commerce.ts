@@ -149,3 +149,12 @@ export async function updateStore(id: string, input: { name: string; description
   const { error } = await supabase.from("stores").update(input).eq("id", id);
   if (error) throw new Error(error.message);
 }
+
+export async function deleteCampaign(id: string) {
+  const { error } = await supabase.from("store_campaigns").delete().eq("id", id); if (error) throw new Error(error.message);
+}
+export async function listLiveStoreCampaigns(storeId: string) {
+  const now = new Date().toISOString();
+  const { data } = await supabase.from("store_campaigns").select("id, headline, cta, destination_url, image_path, starts_at, ends_at").eq("store_id", storeId).in("status", ["approved", "active"]);
+  return (data ?? []).filter((c) => (!c.starts_at || c.starts_at <= now) && (!c.ends_at || c.ends_at > now));
+}
