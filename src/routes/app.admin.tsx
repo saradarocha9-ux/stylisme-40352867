@@ -106,6 +106,35 @@ function Posts() {
   );
 }
 
+function Stores() {
+  const list = useServerFn(listAdminStores), del = useServerFn(adminDeleteStore);
+  const [stores, setStores] = useState<any[] | null>(null);
+  const load = () => list().then(setStores).catch((e) => toast.error(e.message));
+  useEffect(() => { void load(); }, []);
+  async function remove(s: any) {
+    if (!confirm(`Excluir a loja "${s.name}"? Produtos, campanhas e estatísticas dela também serão apagados. Isso não pode ser desfeito.`)) return;
+    try { await del({ data: { id: s.id } }); toast.success("Loja excluída."); setStores((xs) => xs?.filter((x) => x.id !== s.id) ?? null); }
+    catch (e: any) { toast.error(e.message); }
+  }
+  if (!stores) return <div className="p-8 text-center">Carregando…</div>;
+  if (!stores.length) return <p className="mt-6 text-sm text-muted-foreground">Nenhuma loja cadastrada.</p>;
+  const statusLabel: Record<string, string> = { pending: "aguardando", verified: "verificada", rejected: "recusada", suspended: "suspensa" };
+  return (
+    <div className="mt-6 rounded-2xl bg-card px-4 shadow-soft">
+      {stores.map((s) => (
+        <div key={s.id} className="flex items-center gap-3 border-b border-border py-3 last:border-0">
+          {s.logo_url ? <img src={s.logo_url} alt="" className="h-10 w-10 rounded-full object-cover" /> : <div className="h-10 w-10 rounded-full bg-muted" />}
+          <div className="min-w-0 flex-1">
+            <Link to="/loja/$slug" params={{ slug: s.slug }} className="block truncate text-sm font-medium">{s.name}</Link>
+            <p className="text-[11px] text-muted-foreground">{statusLabel[s.status] ?? s.status}</p>
+          </div>
+          <Button size="sm" variant="destructive" onClick={() => void remove(s)}><Trash2 /> Excluir</Button>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function Users() {
   const list = useServerFn(listAdminUsers);
   const [q, setQ] = useState(""), [users, setUsers] = useState<any[] | null>(null);
