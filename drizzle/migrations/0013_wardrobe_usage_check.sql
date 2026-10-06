@@ -1,0 +1,2 @@
+ALTER TABLE public.daily_usage DROP CONSTRAINT daily_usage_kind_check;
+ALTER TABLE public.daily_usage ADD CONSTRAINT daily_usage_kind_check CHECK (kind IN ('ai','tryon','planner','publish','wardrobe'));
