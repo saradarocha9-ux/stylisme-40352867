@@ -30,7 +30,7 @@ function Admin() {
   const { session } = useSession();
   const official = isOfficialUser(session?.user.id, session?.user.email);
   const [tab, setTab] = useState<Tab>("geral");
-  const tabs: [Tab, string][] = [["geral", "Visão geral"], ["posts", "Posts"], ["usuarios", "Usuários"], ["publicar", "Publicar"]];
+  const tabs: [Tab, string][] = [["geral", "Visão geral"], ["posts", "Posts"], ["lojas", "Lojas"], ["usuarios", "Usuários"], ["publicar", "Publicar"]];
   return (
     <div className="px-5 pt-8 pb-12">
       {!official && <Link to="/app/profile" className="inline-flex items-center gap-1 text-xs"><ArrowLeft size={14} /> Perfil</Link>}
@@ -43,6 +43,7 @@ function Admin() {
       </div>
       {tab === "geral" && <Overview />}
       {tab === "posts" && <Posts />}
+      {tab === "lojas" && <Stores />}
       {tab === "usuarios" && <Users />}
       {tab === "publicar" && <Publish />}
     </div>
