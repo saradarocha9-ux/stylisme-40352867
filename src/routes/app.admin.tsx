@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PublishLookSheet } from "@/components/PublishLookSheet";
-import { getAdminOverview, moderateEntity, getCreatorStats, listAllPosts, adminDeletePost, listAdminUsers } from "@/lib/admin.functions";
+import { getAdminOverview, moderateEntity, getCreatorStats, listAllPosts, adminDeletePost, listAdminUsers, listAdminStores, adminDeleteStore } from "@/lib/admin.functions";
 import { useSession } from "@/hooks/use-session";
 import { isOfficialUser } from "@/lib/official";
 
@@ -24,7 +24,7 @@ export const Route = createFileRoute("/app/admin")({
   component: Admin,
 });
 
-type Tab = "geral" | "posts" | "usuarios" | "publicar";
+type Tab = "geral" | "posts" | "lojas" | "usuarios" | "publicar";
 
 function Admin() {
   const { session } = useSession();
