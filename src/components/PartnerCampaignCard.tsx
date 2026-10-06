@@ -17,30 +17,39 @@ export function PartnerCampaignCard({ placement = "inspire-se", variant = "horiz
     if (existing) { setSessionKey(existing); return; }
     const created = crypto.randomUUID(); sessionStorage.setItem(key, created); setSessionKey(created);
   }, []);
+  const [pool, setPool] = useState<LiveCampaign[]>([]);
   useEffect(() => {
     if (isPremium || !sessionKey) return;
-    const frequencyKey = `stylisme:campaign-shown:${placement}`;
-    const lastShown = Number(localStorage.getItem(frequencyKey) ?? 0);
-    if (Date.now() - lastShown < 60 * 60 * 1000) return;
-    const now = new Date().toISOString();
-    void supabase.from("store_campaigns").select("*, stores(name,status)").in("status", ["approved", "active"]).or(`starts_at.is.null,starts_at.lte.${now}`).or(`ends_at.is.null,ends_at.gt.${now}`).limit(12).then(({ data }) => {
+    let alive = true;
+    const load = async () => {
+      const now = new Date().toISOString();
+      const { data } = await supabase.from("store_campaigns").select("*, stores(name,status)").in("status", ["approved", "active"]).or(`starts_at.is.null,starts_at.lte.${now}`).or(`ends_at.is.null,ends_at.gt.${now}`).limit(30);
       const rows = (data ?? []) as unknown as LiveCampaign[];
-      void supabase.auth.getUser().then(async ({ data: auth }) => {
-        let city = "";
-        if (auth.user) city = (await supabase.from("profiles").select("city").eq("id", auth.user.id).maybeSingle()).data?.city?.trim().toLocaleLowerCase("pt-BR") ?? "";
-        const eligible = rows.filter((row) => {
-          const targeting = row.targeting as { scope?: string; cities?: string[] } | null;
-          return targeting?.scope !== "city" || Boolean(city && targeting.cities?.some((item) => item.trim().toLocaleLowerCase("pt-BR") === city));
-        });
-        if (eligible.length) {
-          setCampaign(eligible[Math.floor(Math.random() * eligible.length)] ?? null);
-          localStorage.setItem(frequencyKey, String(Date.now()));
-        }
+      const { data: auth } = await supabase.auth.getUser();
+      const norm = (v: string) => v.normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim().toLowerCase();
+      let city = "";
+      if (auth.user) city = norm((await supabase.from("profiles").select("city").eq("id", auth.user.id).maybeSingle()).data?.city ?? "");
+      // Sem cidade informada no perfil, mostramos todas; com cidade, só as que atendem a ela.
+      const eligible = rows.filter((row) => {
+        const t = row.targeting as { scope?: string; cities?: string[] } | null;
+        if (t?.scope !== "city" || !city) return true;
+        return Boolean(t.cities?.some((c) => norm(c) === city));
       });
-    });
+      if (alive) setPool(eligible.sort(() => Math.random() - 0.5));
+    };
+    void load();
+    const refresh = setInterval(() => void load(), 5 * 60 * 1000);
+    return () => { alive = false; clearInterval(refresh); };
   }, [isPremium, placement, sessionKey]);
+  const [index, setIndex] = useState(0);
+  useEffect(() => {
+    if (pool.length < 2) return;
+    const t = setInterval(() => setIndex((i) => i + 1), 30 * 1000);
+    return () => clearInterval(t);
+  }, [pool.length]);
+  useEffect(() => { setCampaign(pool.length ? pool[index % pool.length] ?? null : null); }, [pool, index]);
   useEffect(() => { if (campaign && sessionKey) void record(campaign.id, "impression", placement, sessionKey); }, [campaign, placement, sessionKey]);
-  useEffect(() => { if (campaign?.image_path) void storeAssetUrl(campaign.image_path).then(setImageUrl); }, [campaign]);
+  useEffect(() => { setImageUrl(null); if (campaign?.image_path) void storeAssetUrl(campaign.image_path).then(setImageUrl); }, [campaign]);
   if (isPremium || !campaign) return null;
   const url = safeExternalUrl(campaign.destination_url);
   const label = <p className="truncate text-[9px] uppercase tracking-[0.2em] text-gold">Patrocinado · {campaign.stores?.name}</p>;
