@@ -90,7 +90,8 @@ export async function createProduct(input: Database["public"]["Tables"]["store_p
 
 export async function createCampaign(input: Database["public"]["Tables"]["store_campaigns"]["Insert"]) {
   if (!safeExternalUrl(input.destination_url)) throw new Error("Use um endereço HTTPS válido.");
-  const { error } = await supabase.from("store_campaigns").insert(input); if (error) throw new Error(error.message);
+  const { data, error } = await supabase.from("store_campaigns").insert(input).select("id").single(); if (error) throw new Error(error.message);
+  return data;
 }
 
 export async function submitCampaign(id: string) {
