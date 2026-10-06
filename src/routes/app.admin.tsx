@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PublishLookSheet } from "@/components/PublishLookSheet";
-import { getAdminOverview, moderateEntity, getCreatorStats, listAllPosts, adminDeletePost, listAdminUsers } from "@/lib/admin.functions";
+import { getAdminOverview, moderateEntity, getCreatorStats, listAllPosts, adminDeletePost, listAdminUsers, listAdminStores, adminDeleteStore } from "@/lib/admin.functions";
 import { useSession } from "@/hooks/use-session";
 import { isOfficialUser } from "@/lib/official";
 
@@ -24,13 +24,13 @@ export const Route = createFileRoute("/app/admin")({
   component: Admin,
 });
 
-type Tab = "geral" | "posts" | "usuarios" | "publicar";
+type Tab = "geral" | "posts" | "lojas" | "usuarios" | "publicar";
 
 function Admin() {
   const { session } = useSession();
   const official = isOfficialUser(session?.user.id, session?.user.email);
   const [tab, setTab] = useState<Tab>("geral");
-  const tabs: [Tab, string][] = [["geral", "Visão geral"], ["posts", "Posts"], ["usuarios", "Usuários"], ["publicar", "Publicar"]];
+  const tabs: [Tab, string][] = [["geral", "Visão geral"], ["posts", "Posts"], ["lojas", "Lojas"], ["usuarios", "Usuários"], ["publicar", "Publicar"]];
   return (
     <div className="px-5 pt-8 pb-12">
       {!official && <Link to="/app/profile" className="inline-flex items-center gap-1 text-xs"><ArrowLeft size={14} /> Perfil</Link>}
@@ -43,6 +43,7 @@ function Admin() {
       </div>
       {tab === "geral" && <Overview />}
       {tab === "posts" && <Posts />}
+      {tab === "lojas" && <Stores />}
       {tab === "usuarios" && <Users />}
       {tab === "publicar" && <Publish />}
     </div>
@@ -99,6 +100,35 @@ function Posts() {
             <p className="line-clamp-1 text-[11px] text-muted-foreground">{p.author_name} · {p.likes_count} curtidas{p.suspended_at ? " · suspenso" : ""}</p>
             <Button size="sm" variant="destructive" className="mt-2 w-full" onClick={() => void remove(p)}><Trash2 /> Excluir</Button>
           </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function Stores() {
+  const list = useServerFn(listAdminStores), del = useServerFn(adminDeleteStore);
+  const [stores, setStores] = useState<any[] | null>(null);
+  const load = () => list().then(setStores).catch((e) => toast.error(e.message));
+  useEffect(() => { void load(); }, []);
+  async function remove(s: any) {
+    if (!confirm(`Excluir a loja "${s.name}"? Produtos, campanhas e estatísticas dela também serão apagados. Isso não pode ser desfeito.`)) return;
+    try { await del({ data: { id: s.id } }); toast.success("Loja excluída."); setStores((xs) => xs?.filter((x) => x.id !== s.id) ?? null); }
+    catch (e: any) { toast.error(e.message); }
+  }
+  if (!stores) return <div className="p-8 text-center">Carregando…</div>;
+  if (!stores.length) return <p className="mt-6 text-sm text-muted-foreground">Nenhuma loja cadastrada.</p>;
+  const statusLabel: Record<string, string> = { pending: "aguardando", verified: "verificada", rejected: "recusada", suspended: "suspensa" };
+  return (
+    <div className="mt-6 rounded-2xl bg-card px-4 shadow-soft">
+      {stores.map((s) => (
+        <div key={s.id} className="flex items-center gap-3 border-b border-border py-3 last:border-0">
+          {s.logo_url ? <img src={s.logo_url} alt="" className="h-10 w-10 rounded-full object-cover" /> : <div className="h-10 w-10 rounded-full bg-muted" />}
+          <div className="min-w-0 flex-1">
+            <Link to="/loja/$slug" params={{ slug: s.slug }} className="block truncate text-sm font-medium">{s.name}</Link>
+            <p className="text-[11px] text-muted-foreground">{statusLabel[s.status] ?? s.status}</p>
+          </div>
+          <Button size="sm" variant="destructive" onClick={() => void remove(s)}><Trash2 /> Excluir</Button>
         </div>
       ))}
     </div>

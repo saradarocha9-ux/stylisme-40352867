@@ -88,6 +88,40 @@ export const adminDeletePost = createServerFn({ method: "POST" }).middleware([re
     return { ok: true };
   });
 
+export const listAdminStores = createServerFn({ method: "GET" }).middleware([requireSupabaseAuth]).handler(async ({ context }) => {
+  await ensureAdmin(context, true);
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data, error } = await supabaseAdmin.from("stores").select("id, name, slug, status, logo_path, created_at").order("created_at", { ascending: false }).limit(200);
+  if (error) throw new Error(error.message);
+  const paths = (data ?? []).map((s) => s.logo_path).filter(Boolean) as string[];
+  const signed = paths.length ? (await supabaseAdmin.storage.from("store-assets").createSignedUrls(paths, 3600)).data ?? [] : [];
+  const urlByPath = new Map(signed.map((s, i) => [paths[i], s?.signedUrl ?? null]));
+  return (data ?? []).map((s) => ({ ...s, logo_url: s.logo_path ? urlByPath.get(s.logo_path) ?? null : null }));
+});
+
+export const adminDeleteStore = createServerFn({ method: "POST" }).middleware([requireSupabaseAuth])
+  .inputValidator((d: { id: string; reason?: string }) => d)
+  .handler(async ({ data, context }) => {
+    await ensureAdmin(context, true);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: store } = await supabaseAdmin.from("stores").select("id, name, logo_path, banner_path").eq("id", data.id).maybeSingle();
+    if (!store) throw new Error("Loja não encontrada.");
+    const { data: products } = await supabaseAdmin.from("store_products").select("image_path").eq("store_id", data.id);
+    const { data: campaigns } = await supabaseAdmin.from("store_campaigns").select("id, image_path").eq("store_id", data.id);
+    const campaignIds = (campaigns ?? []).map((c) => c.id);
+    if (campaignIds.length) await supabaseAdmin.from("campaign_events").delete().in("campaign_id", campaignIds);
+    await supabaseAdmin.from("store_events").delete().eq("store_id", data.id);
+    await supabaseAdmin.from("store_campaigns").delete().eq("store_id", data.id);
+    await supabaseAdmin.from("store_products").delete().eq("store_id", data.id);
+    await supabaseAdmin.from("store_members").delete().eq("store_id", data.id);
+    const { error } = await supabaseAdmin.from("stores").delete().eq("id", data.id);
+    if (error) throw new Error(error.message);
+    const files = [store.logo_path, store.banner_path, ...(products ?? []).map((p) => p.image_path), ...(campaigns ?? []).map((c) => c.image_path)].filter(Boolean) as string[];
+    if (files.length) await supabaseAdmin.storage.from("store-assets").remove(files);
+    await supabaseAdmin.from("audit_log").insert({ actor_id: context.userId, action: "delete", entity_type: "store", entity_id: data.id, metadata: { name: store.name, reason: data.reason ?? "" } });
+    return { ok: true };
+  });
+
 export const listAdminUsers = createServerFn({ method: "GET" }).middleware([requireSupabaseAuth])
   .inputValidator((d: { q?: string }) => d)
   .handler(async ({ data, context }) => {
