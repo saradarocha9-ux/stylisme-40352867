@@ -883,6 +883,13 @@ export type Database = {
         }
         Returns: string
       }
+      get_follow_counts: {
+        Args: { _user_id: string }
+        Returns: {
+          followers: number
+          following: number
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

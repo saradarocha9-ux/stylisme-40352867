@@ -286,12 +286,12 @@ export async function listFollowingIds(): Promise<string[]> {
 
 export async function getFollowInfo(userId: string) {
   const me = (await supabase.auth.getUser()).data.user?.id ?? null;
-  const [followers, following, mine] = await Promise.all([
-    supabase.from("follows").select("follower_id", { count: "exact", head: true }).eq("following_id", userId),
-    supabase.from("follows").select("following_id", { count: "exact", head: true }).eq("follower_id", userId),
+  const [counts, mine] = await Promise.all([
+    supabase.rpc("get_follow_counts", { _user_id: userId }),
     me ? supabase.from("follows").select("following_id").eq("follower_id", me).eq("following_id", userId).maybeSingle() : Promise.resolve({ data: null }),
   ]);
-  return { followers: followers.count ?? 0, following: following.count ?? 0, isFollowing: !!mine.data };
+  const row = counts.data?.[0];
+  return { followers: row?.followers ?? 0, following: row?.following ?? 0, isFollowing: !!mine.data };
 }
 
 export async function setFollow(userId: string, follow: boolean) {
