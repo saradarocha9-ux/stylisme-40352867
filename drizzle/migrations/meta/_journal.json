@@ -134,6 +134,13 @@
       "when": 1791316856254,
       "tag": "0018_fix_campaign_submit",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1791317102917,
+      "tag": "0019_members_delete_campaigns",
+      "breakpoints": true
     }
   ]
 }
