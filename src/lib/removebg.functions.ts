@@ -15,7 +15,7 @@ export const removeBgRemote = createServerFn({ method: "POST" })
   })
   .handler(async ({ data, context }): Promise<{ dataUrl: string; mode: "alpha" | "whitebg" }> => {
     const { runWithDailyQuota } = await import("./quota.server");
-    return runWithDailyQuota({ supabase: context.supabase, userId: context.userId, kind: "ai", action: async () => {
+    return runWithDailyQuota({ supabase: context.supabase, userId: context.userId, kind: "wardrobe", action: async () => {
     const apiKey: string | undefined = process.env.REMOVE_BG_API_KEY;
     const base64 = data.dataUrl.split(",")[1] ?? "";
 
