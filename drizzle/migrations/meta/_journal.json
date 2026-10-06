@@ -85,6 +85,13 @@
       "when": 1791142059887,
       "tag": "0011_store_banner",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1791313482869,
+      "tag": "0012_wardrobe_usage_kind",
+      "breakpoints": true
     }
   ]
 }
