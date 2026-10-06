@@ -25,7 +25,7 @@ export const analyzeGarment = createServerFn({ method: "POST" })
     const key = process.env.LOVABLE_API_KEY;
     if (!key) throw new Error("IA indisponível no momento.");
     const { runWithDailyQuota } = await import("./quota.server");
-    return runWithDailyQuota({ supabase: context.supabase, userId: context.userId, kind: "ai", action: async () => {
+    return runWithDailyQuota({ supabase: context.supabase, userId: context.userId, kind: "wardrobe", action: async () => {
 
     const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
