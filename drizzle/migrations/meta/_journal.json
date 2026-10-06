@@ -127,6 +127,13 @@
       "when": 1791314127037,
       "tag": "0017_partner_plan_exemptions",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1791316856254,
+      "tag": "0018_fix_campaign_submit",
+      "breakpoints": true
     }
   ]
 }
