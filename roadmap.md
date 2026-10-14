@@ -28,6 +28,6 @@
 - [x] Criar mais cinco editoriais de pets com roupinhas normais e intercalar entre os looks no feed; cinco fotos e abertura verificadas com sessão real.
 
 ## Moedas, idiomas e gosto
-- [ ] Premium 24,90 em BRL, USD e EUR; planos de loja também em USD/EUR
-- [ ] Seletor de idioma: pt, en, es, it, ko, zh, fr, ru (app inteiro, em etapas)
-- [ ] "Não tenho interesse" nos looks do Inspire-se para aprender o gosto
+- [x] Premium 24,90 em BRL, USD e EUR; planos de loja também em USD/EUR
+- [ ] Seletor de idioma: pt, en, es, it, ko, zh, fr, ru (app inteiro, em etapas) — seletor + barra + Premium feitos; demais telas pendentes
+- [x] "Não tenho interesse" nos looks do Inspire-se para aprender o gosto

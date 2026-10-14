@@ -5,12 +5,14 @@ import { Button } from "@/components/ui/button";
 import { createPartnerCheckout, syncPartnerPlan } from "@/lib/partner-plans.functions";
 import { PARTNER_PLANS, type PartnerTier } from "@/lib/partner-plans";
 import type { Store } from "@/lib/commerce";
+import { CURRENCIES, formatMoney, setLocale, useLocale } from "@/lib/i18n";
 
 export function PartnerPlanCard({ store }: { store: Store }) {
   const checkout = useServerFn(createPartnerCheckout);
   const sync = useServerFn(syncPartnerPlan);
   const [plan, setPlan] = useState<{ tier: string | null; until: string | null }>({ tier: store.partner_tier, until: store.partner_until });
   const [busy, setBusy] = useState<PartnerTier | null>(null);
+  const { lang, currency } = useLocale();
   const [billing, setBilling] = useState<"monthly" | "yearly">("monthly");
 
   useEffect(() => {
@@ -41,7 +43,7 @@ export function PartnerPlanCard({ store }: { store: Store }) {
   async function buy(tier: PartnerTier) {
     setBusy(tier);
     try {
-      const { url } = await checkout({ data: { storeId: store.id, tier, billing } });
+      const { url } = await checkout({ data: { storeId: store.id, tier, billing, currency } });
       if (url) window.location.href = url;
     } catch (e) { toast.error(e instanceof Error ? e.message : "Não foi possível abrir o pagamento."); setBusy(null); }
   }
@@ -57,14 +59,17 @@ export function PartnerPlanCard({ store }: { store: Store }) {
           </button>
         ))}
       </div>
+      <select aria-label="Moeda" value={currency} onChange={(e) => setLocale({ currency: e.target.value as typeof currency })} className="ml-2 rounded-full border border-border bg-background px-3 py-1.5 text-xs">
+        {CURRENCIES.map((c) => <option key={c.id} value={c.id}>{c.label}</option>)}
+      </select>
       <div className="mt-3 grid gap-3 sm:grid-cols-3">
         {(Object.keys(PARTNER_PLANS) as PartnerTier[]).map((t) => {
           const p = PARTNER_PLANS[t];
           return (
             <div key={t} className="rounded-2xl bg-card p-4 shadow-soft">
               <p className="font-display text-xl">{p.name}</p>
-              <p className="mt-1 text-lg">{billing === "monthly" ? p.monthly : p.year}</p>
-              <p className="text-[11px] text-muted-foreground">{billing === "monthly" ? "cobrado todo mês · cancele quando quiser" : p.month}</p>
+              <p className="mt-1 text-lg">{formatMoney(billing === "monthly" ? p.monthlyAmount : p.yearAmount, currency, lang)}{billing === "monthly" ? "/mês" : "/ano"}</p>
+              <p className="text-[11px] text-muted-foreground">{billing === "monthly" ? "cobrado todo mês · cancele quando quiser" : "cobrado uma vez por ano"}</p>
               <p className="mt-2 text-xs">{p.reach}</p>
               <Button className="mt-3 w-full" disabled={busy !== null} onClick={() => void buy(t)}>{busy === t ? "Abrindo…" : "Assinar"}</Button>
             </div>

@@ -141,6 +141,13 @@
       "when": 1791317102917,
       "tag": "0019_members_delete_campaigns",
       "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1792014251710,
+      "tag": "0020_migration",
+      "breakpoints": true
     }
   ]
 }

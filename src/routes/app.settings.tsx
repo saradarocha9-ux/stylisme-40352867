@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useServerFn } from "@tanstack/react-start";
 import { deleteMyAccount } from "@/lib/account.functions";
+import { CURRENCIES, LANGUAGES, setLocale, useLocale } from "@/lib/i18n";
 
 export const Route = createFileRoute("/app/settings")({
   head: () => ({
@@ -32,6 +33,7 @@ function SettingsPage() {
   const [name, setName] = useState(state.profile.name);
   const [email, setEmail] = useState(state.profile.email);
   const [saving, setSaving] = useState(false);
+  const locale = useLocale();
   const deleteAccountNow = useServerFn(deleteMyAccount);
 
   useEffect(() => {
@@ -126,6 +128,17 @@ function SettingsPage() {
         >
           Apagar histórico de análises de cor (miniaturas salvas na nuvem)
         </button>
+      </section>
+
+      <section className="mt-4 space-y-3 rounded-3xl bg-card p-5 shadow-soft">
+        <label className="block"><span className="mb-1.5 block text-[10px] uppercase tracking-[0.22em] text-muted-foreground">{locale.t("language")}</span>
+          <select value={locale.lang} onChange={(e) => setLocale({ lang: e.target.value as typeof locale.lang })} className="w-full rounded-xl border border-border bg-background px-4 py-2.5 text-sm">
+            {LANGUAGES.map((l) => <option key={l.id} value={l.id}>{l.label}</option>)}
+          </select></label>
+        <label className="block"><span className="mb-1.5 block text-[10px] uppercase tracking-[0.22em] text-muted-foreground">{locale.t("currency")}</span>
+          <select value={locale.currency} onChange={(e) => setLocale({ currency: e.target.value as typeof locale.currency })} className="w-full rounded-xl border border-border bg-background px-4 py-2.5 text-sm">
+            {CURRENCIES.map((c) => <option key={c.id} value={c.id}>{c.label}</option>)}
+          </select></label>
       </section>
 
       <section className="mt-4 rounded-3xl bg-card p-5 shadow-soft">

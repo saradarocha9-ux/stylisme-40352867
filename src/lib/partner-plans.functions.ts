@@ -22,9 +22,9 @@ async function ensureMember(context: { supabase: any }, storeId: string) {
 }
 
 export const createPartnerCheckout = createServerFn({ method: "POST" }).middleware([requireSupabaseAuth])
-  .inputValidator((d: { storeId: string; tier: PartnerTier; billing?: "monthly" | "yearly" }) => {
+  .inputValidator((d: { storeId: string; tier: PartnerTier; billing?: "monthly" | "yearly"; currency?: string }) => {
     if (!PARTNER_PLANS[d.tier]) throw new Error("Plano inválido.");
-    return { ...d, billing: d.billing === "monthly" ? "monthly" as const : "yearly" as const };
+    return { ...d, currency: ["brl", "usd", "eur"].includes(d.currency ?? "") ? d.currency! : "brl", billing: d.billing === "monthly" ? "monthly" as const : "yearly" as const };
   })
   .handler(async ({ data, context }) => {
     await ensureMember(context, data.storeId);
@@ -37,6 +37,7 @@ export const createPartnerCheckout = createServerFn({ method: "POST" }).middlewa
     const plan = PARTNER_PLANS[data.tier];
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
+      currency: data.currency,
       customer_email: email,
       line_items: [{ price: data.billing === "monthly" ? plan.monthlyPriceId : plan.priceId, quantity: 1 }],
       metadata: meta,

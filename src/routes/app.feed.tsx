@@ -1,8 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Bookmark, Heart, Loader2, Plus, Sparkles, Search, X, User } from "lucide-react";
+import { Bookmark, EyeOff, Heart, Loader2, Plus, Sparkles, Search, X, User } from "lucide-react";
 import { toast } from "sonner";
-import { FEED_CATEGORIES, applyLikeToggle, listFeed, searchCommunityUsers, saveInspiration, timeAgo, toggleLike, type CommunityUser, type FeedPost, type FeedSort } from "@/lib/community";
+import { FEED_CATEGORIES, applyLikeToggle, dismissLook, undoDismissLook, listFeed, searchCommunityUsers, saveInspiration, timeAgo, toggleLike, type CommunityUser, type FeedPost, type FeedSort } from "@/lib/community";
 import { tap } from "@/lib/haptics";
 import { isOfficialUser } from "@/lib/official";
 import { PartnerCampaignCard } from "@/components/PartnerCampaignCard";
@@ -33,6 +33,13 @@ function FeedPage() {
   const [search, setSearch] = useState("");
   const [users, setUsers] = useState<CommunityUser[]>([]);
   const requestId = useRef(0);
+
+  function dismiss(p: FeedPost) {
+    setPosts((list) => list.filter((x) => x.id !== p.id));
+    void dismissLook(p.id, p.category)
+      .then(() => toast("Ok, vamos mostrar menos looks assim.", { action: { label: "Desfazer", onClick: () => void undoDismissLook(p.id).then(() => setPosts((l) => [p, ...l])) } }))
+      .catch((e) => { setPosts((l) => [p, ...l]); toast.error(e instanceof Error ? e.message : "Não consegui salvar."); });
+  }
 
   useEffect(() => {
     const timer = setTimeout(() => setSearch(query.trim()), 300);
@@ -174,7 +181,7 @@ function FeedPage() {
                     </span>
                     <span className="truncate">{p.authorName}</span>
                   </Link>
-                   <div className="flex items-center gap-2"><button onClick={() => void saveInspiration(p.id).then(() => toast.success("Inspiração salva.")).catch((e) => toast.error(e instanceof Error ? e.message : "Não consegui salvar."))} className="press" aria-label="Salvar inspiração"><Bookmark size={14} /></button><button onClick={() => void like(p)} className="press flex items-center gap-1 text-[11px]" aria-label="Curtir"><Heart size={14} className={p.likedByMe ? "fill-destructive text-destructive" : "text-muted-foreground"} />{p.likes}</button></div>
+                   <div className="flex items-center gap-2"><button onClick={() => dismiss(p)} className="press text-muted-foreground" aria-label="Não tenho interesse" title="Não tenho interesse"><EyeOff size={14} /></button><button onClick={() => void saveInspiration(p.id).then(() => toast.success("Inspiração salva.")).catch((e) => toast.error(e instanceof Error ? e.message : "Não consegui salvar."))} className="press" aria-label="Salvar inspiração"><Bookmark size={14} /></button><button onClick={() => void like(p)} className="press flex items-center gap-1 text-[11px]" aria-label="Curtir"><Heart size={14} className={p.likedByMe ? "fill-destructive text-destructive" : "text-muted-foreground"} />{p.likes}</button></div>
                 </div>
                 <p className="mt-1 text-[10px] uppercase tracking-[0.16em] text-muted-foreground">{timeAgo(p.createdAt)}</p>
                 <Link to="/app/look/$postId" params={{ postId: p.id }} className="mt-2 flex items-center gap-1 text-[10px] font-medium text-foreground">

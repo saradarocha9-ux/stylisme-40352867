@@ -30,7 +30,8 @@ function getOrigin(): string {
 
 export const createCheckout = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
+  .inputValidator((d: { currency?: string } | undefined) => ({ currency: ["brl", "usd", "eur"].includes(d?.currency ?? "") ? d!.currency! : "brl" }))
+  .handler(async ({ context, data }) => {
     const email = getEmail(context.claims);
     const stripe = await getStripe();
 
@@ -43,6 +44,7 @@ export const createCheckout = createServerFn({ method: "POST" })
       customer_email: customerId ? undefined : email,
       line_items: [{ price: PREMIUM_PRICE_ID, quantity: 1 }],
       mode: "subscription",
+      currency: data.currency,
       client_reference_id: context.userId,
       metadata: { user_id: context.userId },
       subscription_data: { metadata: { user_id: context.userId } },
