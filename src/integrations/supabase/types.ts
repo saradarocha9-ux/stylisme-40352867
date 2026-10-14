@@ -311,6 +311,35 @@ export type Database = {
         }
         Relationships: []
       }
+      look_dismissals: {
+        Row: {
+          category: string
+          created_at: string
+          post_id: string
+          user_id: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          post_id: string
+          user_id: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          post_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "look_dismissals_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "look_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       look_likes: {
         Row: {
           created_at: string
