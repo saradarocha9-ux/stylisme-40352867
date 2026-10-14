@@ -130,11 +130,37 @@ export async function listFeed(opts: { sort: FeedSort; category?: string; search
     ? query.order("likes_count", { ascending: false }).order("created_at", { ascending: false })
     : query.order("created_at", { ascending: false });
   if (opts.category && opts.category !== "todos") query = query.eq("category", opts.category);
-  const { data, error } = await query;
+  const [{ data, error }, dismissed] = await Promise.all([query, listDismissals()]);
   if (error) throw new Error(error.message);
-  const posts = await hydrate((data ?? []) as unknown as Row[]);
+  const hidden = new Set(dismissed.map((d) => d.post_id));
+  const catCount = new Map<string, number>();
+  for (const d of dismissed) catCount.set(d.category, (catCount.get(d.category) ?? 0) + 1);
+  const posts = (await hydrate((data ?? []) as unknown as Row[])).filter((p) => !hidden.has(p.id));
   // Ordena exclusivamente pelas curtidas reais.
-  return opts.sort === "populares" ? posts.sort((a, b) => b.likes - a.likes) : posts;
+  if (opts.sort === "populares") posts.sort((a, b) => b.likes - a.likes);
+  // Estilos marcados como "não tenho interesse" 2+ vezes descem no feed.
+  const disliked = (p: FeedPost) => ((catCount.get(p.category) ?? 0) >= 2 ? 1 : 0);
+  return posts.map((p, i) => ({ p, i })).sort((a, b) => disliked(a.p) - disliked(b.p) || a.i - b.i).map((x) => x.p);
+}
+
+async function listDismissals(): Promise<{ post_id: string; category: string }[]> {
+  const { data: auth } = await supabase.auth.getUser();
+  if (!auth.user) return [];
+  const { data } = await supabase.from("look_dismissals").select("post_id,category").eq("user_id", auth.user.id).limit(1000);
+  return data ?? [];
+}
+
+export async function dismissLook(postId: string, category: string) {
+  const { data: auth } = await supabase.auth.getUser();
+  if (!auth.user) throw new Error("Entre na sua conta.");
+  const { error } = await supabase.from("look_dismissals").upsert({ user_id: auth.user.id, post_id: postId, category });
+  if (error) throw new Error(error.message);
+}
+
+export async function undoDismissLook(postId: string) {
+  const { data: auth } = await supabase.auth.getUser();
+  if (!auth.user) return;
+  await supabase.from("look_dismissals").delete().eq("user_id", auth.user.id).eq("post_id", postId);
 }
 
 export async function listUserPosts(userId: string): Promise<FeedPost[]> {
