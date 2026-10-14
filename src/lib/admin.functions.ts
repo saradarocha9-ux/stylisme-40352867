@@ -13,18 +13,22 @@ async function ensureAdmin(context: { supabase: any; userId: string }, moderatio
 export const getAdminOverview = createServerFn({ method: "GET" }).middleware([requireSupabaseAuth]).handler(async ({ context }) => {
   await ensureAdmin(context, true);
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const [stores, campaigns, reports, users, events] = await Promise.all([
+  const [stores, campaigns, reports, users, events, userReports] = await Promise.all([
     supabaseAdmin.from("stores").select("*").in("status", ["pending", "rejected"]),
     supabaseAdmin.from("store_campaigns").select("*, stores(name)").in("status", ["submitted", "under_review"]),
     supabaseAdmin.from("content_reports").select("*, look_posts(title)").in("status", ["open", "under_review"]),
     supabaseAdmin.from("profiles").select("id, plan, joined_at"),
     supabaseAdmin.from("campaign_events").select("kind, created_at"),
+    supabaseAdmin.from("user_reports").select("*").in("status", ["open", "under_review"]).order("created_at", { ascending: false }),
   ]);
-  return { stores: stores.data ?? [], campaigns: campaigns.data ?? [], reports: reports.data ?? [], users: users.data ?? [], events: events.data ?? [] };
+  const ids = [...new Set((userReports.data ?? []).map((r) => r.reported_user_id))];
+  const names = ids.length ? (await supabaseAdmin.from("profiles").select("id, name, username").in("id", ids)).data ?? [] : [];
+  const userReportsOut = (userReports.data ?? []).map((r) => { const n = names.find((x) => x.id === r.reported_user_id); return { ...r, reported_name: n?.name || (n?.username ? "@" + n.username : "Usuário") }; });
+  return { stores: stores.data ?? [], campaigns: campaigns.data ?? [], reports: reports.data ?? [], users: users.data ?? [], events: events.data ?? [], userReports: userReportsOut };
 });
 
 export const moderateEntity = createServerFn({ method: "POST" }).middleware([requireSupabaseAuth])
-  .inputValidator((d: { kind: "store" | "campaign" | "report"; id: string; decision: string; reason?: string; postId?: string }) => d)
+  .inputValidator((d: { kind: "store" | "campaign" | "report" | "user_report"; id: string; decision: string; reason?: string; postId?: string }) => d)
   .handler(async ({ data, context }) => {
     await ensureAdmin(context, true);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -35,6 +39,7 @@ export const moderateEntity = createServerFn({ method: "POST" }).middleware([req
       if (data.decision === "suspend" && data.postId) operationError = (await supabaseAdmin.from("look_posts").update({ suspended_at: new Date().toISOString(), suspension_reason: data.reason || "Conteúdo em revisão" }).eq("id", data.postId)).error;
       if (!operationError) operationError = (await supabaseAdmin.from("content_reports").update({ status: "resolved", resolution_note: data.reason || data.decision, reviewed_by: context.userId, reviewed_at: new Date().toISOString() }).eq("id", data.id)).error;
     }
+    if (data.kind === "user_report") operationError = (await supabaseAdmin.from("user_reports").update({ status: data.decision === "dismiss" ? "dismissed" : "resolved", resolution_note: data.reason || data.decision, reviewed_by: context.userId, reviewed_at: new Date().toISOString() }).eq("id", data.id)).error;
     if (operationError) throw new Error(operationError.message);
     const audit = await supabaseAdmin.from("audit_log").insert({ actor_id: context.userId, action: data.decision, entity_type: data.kind, entity_id: data.id, metadata: { reason: data.reason ?? "" } });
     if (audit.error) throw new Error(audit.error.message);
