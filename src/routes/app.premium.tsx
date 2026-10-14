@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { useSearch } from "@tanstack/react-router";
 import { createCheckout } from "@/lib/stripe.functions";
 import { useSubscription } from "@/hooks/use-subscription";
+import { CURRENCIES, formatMoney, setLocale, useLocale } from "@/lib/i18n";
 
 export const Route = createFileRoute("/app/premium")({
   head: () => ({
@@ -42,6 +43,7 @@ function PremiumPage() {
   const checkout = useServerFn(createCheckout);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { t, lang, currency } = useLocale();
   const [showCancelled, setShowCancelled] = useState(false);
 
   useEffect(() => {
@@ -52,7 +54,7 @@ function PremiumPage() {
     setSubmitting(true);
     setError(null);
     try {
-      const { url } = await checkout();
+      const { url } = await checkout({ data: { currency } });
       if (url) {
         // Stripe bloqueia carregamento dentro de iframe (preview) — abre no topo/nova aba.
         const opened = window.open(url, "_blank", "noopener,noreferrer");
@@ -72,7 +74,7 @@ function PremiumPage() {
     <div className="min-h-screen bg-premium text-white">
       <div className="mx-auto max-w-md px-6 pb-16 pt-8">
         <Link to="/app/profile" className="inline-flex items-center gap-1 text-xs uppercase tracking-[0.24em] opacity-70">
-          <ArrowLeft size={14} /> Voltar para o Perfil
+          <ArrowLeft size={14} /> {t("back")}
         </Link>
 
         {showCancelled && (
@@ -85,14 +87,18 @@ function PremiumPage() {
           <Crown className="mx-auto text-gold" size={40} strokeWidth={1.5} />
           <p className="mt-3 text-[10px] uppercase tracking-[0.32em] opacity-70">Stylisme</p>
           <h1 className="font-display text-5xl leading-none">Premium</h1>
-          <p className="mt-4 text-sm opacity-80">Toda a inteligência do Stylisme, sem limites.</p>
+          <p className="mt-4 text-sm opacity-80">{t("tagline")}</p>
 
           <div className="mt-8 inline-flex items-baseline gap-1">
-            <span className="text-sm opacity-70">R$</span>
-            <span className="font-display text-6xl">24,90</span>
-            <span className="text-sm opacity-70">/mês</span>
+            <span className="font-display text-6xl">{formatMoney(24.9, currency, lang)}</span>
+            <span className="text-sm opacity-70">{t("perMonth")}</span>
           </div>
-          <p className="mt-1 text-[10px] uppercase tracking-[0.24em] opacity-60">Valor fixo · sem surpresas</p>
+          <p className="mt-1 text-[10px] uppercase tracking-[0.24em] opacity-60">{t("fixed")}</p>
+          <div className="mt-4 flex justify-center gap-2">
+            {CURRENCIES.map((c) => (
+              <button key={c.id} onClick={() => setLocale({ currency: c.id })} className={"rounded-full border px-3 py-1 text-xs " + (currency === c.id ? "border-gold bg-gold/20 text-gold" : "border-white/20 opacity-70")}>{c.symbol}</button>
+            ))}
+          </div>
         </div>
 
         <div className="mt-10 space-y-3">
@@ -122,9 +128,9 @@ function PremiumPage() {
           className="mt-8 flex w-full items-center justify-center gap-2 rounded-full bg-gold py-4 text-sm uppercase tracking-[0.28em] text-[oklch(0.16_0.01_60)] shadow-lift disabled:opacity-50"
         >
           {submitting && <Loader2 size={14} className="animate-spin" />}
-          {isPremium ? "Você já é Premium" : submitting ? "Redirecionando…" : "Assinar Premium"}
+          {isPremium ? t("already") : submitting ? t("redirecting") : t("subscribe")}
         </button>
-        <p className="mt-3 text-center text-[10px] uppercase tracking-[0.24em] opacity-60">Cancele quando quiser · Pagamento seguro via Stripe</p>
+        <p className="mt-3 text-center text-[10px] uppercase tracking-[0.24em] opacity-60">{t("cancelAny")}</p>
       </div>
     </div>
   );

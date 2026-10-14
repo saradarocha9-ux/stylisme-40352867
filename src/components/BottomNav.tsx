@@ -3,32 +3,35 @@ import { Shirt, UserSquare2, Wand2, Palette, User, Compass, LayoutDashboard, Sto
 import { useSession } from "@/hooks/use-session";
 import { isOfficialUser } from "@/lib/official";
 import { tap } from "@/lib/haptics";
+import { useLocale } from "@/lib/i18n";
 
 const items = [
-  { to: "/app", label: "Armário", icon: Shirt },
-  { to: "/app/looks", label: "Provador", icon: UserSquare2 },
-  { to: "/app/feed", label: "Inspire-se", icon: Compass },
-  { to: "/app/partners", label: "Lojas", icon: Store },
-  { to: "/app/ai", label: "IA", icon: Wand2 },
-  { to: "/app/palette", label: "Cores", icon: Palette },
-  { to: "/app/profile", label: "Perfil", icon: User },
+  { to: "/app", label: "wardrobe", icon: Shirt },
+  { to: "/app/looks", label: "tryon", icon: UserSquare2 },
+  { to: "/app/feed", label: "inspire", icon: Compass },
+  { to: "/app/partners", label: "stores", icon: Store },
+  { to: "/app/ai", label: "ai", icon: Wand2 },
+  { to: "/app/palette", label: "colors", icon: Palette },
+  { to: "/app/profile", label: "profile", icon: User },
 ] as const;
 
 const officialItems = [
-  { to: "/app/admin", label: "Painel", icon: LayoutDashboard },
-  { to: "/app/feed", label: "Inspire-se", icon: Compass },
-  { to: "/app/profile", label: "Perfil", icon: User },
+  { to: "/app/admin", label: "panel", icon: LayoutDashboard },
+  { to: "/app/feed", label: "inspire", icon: Compass },
+  { to: "/app/profile", label: "profile", icon: User },
 ] as const;
 
 export function BottomNav() {
   const { location } = useRouterState();
+  const { t } = useLocale();
   const { session } = useSession();
   const official = isOfficialUser(session?.user.id, session?.user.email);
   const list: readonly { to: string; label: string; icon: typeof User }[] = official ? officialItems : items;
   return (
     <nav aria-label="Navegação principal" className="fixed bottom-0 inset-x-0 z-40 border-t border-border bg-background/70 backdrop-blur-2xl">
       <div className={"mx-auto grid max-w-md items-center gap-1 px-1 py-1.5 sm:gap-2 sm:px-3 lg:max-w-3xl " + (official ? "grid-cols-3" : "grid-cols-7")}>
-        {list.map(({ to, label, icon: Icon }) => {
+        {list.map(({ to, label: key, icon: Icon }) => {
+          const label = t(key as "wardrobe");
           const active = location.pathname === to || (to !== "/app" && location.pathname.startsWith(to));
           return (
             <Link
