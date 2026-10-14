@@ -55,7 +55,7 @@ function Overview() {
   const [data, setData] = useState<any>(), [s, setS] = useState<any>(), [error, setError] = useState("");
   const load = () => Promise.all([get().then(setData), stats().then(setS)]).catch((e) => setError(e.message));
   useEffect(() => { void load(); }, []);
-  async function decide(kind: "store" | "campaign" | "report", id: string, decision: string, postId?: string) {
+  async function decide(kind: "store" | "campaign" | "report" | "user_report", id: string, decision: string, postId?: string) {
     const reason = decision === "approve" ? "" : prompt("Registre o motivo da decisão") ?? "";
     try { await act({ data: { kind, id, decision, reason, postId } }); toast.success("Decisão registrada."); await load(); }
     catch (e: any) { toast.error(e.message); }
@@ -74,6 +74,7 @@ function Overview() {
       <AdminSection title="Lojas aguardando verificação">{data.stores.length ? data.stores.map((x: any) => <Item key={x.id} title={x.name} sub={x.status}><Actions yes={() => decide("store", x.id, "approve")} no={() => decide("store", x.id, "reject")} /></Item>) : null}</AdminSection>
       <AdminSection title="Campanhas em análise">{data.campaigns.length ? data.campaigns.map((c: any) => <Item key={c.id} title={c.name} sub={`${c.stores?.name ?? "Loja"} · ${c.status}`}><Actions yes={() => decide("campaign", c.id, "approve")} no={() => decide("campaign", c.id, "reject")} /></Item>) : null}</AdminSection>
       <AdminSection title="Denúncias">{data.reports.length ? data.reports.map((r: any) => <Item key={r.id} title={r.look_posts?.title ?? "Publicação"} sub={r.reason}><Button size="sm" variant="destructive" onClick={() => void decide("report", r.id, "suspend", r.post_id)}>Suspender e resolver</Button><Button size="sm" variant="outline" onClick={() => void decide("report", r.id, "dismiss", r.post_id)}>Arquivar</Button></Item>) : null}</AdminSection>
+      <AdminSection title="Usuários denunciados">{data.userReports.length ? data.userReports.map((r: any) => <Item key={r.id} title={r.reported_name} sub={`${r.reason}${r.details ? " · " + r.details : ""}`}><Link to="/app/u/$userId" params={{ userId: r.reported_user_id }} className="text-xs underline">Ver perfil</Link><Button size="sm" onClick={() => void decide("user_report", r.id, "resolve")}>Resolvido</Button><Button size="sm" variant="outline" onClick={() => void decide("user_report", r.id, "dismiss")}>Arquivar</Button></Item>) : null}</AdminSection>
     </>
   );
 }
