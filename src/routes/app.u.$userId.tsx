@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ArrowLeft, Heart, Loader2, Plus } from "lucide-react";
+import { ArrowLeft, Flag, Heart, Loader2, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { listUserPosts, getFollowInfo, setFollow, timeAgo, type FeedPost } from "@/lib/community";
@@ -54,6 +54,16 @@ function PublicProfilePage() {
   }, [userId]);
 
   const isMe = me === userId;
+  const [reporting, setReporting] = useState(false);
+  const [reason, setReason] = useState("");
+  const [details, setDetails] = useState("");
+  async function sendReport() {
+    if (!me || !reason) return toast.error("Escolha um motivo.");
+    const { error } = await supabase.from("user_reports").insert({ reporter_id: me, reported_user_id: userId, reason, details: details.trim().slice(0, 1000) });
+    if (error) return toast.error("Não consegui enviar a denúncia.");
+    toast.success("Denúncia enviada. Nossa equipe vai analisar.");
+    setReporting(false); setReason(""); setDetails("");
+  }
   async function toggleFollow() {
     setBusyFollow(true);
     const next = !follow.isFollowing;
@@ -100,6 +110,24 @@ function PublicProfilePage() {
             >
               {follow.isFollowing ? "Seguindo" : "Seguir"}
             </button>
+          )}
+          {!isMe && me && !reporting && (
+            <button onClick={() => setReporting(true)} className="press mt-3 flex items-center gap-1.5 text-[11px] text-muted-foreground"><Flag size={12} /> Denunciar usuário</button>
+          )}
+          {!isMe && me && reporting && (
+            <div className="mt-4 space-y-2 rounded-2xl border border-border p-3">
+              <p className="text-xs font-medium">Por que você quer denunciar este usuário?</p>
+              <div className="flex flex-wrap gap-1.5">
+                {["Perfil falso", "Assédio ou ofensa", "Conteúdo impróprio", "Spam ou golpe", "Outro"].map((r) => (
+                  <button key={r} onClick={() => setReason(r)} className={"rounded-full border px-3 py-1 text-[11px] " + (reason === r ? "border-foreground bg-foreground text-primary-foreground" : "border-border")}>{r}</button>
+                ))}
+              </div>
+              <textarea value={details} onChange={(e) => setDetails(e.target.value)} maxLength={1000} placeholder="Conte o que aconteceu (opcional)" className="h-20 w-full rounded-xl border border-border bg-background p-2 text-xs outline-none" />
+              <div className="flex gap-2">
+                <button onClick={() => void sendReport()} className="flex-1 rounded-full bg-destructive py-2 text-xs text-destructive-foreground">Enviar denúncia</button>
+                <button onClick={() => setReporting(false)} className="flex-1 rounded-full border border-border py-2 text-xs">Cancelar</button>
+              </div>
+            </div>
           )}
         </div>
       </div>

@@ -55,7 +55,7 @@ function Overview() {
   const [data, setData] = useState<any>(), [s, setS] = useState<any>(), [error, setError] = useState("");
   const load = () => Promise.all([get().then(setData), stats().then(setS)]).catch((e) => setError(e.message));
   useEffect(() => { void load(); }, []);
-  async function decide(kind: "store" | "campaign" | "report", id: string, decision: string, postId?: string) {
+  async function decide(kind: "store" | "campaign" | "report" | "user_report", id: string, decision: string, postId?: string) {
     const reason = decision === "approve" ? "" : prompt("Registre o motivo da decisão") ?? "";
     try { await act({ data: { kind, id, decision, reason, postId } }); toast.success("Decisão registrada."); await load(); }
     catch (e: any) { toast.error(e.message); }
