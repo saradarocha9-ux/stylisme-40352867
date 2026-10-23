@@ -1,4 +1,5 @@
-import { describe, expect, test } from "bun:test";
+import { describe, test } from "node:test";
+import assert from "node:assert/strict";
 import { validateVirtualTryOnInput } from "./virtual-tryon-input";
 
 describe("seleção de peças do provador", () => {
@@ -7,10 +8,10 @@ describe("seleção de peças do provador", () => {
       name: `Peça ${i}`, category: "Acessório", dataUrl: "data:image/jpeg;base64,YQ==",
     }));
     const result = validateVirtualTryOnInput({ bodyDataUrl: "data:image/jpeg;base64,Yg==", garments });
-    expect(result.garments).toHaveLength(12);
-    expect(result.garments).toEqual(garments);
+    assert.equal(result.garments.length, 12);
+    assert.deepEqual(result.garments, garments);
   });
   test("não envia uma seleção vazia", () => {
-    expect(() => validateVirtualTryOnInput({ bodyDataUrl: "data:image/jpeg;base64,Yg==", garments: [] })).toThrow();
+    assert.throws(() => validateVirtualTryOnInput({ bodyDataUrl: "data:image/jpeg;base64,Yg==", garments: [] }));
   });
 });
