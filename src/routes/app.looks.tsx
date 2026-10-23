@@ -2,8 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useMemo, useRef, useState, useEffect } from "react";
 import { createPortal } from "react-dom";
-import { Plus, User as UserIcon, X, RotateCcw, Sparkles, Users } from "lucide-react";
-import { useStore, actions, slotOf, type Garment } from "@/lib/store";
+import { Plus, User as UserIcon, X, RotateCcw, Sparkles, Users, Check } from "lucide-react";
+import { useStore, actions, type Garment } from "@/lib/store";
 import { generateVirtualTryOn } from "@/lib/virtual-tryon.functions";
 import { useSubscription } from "@/hooks/use-subscription";
 import { FREE_TRYON_DAILY, bumpTryOn, tryOnUsedToday } from "@/lib/plan-limits";
@@ -13,6 +13,7 @@ import { resizeDataUrl } from "@/lib/image-resize";
 import { PublishLookSheet } from "@/components/PublishLookSheet";
 
 import { ShareButton } from "@/components/ShareButton";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/app/looks")({
   head: () => ({
@@ -45,7 +46,7 @@ function TryOnPage() {
   const [tryOnError, setTryOnError] = useState<string | null>(null);
   const [publishing, setPublishing] = useState(false);
   const bodyRef = useRef<HTMLInputElement>(null);
-  const initialLookRendered = useRef(false);
+  const generationInFlight = useRef(false);
 
   const body = state.profile.bodyPhotoUrl;
   const items = useMemo(() => [...state.tryOn].sort((a, b) => a.z - b.z), [state.tryOn]);
@@ -74,7 +75,8 @@ function TryOnPage() {
 
   async function renderGarments(garments: Garment[], baseUrl?: string) {
     const base = baseUrl ?? body;
-    const valid = garments.filter((garment) => !!garment.imageUrl).slice(0, 5);
+    if (generationInFlight.current) return;
+    const valid = garments.filter((garment) => !!garment.imageUrl);
     if (!base || valid.length === 0) {
       setGeneratedUrl(null);
       return;
@@ -83,6 +85,7 @@ function TryOnPage() {
       setTryOnError(`Você usou as ${FREE_TRYON_DAILY} provas de hoje no plano Free. Volte amanhã ou assine o Premium para provar sem limite.`);
       return;
     }
+    generationInFlight.current = true;
     setTryOnBusy(true);
     setTryOnError(null);
     try {
@@ -101,69 +104,45 @@ function TryOnPage() {
 
       const result = await createTryOn({ data: { bodyDataUrl: baseImage, garments: payloadGarments } });
       setGeneratedUrl(result.imageUrl);
+      track("tryon");
       bumpTryOn();
       setUsedTryOn(tryOnUsedToday());
     } catch (error) {
       setTryOnError(error instanceof Error ? error.message : "Não foi possível vestir as peças.");
       throw error;
     } finally {
+      generationInFlight.current = false;
       setTryOnBusy(false);
     }
   }
 
 
-  async function addGarment(garment: Garment) {
-    initialLookRendered.current = true;
-    const current = items.flatMap((item) => {
-      const found = state.garments.find((candidate) => candidate.id === item.garmentId);
-      return found ? [found] : [];
-    });
-    const kept = current.filter((item) => slotOf(item.category) !== slotOf(garment.category));
-    // A peça entra na lista na hora: antes ela só aparecia se a geração desse
-    // certo, e o clique parecia não fazer nada.
-    for (const item of current) {
-      if (slotOf(item.category) === slotOf(garment.category)) actions.tryOnRemove(item.id);
-    }
-    actions.tryOnAdd(garment.id);
-    track("tryon");
-    setPicker(false);
-    // Sem foto do corpo não há o que gerar — a peça fica listada mesmo assim.
-    if (!body) return;
-    // Sempre parte da foto original. Reprocessar uma imagem já gerada encolhia
-    // a pessoa e ampliava peças a cada nova rodada.
-    await renderGarments([...kept, garment], body);
-  }
-
-
-  async function removeGarment(garmentId: string) {
-    const remaining = items
-      .filter((item) => item.garmentId !== garmentId)
-      .flatMap((item) => {
-        const found = state.garments.find((candidate) => candidate.id === item.garmentId);
-        return found?.imageUrl ? [found] : [];
-      });
-    actions.tryOnRemove(garmentId);
+  function toggleGarment(garment: Garment) {
+    if (tryOnBusy) return;
+    if (state.tryOn.some((item) => item.garmentId === garment.id)) actions.tryOnRemove(garment.id);
+    else actions.tryOnAdd(garment.id);
+    setGeneratedUrl(null);
     setTryOnError(null);
-    if (remaining.length === 0) {
-      setGeneratedUrl(null);
-      return;
-    }
-    // Sempre refaz a partir da foto original, para a peça removida sumir de verdade.
-    try { await renderGarments(remaining, body); } catch { /* erro já exibido */ }
   }
 
-  // Looks enviados pela Stylisme AI e pela paleta chegam com as peças já no
-  // estado do provador; gere o resultado assim que a tela abrir.
-  useEffect(() => {
-    if (initialLookRendered.current || !body || items.length === 0) return;
+  function removeGarment(garmentId: string) {
+    if (tryOnBusy) return;
+    actions.tryOnRemove(garmentId);
+    setGeneratedUrl(null);
+    setTryOnError(null);
+  }
+
+  async function dressSelectedGarments() {
     const garments = items.flatMap((item) => {
       const garment = state.garments.find((candidate) => candidate.id === item.garmentId);
-      return garment?.imageUrl ? [garment] : [];
+      return garment ? [garment] : [];
     });
-    if (garments.length === 0) return;
-    initialLookRendered.current = true;
-    void renderGarments(garments, body).catch(() => undefined);
-  }, [body, items, state.garments]);
+    if (garments.some((garment) => !garment.imageUrl)) {
+      setTryOnError("Adicione uma foto às peças selecionadas antes de vestir.");
+      return;
+    }
+    try { await renderGarments(garments, body); } catch { /* erro exibido na tela */ }
+  }
 
 
   return (
@@ -176,6 +155,7 @@ function TryOnPage() {
         <div className="flex gap-2">
           {state.tryOn.length > 0 && (
             <button
+              disabled={tryOnBusy}
               onClick={() => {
                 if (confirm("Limpar o provador?")) {
                   actions.tryOnClear();
@@ -189,10 +169,11 @@ function TryOnPage() {
             </button>
           )}
           <button
+            disabled={tryOnBusy || bodyBusy}
             onClick={() => setPicker(true)}
             className="flex items-center gap-1.5 rounded-full bg-foreground px-4 py-2 text-xs uppercase tracking-[0.2em] text-primary-foreground"
           >
-            <Plus size={14} /> Peça
+            <Plus size={14} /> Peças
           </button>
         </div>
       </div>
@@ -209,7 +190,8 @@ function TryOnPage() {
           />
         ) : (
           <button
-            onClick={() => bodyRef.current?.click()}
+            disabled={tryOnBusy || bodyBusy}
+          onClick={() => bodyRef.current?.click()}
             className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-muted-foreground"
           >
             <UserIcon size={40} strokeWidth={1.2} />
@@ -248,6 +230,7 @@ function TryOnPage() {
         </span>
         {body && (
           <button
+            disabled={tryOnBusy}
             onClick={() => { if (confirm("Apagar sua foto do provador?")) { actions.updateProfile({ bodyPhotoUrl: undefined }); setGeneratedUrl(null); } }}
             className="shrink-0 text-destructive underline"
           >Apagar foto</button>
@@ -255,6 +238,14 @@ function TryOnPage() {
       </div>
 
       {tryOnError && <p className="mt-3 text-center text-xs text-destructive">{tryOnError}</p>}
+
+      <Button
+        onClick={() => void dressSelectedGarments()}
+        disabled={!body || items.length === 0 || tryOnBusy || bodyBusy || tryOnLeft === 0}
+        className="mt-4 h-12 w-full rounded-full"
+      >
+        <Sparkles size={16} /> {tryOnBusy ? "Vestindo…" : "Vestir no corpo"}
+      </Button>
 
       {/* Peças no provador */}
       {state.tryOn.length > 0 && (
@@ -285,12 +276,12 @@ function TryOnPage() {
             );
           })}
           <p className="pt-1 text-center text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
-            Caimento gerado automaticamente no seu corpo
+            {state.tryOn.length} {state.tryOn.length === 1 ? "peça selecionada" : "peças selecionadas"}
           </p>
         </div>
       )}
 
-      {body && state.tryOn.length > 0 && (
+      {body && generatedUrl && state.tryOn.length > 0 && (
         <>
           <ShareButton
             kind="tryon"
@@ -320,6 +311,7 @@ function TryOnPage() {
 
       {body && (
         <button
+          disabled={tryOnBusy || bodyBusy}
           onClick={() => bodyRef.current?.click()}
           className="mt-4 w-full rounded-full border border-border py-2.5 text-[11px] uppercase tracking-[0.22em] text-muted-foreground"
         >
@@ -328,12 +320,12 @@ function TryOnPage() {
       )}
 
 
-      {picker && <GarmentPicker body={body} busy={tryOnBusy} onSelect={addGarment} onClose={() => setPicker(false)} onAddNew={() => { setPicker(false); setAddingGarment(true); }} />}
+      {picker && <GarmentPicker body={body} busy={tryOnBusy} onSelect={toggleGarment} onClose={() => setPicker(false)} onAddNew={() => { setPicker(false); setAddingGarment(true); }} />}
       {addingGarment && <AddGarmentSheet onClose={() => setAddingGarment(false)} />}
 
-      {publishing && body && (
+      {publishing && generatedUrl && (
         <PublishLookSheet
-          imageDataUrl={generatedUrl ?? body}
+          imageDataUrl={generatedUrl}
           authorName={state.profile.name}
           authorAvatar={state.profile.photoUrl ?? null}
           garments={items.flatMap((t) => {
@@ -349,80 +341,49 @@ function TryOnPage() {
   );
 }
 
-function GarmentPicker({ body, busy, onSelect, onClose, onAddNew }: { body?: string; busy: boolean; onSelect: (garment: Garment) => Promise<void>; onClose: () => void; onAddNew: () => void }) {
+function GarmentPicker({ body, busy, onSelect, onClose, onAddNew }: { body?: string; busy: boolean; onSelect: (garment: Garment) => void; onClose: () => void; onAddNew: () => void }) {
   const { state } = useStore();
   const [q, setQ] = useState("");
-  const [fittingId, setFittingId] = useState<string | null>(null);
-  const [fitError, setFitError] = useState<string | null>(null);
-  const alreadyIn = new Set(state.tryOn.map((t) => t.garmentId));
+  const selected = new Set(state.tryOn.map((t) => t.garmentId));
   const list = state.garments.filter(
-    (g) => !alreadyIn.has(g.id) && (!q || `${g.name} ${g.category} ${g.color}`.toLowerCase().includes(q.toLowerCase())),
+    (g) => !q || `${g.name} ${g.category} ${g.color}`.toLowerCase().includes(q.toLowerCase()),
   );
-
-  async function addWithDetectedFit(garment: Garment) {
-    setFittingId(garment.id);
-    setFitError(null);
-    try {
-      await onSelect(garment);
-    } catch (error) {
-      console.error(error);
-      setFitError(error instanceof Error ? error.message : "Não consegui detectar o corpo e a peça. Tente outra foto.");
-    } finally {
-      setFittingId(null);
-    }
-  }
-  useEffect(() => { document.body.style.overflow = "hidden"; return () => { document.body.style.overflow = ""; }; }, []);
+  useEffect(() => {
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = previous; };
+  }, []);
   if (typeof document === "undefined") return null;
-  // Portal: a tela do app usa transform/will-change, o que prende elementos
-  // "fixed" dentro dela e jogava a folha para fora da área visível.
   return createPortal(
-    <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm animate-fade-in-slow">
-      <div className="flex w-full max-w-md max-h-[85dvh] flex-col overflow-hidden rounded-t-3xl sm:rounded-3xl bg-card shadow-lift">
+    <div className="fixed inset-0 z-[100] flex items-end justify-center bg-foreground/50 backdrop-blur-sm sm:items-center">
+      <div role="dialog" aria-modal="true" aria-labelledby="garment-picker-title" className="flex max-h-[85dvh] w-full max-w-md flex-col overflow-hidden rounded-t-3xl bg-card shadow-lift sm:rounded-3xl">
         <div className="shrink-0 px-6 pt-6">
           <div className="flex items-center justify-between">
-            <h2 className="font-display text-2xl">Escolher peça</h2>
-            <button onClick={onClose} className="rounded-full p-2 hover:bg-muted"><X size={18} /></button>
+            <h2 id="garment-picker-title" className="font-display text-2xl">Escolher peças</h2>
+            <Button variant="ghost" size="icon" onClick={onClose} aria-label="Fechar seleção"><X size={18} /></Button>
           </div>
-          <input
-            value={q} onChange={(e) => setQ(e.target.value)}
-            placeholder="Buscar…"
-            className="mt-4 w-full rounded-full border border-border bg-background px-4 py-2.5 text-sm outline-none"
-          />
+          <input value={q} onChange={(e) => setQ(e.target.value)} aria-label="Buscar peças" placeholder="Buscar…" className="mt-4 w-full rounded-full border border-border bg-background px-4 py-2.5 text-sm outline-none" />
         </div>
-        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-6 pb-[calc(env(safe-area-inset-bottom)+1.5rem)]">
-        {state.garments.length === 0 && (
-          <div className="mt-6 text-center">
-            <p className="text-sm text-muted-foreground">Cadastre uma peça no armário para começar.</p>
-            <button onClick={onAddNew} className="mt-3 inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-2.5 text-xs text-primary-foreground"><Plus size={14} /> Cadastrar peça</button>
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-6 pb-4">
+          {state.garments.length === 0 && (
+            <div className="mt-6 text-center">
+              <p className="text-sm text-muted-foreground">Cadastre uma peça no armário para começar.</p>
+              <Button onClick={onAddNew} className="mt-3"><Plus size={14} /> Cadastrar peça</Button>
+            </div>
+          )}
+          {!body && state.garments.length > 0 && <p className="mt-3 text-xs text-muted-foreground">Foto do corpo ainda não enviada.</p>}
+          {state.garments.length > 0 && list.length === 0 && <p className="mt-4 text-sm text-muted-foreground">Nenhuma peça encontrada.</p>}
+          <div className="mt-4 grid grid-cols-3 gap-2">
+            {list.map((g) => (
+              <Button key={g.id} variant="ghost" onClick={() => onSelect(g)} disabled={busy} aria-label={g.name} aria-pressed={selected.has(g.id)} className={`group relative h-auto aspect-square overflow-hidden rounded-lg bg-muted p-2 ${selected.has(g.id) ? "ring-2 ring-primary ring-inset" : ""}`}>
+                {g.imageUrl ? <img src={g.imageUrl} className="h-full w-full object-contain" alt="" /> : <span className="font-display text-2xl text-muted-foreground">{g.name.slice(0, 1)}</span>}
+                {selected.has(g.id) && <span className="absolute right-1 top-1 rounded-full bg-primary p-1 text-primary-foreground"><Check size={14} /></span>}
+              </Button>
+            ))}
           </div>
-        )}
-        {!body && state.garments.length > 0 && (
-          <p className="mt-3 text-xs text-muted-foreground">
-            Envie uma foto sua de corpo inteiro para ver o caimento. As peças escolhidas já ficam salvas no provador.
-          </p>
-        )}
-        {fitError && <p className="mt-3 text-xs text-destructive">{fitError}</p>}
-        <div className="mt-4 grid grid-cols-3 gap-2">
-          {list.map((g) => (
-            <button
-              key={g.id}
-              onClick={() => void addWithDetectedFit(g)}
-              disabled={fittingId !== null || busy}
-              className="group relative aspect-square overflow-hidden rounded-2xl bg-muted p-2 disabled:opacity-60"
-            >
-              {g.imageUrl ? (
-                <img src={g.imageUrl} className="h-full w-full object-contain" alt={g.name} />
-              ) : (
-                <div className="flex h-full items-center justify-center font-display text-2xl text-muted-foreground">{g.name.slice(0,1)}</div>
-              )}
-              {fittingId === g.id && (
-                <span className="absolute inset-0 flex flex-col items-center justify-center gap-1 bg-background/80 text-[9px] uppercase tracking-[0.16em]">
-                   <Sparkles size={16} className="animate-pulse" /> Vestindo peça
-                </span>
-              )}
-            </button>
-          ))}
         </div>
+        <div className="shrink-0 border-t border-border px-6 pb-[calc(env(safe-area-inset-bottom)+1rem)] pt-4">
+          <Button onClick={onClose} className="h-11 w-full rounded-full">Concluir seleção ({selected.size})</Button>
         </div>
       </div>
     </div>,

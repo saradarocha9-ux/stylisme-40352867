@@ -31,3 +31,7 @@
 - [x] Premium 24,90 em BRL, USD e EUR; planos de loja também em USD/EUR
 - [ ] Seletor de idioma: pt, en, es, it, ko, zh, fr, ru (app inteiro, em etapas) — seletor + barra + Premium feitos; demais telas pendentes
 - [x] "Não tenho interesse" nos looks do Inspire-se para aprender o gosto
+
+## Provador
+- [x] Escolher várias peças sem geração automática e vestir juntas somente ao enviar; seis peças preservadas após recarregar e um único envio explícito verificados com sessão real; testes de seleção acima de cinco aprovados.
+- [ ] Confirmar a foto final da prova em lote — bloqueado por créditos de IA esgotados, conforme aviso retornado no teste real.

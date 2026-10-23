@@ -394,12 +394,8 @@ export const actions = {
           autoRotation: detectedFit.rotation ?? 0,
         }
       : fallback;
-    // Substitui peças que ocupam o mesmo lugar no corpo (ex.: duas calças).
-    const tryOn = s.tryOn.filter((t) => {
-      const other = s.garments.find((x) => x.id === t.garmentId);
-      return slotOf(other?.category) !== slotOf(g?.category);
-    });
-    write({ ...s, tryOn: [...tryOn, { garmentId, ...fit }] });
+    // A seleção é explícita: nenhuma peça escolhida substitui outra silenciosamente.
+    write({ ...s, tryOn: [...s.tryOn, { garmentId, ...fit }] });
   },
 
   tryOnUpdate(garmentId: string, patch: Partial<TryOnItem>) {
