@@ -969,6 +969,39 @@ export type Database = {
         }
         Returns: string
       }
+      feed_page: {
+        Args: {
+          _category?: string
+          _cursor_date?: string
+          _cursor_id?: string
+          _cursor_likes?: number
+          _limit?: number
+          _search?: string
+          _sort?: string
+        }
+        Returns: {
+          author_avatar: string | null
+          author_name: string
+          caption: string
+          category: string
+          created_at: string
+          garments: Json
+          id: string
+          image_path: string
+          is_editorial: boolean
+          likes_count: number
+          suspended_at: string | null
+          suspension_reason: string | null
+          title: string
+          user_id: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "look_posts"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       get_follow_counts: {
         Args: { _user_id: string }
         Returns: {
@@ -990,6 +1023,10 @@ export type Database = {
       refund_daily_usage: {
         Args: { _kind: string; _user_id: string }
         Returns: undefined
+      }
+      store_stats_summary: {
+        Args: { _days?: number; _store_id: string }
+        Returns: Json
       }
       submit_store_campaign: {
         Args: { _campaign_id: string }

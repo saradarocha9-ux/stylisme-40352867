@@ -162,6 +162,13 @@
       "when": 1792755710333,
       "tag": "0022_scale_search_and_campaign_indexes",
       "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1792755880772,
+      "tag": "0023_aggregate_store_stats_and_cursor_feed",
+      "breakpoints": true
     }
   ]
 }
