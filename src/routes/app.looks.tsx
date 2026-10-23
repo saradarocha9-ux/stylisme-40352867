@@ -42,7 +42,7 @@ function TryOnPage() {
   const [picker, setPicker] = useState(false);
   const [bodyBusy, setBodyBusy] = useState(false);
   const [tryOnBusy, setTryOnBusy] = useState(false);
-  const [generatedUrl, setGeneratedUrl] = useState<string | null>(null);
+  const generatedUrl = state.tryOnResult ?? null;
   const [tryOnError, setTryOnError] = useState<string | null>(null);
   const [publishing, setPublishing] = useState(false);
   const bodyRef = useRef<HTMLInputElement>(null);
@@ -63,7 +63,6 @@ function TryOnPage() {
         reader.readAsDataURL(f);
       });
       actions.tryOnClear();
-      setGeneratedUrl(null);
       actions.updateProfile({ bodyPhotoUrl: url });
     } catch (e) {
       console.error(e);
@@ -78,7 +77,6 @@ function TryOnPage() {
     if (generationInFlight.current) return;
     const valid = garments.filter((garment) => !!garment.imageUrl);
     if (!base || valid.length === 0) {
-      setGeneratedUrl(null);
       return;
     }
     if (!isPremium && tryOnUsedToday() >= FREE_TRYON_DAILY) {
@@ -86,6 +84,7 @@ function TryOnPage() {
       return;
     }
     generationInFlight.current = true;
+    const generationUserId = localStorage.getItem("stylisme:uid");
     setTryOnBusy(true);
     setTryOnError(null);
     try {
@@ -103,7 +102,7 @@ function TryOnPage() {
       );
 
       const result = await createTryOn({ data: { bodyDataUrl: baseImage, garments: payloadGarments } });
-      setGeneratedUrl(result.imageUrl);
+      actions.tryOnSaveResult(result.imageUrl, base, valid.map((garment) => garment.id), generationUserId);
       track("tryon");
       bumpTryOn();
       setUsedTryOn(tryOnUsedToday());
@@ -121,14 +120,12 @@ function TryOnPage() {
     if (tryOnBusy) return;
     if (state.tryOn.some((item) => item.garmentId === garment.id)) actions.tryOnRemove(garment.id);
     else actions.tryOnAdd(garment.id);
-    setGeneratedUrl(null);
     setTryOnError(null);
   }
 
   function removeGarment(garmentId: string) {
     if (tryOnBusy) return;
     actions.tryOnRemove(garmentId);
-    setGeneratedUrl(null);
     setTryOnError(null);
   }
 
@@ -159,7 +156,6 @@ function TryOnPage() {
               onClick={() => {
                 if (confirm("Limpar o provador?")) {
                   actions.tryOnClear();
-                  setGeneratedUrl(null);
                 }
               }}
               className="rounded-full border border-border p-2.5 text-muted-foreground"
@@ -231,7 +227,7 @@ function TryOnPage() {
         {body && (
           <button
             disabled={tryOnBusy}
-            onClick={() => { if (confirm("Apagar sua foto do provador?")) { actions.updateProfile({ bodyPhotoUrl: undefined }); setGeneratedUrl(null); } }}
+            onClick={() => { if (confirm("Apagar sua foto do provador?")) actions.updateProfile({ bodyPhotoUrl: undefined }); }}
             className="shrink-0 text-destructive underline"
           >Apagar foto</button>
         )}

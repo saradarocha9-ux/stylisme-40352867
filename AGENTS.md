@@ -13,4 +13,4 @@
 - Keep commerce entities separated as stores, products, and campaigns; legacy ad-network campaigns remain isolated because marketplace approvals and ownership require distinct records.
 - Store authorization roles only in `user_roles` and verify them server-side through `has_role`, because profile fields and browser state are not security boundaries.
 - Community search reads only public profile fields and unsuspended posts through the RLS-bound browser client; store search filters verified stores to preserve visibility boundaries.
-- Try-on keeps every selected garment and generates only on explicit submission; shared input validation prevents the client and server from truncating the batch.
+- Try-on keeps every selected garment and generates only on explicit submission; persist its result in the per-user wardrobe store and invalidate on selection/body changes, with snapshot checks preventing stale responses across accounts; shared input validation prevents batch truncation.

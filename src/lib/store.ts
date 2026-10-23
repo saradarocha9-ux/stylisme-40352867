@@ -93,6 +93,7 @@ interface AppState {
   plans: Plan[];
   profile: Profile;
   tryOn: TryOnItem[];
+  tryOnResult?: string;
   gamify: Gamify;
 }
 
@@ -191,6 +192,7 @@ function parseStored(): AppState {
       plans: parsed.plans ?? [],
       profile: { ...defaultProfile, ...(parsed.profile ?? {}) },
       tryOn: parsed.tryOn ?? [],
+      tryOnResult: parsed.tryOnResult,
       gamify: { ...defaultGamify, ...(parsed.gamify ?? {}) },
     };
   } catch {
@@ -372,7 +374,13 @@ export const actions = {
   },
   updateProfile(patch: Partial<Profile>) {
     const s = read();
-    write({ ...s, profile: { ...s.profile, ...patch } });
+    write({ ...s, profile: { ...s.profile, ...patch }, tryOnResult: "bodyPhotoUrl" in patch ? undefined : s.tryOnResult });
+  },
+  tryOnSaveResult(imageUrl: string, bodyPhotoUrl: string, garmentIds: string[], userId: string | null) {
+    const s = read();
+    if (currentUid !== userId || s.profile.bodyPhotoUrl !== bodyPhotoUrl ||
+      s.tryOn.length !== garmentIds.length || s.tryOn.some((item) => !garmentIds.includes(item.garmentId))) return;
+    write({ ...s, tryOnResult: imageUrl });
   },
   tryOnAdd(garmentId: string, detectedFit?: { x: number; y: number; width: number; height: number; rotation?: number }) {
     const s = read();
@@ -395,7 +403,7 @@ export const actions = {
         }
       : fallback;
     // A seleção é explícita: nenhuma peça escolhida substitui outra silenciosamente.
-    write({ ...s, tryOn: [...s.tryOn, { garmentId, ...fit }] });
+    write({ ...s, tryOn: [...s.tryOn, { garmentId, ...fit }], tryOnResult: undefined });
   },
 
   tryOnUpdate(garmentId: string, patch: Partial<TryOnItem>) {
@@ -430,11 +438,11 @@ export const actions = {
 
   tryOnRemove(garmentId: string) {
     const s = read();
-    write({ ...s, tryOn: s.tryOn.filter((t) => t.garmentId !== garmentId) });
+    write({ ...s, tryOn: s.tryOn.filter((t) => t.garmentId !== garmentId), tryOnResult: undefined });
   },
   tryOnClear() {
     const s = read();
-    write({ ...s, tryOn: [] });
+    write({ ...s, tryOn: [], tryOnResult: undefined });
   },
   tryOnBringToFront(garmentId: string) {
     const s = read();

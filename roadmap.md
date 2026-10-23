@@ -33,6 +33,7 @@
 - [x] "Não tenho interesse" nos looks do Inspire-se para aprender o gosto
 
 ## Provador
+- [x] Manter a foto vestida ao trocar de aba e voltar; persistência de imagem de teste e remoção explícita verificadas com sessão real, sem gerar outra prova; três testes aprovados.
 - [x] Esclarecer a diferença entre provas do usuário e indisponibilidade do serviço; referência a créditos retirada do aviso do provador, sem alterar quotas.
 - [x] Retirar os links e formulário da lista de espera; acesso direto e redirecionamento dos links antigos conferidos no navegador.
 - [x] Escolher várias peças sem geração automática e vestir juntas somente ao enviar; seis peças preservadas após recarregar e um único envio explícito verificados com sessão real; testes de seleção acima de cinco aprovados.
