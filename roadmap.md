@@ -1,5 +1,9 @@
 # Roadmap
 
+## Capacidade
+- [ ] Auditar gargalos de consultas, imagens e IA e corrigir os riscos confirmados de menor escopo.
+- [ ] Certificar capacidade em grande escala — depende de teste de carga em ambiente isolado, meta de usuários simultâneos e orçamento de infraestrutura/IA.
+
 - [x] Corrigir a experiência de “Seu próximo look” e aplicar limites de IA no servidor.
 - [x] Implementar “Inspire-se” com salvar, exportar, denúncia e moderação.
 - [x] Implementar segmentação básica por cidade, vigência e intervalo de uma hora entre anúncios inseridos.
