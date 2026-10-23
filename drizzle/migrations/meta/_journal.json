@@ -155,6 +155,13 @@
       "when": 1792014759614,
       "tag": "0021_user_reports",
       "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "7",
+      "when": 1792755710333,
+      "tag": "0022_scale_search_and_campaign_indexes",
+      "breakpoints": true
     }
   ]
 }
