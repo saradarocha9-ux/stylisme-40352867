@@ -42,6 +42,7 @@ export const recommendFromPalette = createServerFn({ method: "POST" })
     return { analysis: data.analysis, garments: data.garments.slice(0, 60) };
   })
   .handler(async ({ data }): Promise<PaletteRecommendation> => {
+    const { boundedFetch } = await import("./bounded-fetch.server");
     const key = process.env.LOVABLE_API_KEY;
     if (!key) throw new Error("IA indisponível no momento.");
 
@@ -68,7 +69,7 @@ Responda APENAS com JSON válido, sem markdown:
  "shoppingColors":[{"name":"cor","hex":"#RRGGBB","reason":"motivo curto"}]
 }`;
 
-    const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const res = await boundedFetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
       body: JSON.stringify({

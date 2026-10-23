@@ -1,3 +1,4 @@
+import { validateImageDataUrl } from "./image-input";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { createServerFn } from "@tanstack/react-start";
 
@@ -13,12 +14,12 @@ export interface DetectedTryOnFit {
 export const detectTryOnFit = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data: { bodyDataUrl: string; garmentDataUrl: string; category: string }) => {
-    if (!data?.bodyDataUrl?.startsWith("data:image/") || !data.garmentDataUrl?.startsWith("data:image/")) {
-      throw new Error("Imagens inválidas para o encaixe.");
-    }
+    validateImageDataUrl(data?.bodyDataUrl);
+    validateImageDataUrl(data?.garmentDataUrl);
     return data;
   })
   .handler(async ({ data, context }): Promise<DetectedTryOnFit> => {
+    const { boundedFetch } = await import("./bounded-fetch.server");
     const key = process.env.LOVABLE_API_KEY;
     if (!key) throw new Error("Encaixe inteligente indisponível.");
     const { runWithDailyQuota } = await import("./quota.server");
@@ -37,7 +38,7 @@ O resultado deve descrever a caixa VISUAL FINAL da peça sobre a pessoa:
 Não use posições médias, presets ou slots. Meça esta pessoa e esta peça específicas. Faça uma checagem final: top, bottom, left e right da caixa devem coincidir com a anatomia correspondente. Retorne SOMENTE um objeto JSON, sem markdown: {"x":0.5,"y":0.4,"width":0.35,"height":0.3,"rotation":0,"confidence":0.9}.
 x e y são o CENTRO visual da peça. width e height são frações da largura e altura totais da IMAGEM 1 e representam a caixa final preservando a proporção da IMAGEM 2. rotation vai de -15 a 15 graus.`;
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const response = await boundedFetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

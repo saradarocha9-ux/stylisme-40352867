@@ -34,6 +34,7 @@ export const generateSmartLooks = createServerFn({ method: "POST" })
     return { ...data, garments: data.garments.slice(0, 80) };
   })
   .handler(async ({ data, context }): Promise<SmartLook[]> => {
+    const { boundedFetch } = await import("./bounded-fetch.server");
     const key = process.env.LOVABLE_API_KEY;
     if (!key) throw new Error("IA indisponível no momento.");
 
@@ -63,7 +64,7 @@ REGRAS DE COERÊNCIA (obrigatórias — um look que quebre qualquer uma é invá
 Responda APENAS com JSON válido, sem markdown:
 {"looks":[{"title":"nome curto do look","why":"por que essas peças combinam (1-2 frases em português)","garmentIds":["id","id"]}]}`;
 
-    const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const res = await boundedFetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
       body: JSON.stringify({
