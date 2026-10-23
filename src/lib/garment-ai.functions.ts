@@ -1,3 +1,4 @@
+import { validateImageDataUrl } from "./image-input";
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
@@ -18,16 +19,17 @@ const PROMPT = `Você é um estilista. Analise a peça de roupa na imagem e resp
 export const analyzeGarment = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data: { dataUrl: string }) => {
-    if (!data?.dataUrl?.startsWith("data:image/")) throw new Error("Imagem inválida.");
+    validateImageDataUrl(data?.dataUrl);
     return data;
   })
   .handler(async ({ data, context }): Promise<GarmentAnalysis> => {
+    const { boundedFetch } = await import("./bounded-fetch.server");
     const key = process.env.LOVABLE_API_KEY;
     if (!key) throw new Error("IA indisponível no momento.");
     const { runWithDailyQuota } = await import("./quota.server");
     return runWithDailyQuota({ supabase: context.supabase, userId: context.userId, kind: "wardrobe", action: async () => {
 
-    const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const res = await boundedFetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
       body: JSON.stringify({

@@ -1,3 +1,4 @@
+import { validateAiTextInput } from "./ai-input";
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import type { ColorAnalysis } from "./color-ai.functions";
@@ -36,14 +37,18 @@ export interface GarmentBrief {
 export const recommendFromPalette = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data: { analysis: ColorAnalysis; garments: GarmentBrief[] }) => {
+    validateAiTextInput(data);
     if (!data?.analysis?.season) throw new Error("Faça a análise de cores primeiro.");
     if (!Array.isArray(data.garments) || data.garments.length === 0)
       throw new Error("Cadastre peças no armário para receber recomendações.");
     return { analysis: data.analysis, garments: data.garments.slice(0, 60) };
   })
-  .handler(async ({ data }): Promise<PaletteRecommendation> => {
+  .handler(async ({ data, context }): Promise<PaletteRecommendation> => {
+    const { boundedFetch } = await import("./bounded-fetch.server");
     const key = process.env.LOVABLE_API_KEY;
     if (!key) throw new Error("IA indisponível no momento.");
+    const { runWithDailyQuota } = await import("./quota.server");
+    return runWithDailyQuota({ supabase: context.supabase, userId: context.userId, kind: "ai", action: async () => {
 
     const { analysis, garments } = data;
     const prompt = `Você é uma consultora de imagem e coloração pessoal.
@@ -68,7 +73,7 @@ Responda APENAS com JSON válido, sem markdown:
  "shoppingColors":[{"name":"cor","hex":"#RRGGBB","reason":"motivo curto"}]
 }`;
 
-    const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const res = await boundedFetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -95,8 +100,7 @@ Responda APENAS com JSON válido, sem markdown:
     const colors = (v: unknown) =>
       Array.isArray(v)
         ? (v as { name?: string; hex?: string }[])
-            .filter((c) => typeof c?.hex === "string" && /^#[0-9a-fA-F]{6}$/.test(c.hex!))
-            .map((c) => ({ name: String(c.name ?? ""), hex: c.hex! }))
+            .flatMap((c) => typeof c?.hex === "string" && /^#[0-9a-fA-F]{6}$/.test(c.hex) ? [{ name: String(c.name ?? ""), hex: c.hex }] : [])
         : [];
 
     const looks: PaletteLook[] = (Array.isArray(p.looks) ? p.looks : [])
@@ -113,7 +117,7 @@ Responda APENAS com JSON válido, sem markdown:
       .map((w) => ({
         garmentId: String(w?.garmentId ?? ""),
         verdict: (["ideal", "neutra", "evitar"] as const).includes(w?.verdict as never)
-          ? (w!.verdict as WardrobeVerdict["verdict"])
+          ? (w?.verdict as WardrobeVerdict["verdict"])
           : "neutra",
         reason: String(w?.reason ?? ""),
       }))
@@ -128,4 +132,5 @@ Responda APENAS com JSON válido, sem markdown:
         .map((c) => ({ name: String(c.name ?? ""), hex: c.hex, reason: String(c.reason ?? "") }))
         .slice(0, 4),
     };
+    }});
   });

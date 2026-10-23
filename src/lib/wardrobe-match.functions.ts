@@ -1,3 +1,4 @@
+import { validateAiTextInput } from "./ai-input";
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
@@ -23,6 +24,7 @@ export interface MatchInput {
 export const matchWardrobe = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data: MatchInput) => {
+    validateAiTextInput(data);
     if (!Array.isArray(data?.lookGarments) || data.lookGarments.length === 0)
       throw new Error("Esse look não tem peças descritas.");
     if (!Array.isArray(data?.wardrobe) || data.wardrobe.length === 0)
@@ -30,6 +32,7 @@ export const matchWardrobe = createServerFn({ method: "POST" })
     return { ...data, wardrobe: data.wardrobe.slice(0, 80), lookGarments: data.lookGarments.slice(0, 10) };
   })
   .handler(async ({ data, context }): Promise<WardrobeMatch> => {
+    const { boundedFetch } = await import("./bounded-fetch.server");
     const key = process.env.LOVABLE_API_KEY;
     if (!key) throw new Error("IA indisponível no momento.");
     const { runWithDailyQuota } = await import("./quota.server");
@@ -53,7 +56,7 @@ REGRAS:
 Responda APENAS com JSON válido, sem markdown:
 {"headline":"frase curta dizendo o quanto dá para recriar o look","matches":[{"lookPiece":"nome da peça do look","garmentId":"id ou null","similarity":0,"reason":"por que é parecida (1 frase)"}],"missing":[{"piece":"peça que falta","tip":"dica curta"}]}`;
 
-    const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const res = await boundedFetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
       body: JSON.stringify({

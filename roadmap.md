@@ -2,7 +2,10 @@
 
 ## Capacidade
 - [x] Auditar gargalos de consultas, imagens e IA; índices de busca e comércio aplicados e confirmados; limitações documentadas em CAPACIDADE.md.
-- [ ] Substituir estatísticas brutas por agregados, paginar feed/seguidores e tirar fotos base64 do armazenamento local — preparação estrutural ainda não executada.
+- [x] Substituir estatísticas brutas por agregados, paginar feed e consultar Seguindo no banco; fotos fora do JSON local em blobs privados IndexedDB. Consulta, paginação e gravação/recuperação verificadas com sessão real.
+- [x] Limitar tamanho/tempo das chamadas de IA e impedir envio concorrente por conta sem alterar provas diárias; testes e trava real conferidos.
+- [x] Tornar registro de eventos Stripe e atualização de acesso atômicos, com reconciliação e proteção contra repetição/atrasos. Endpoint sem assinatura rejeitado; pagamento real permanece pendente abaixo.
+- [ ] Validar filas globais de IA, resumos incrementais de eventos e carregamento de fotos sob demanda — depende das metas e do orçamento definidos no teste isolado de capacidade.
 - [ ] Certificar capacidade em grande escala — depende de teste de carga em ambiente isolado, meta de usuários simultâneos e orçamento de infraestrutura/IA.
 
 - [x] Corrigir a experiência de “Seu próximo look” e aplicar limites de IA no servidor.
@@ -42,4 +45,4 @@
 - [x] Esclarecer a diferença entre provas do usuário e indisponibilidade do serviço; referência a créditos retirada do aviso do provador, sem alterar quotas.
 - [x] Retirar os links e formulário da lista de espera; acesso direto e redirecionamento dos links antigos conferidos no navegador.
 - [x] Escolher várias peças sem geração automática e vestir juntas somente ao enviar; seis peças preservadas após recarregar e um único envio explícito verificados com sessão real; testes de seleção acima de cinco aprovados.
-- [ ] Confirmar a foto final da prova em lote — bloqueado por créditos de IA esgotados, conforme aviso retornado no teste real.
+- [ ] Confirmar a foto final da prova em lote — bloqueado pela indisponibilidade do serviço no teste anterior; não é esgotamento das provas do usuário.

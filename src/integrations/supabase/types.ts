@@ -109,6 +109,24 @@ export type Database = {
           },
         ]
       }
+      ai_request_leases: {
+        Row: {
+          expires_at: string
+          token: string
+          user_id: string
+        }
+        Insert: {
+          expires_at: string
+          token: string
+          user_id: string
+        }
+        Update: {
+          expires_at?: string
+          token?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       audit_log: {
         Row: {
           action: string
@@ -824,6 +842,24 @@ export type Database = {
         }
         Relationships: []
       }
+      subscription_entity_versions: {
+        Row: {
+          entity_key: string
+          event_created: number
+          event_id: string
+        }
+        Insert: {
+          entity_key: string
+          event_created: number
+          event_id: string
+        }
+        Update: {
+          entity_key?: string
+          event_created?: number
+          event_id?: string
+        }
+        Relationships: []
+      }
       subscription_events: {
         Row: {
           event_type: string
@@ -937,6 +973,22 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      acquire_ai_request: { Args: never; Returns: string }
+      apply_subscription_event: {
+        Args: {
+          _event_created: number
+          _event_id: string
+          _event_type: string
+          _payload_hash: string
+          _premium: boolean
+          _store_id: string
+          _subscription_id: string
+          _tier: string
+          _until: string
+          _user_id: string
+        }
+        Returns: boolean
+      }
       campaign_fits_partner_plan: {
         Args: { _store_id: string; _targeting: Json }
         Returns: boolean
@@ -969,6 +1021,39 @@ export type Database = {
         }
         Returns: string
       }
+      feed_page: {
+        Args: {
+          _category?: string
+          _cursor_date?: string
+          _cursor_id?: string
+          _cursor_likes?: number
+          _limit?: number
+          _search?: string
+          _sort?: string
+        }
+        Returns: {
+          author_avatar: string | null
+          author_name: string
+          caption: string
+          category: string
+          created_at: string
+          garments: Json
+          id: string
+          image_path: string
+          is_editorial: boolean
+          likes_count: number
+          suspended_at: string | null
+          suspension_reason: string | null
+          title: string
+          user_id: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "look_posts"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       get_follow_counts: {
         Args: { _user_id: string }
         Returns: {
@@ -990,6 +1075,11 @@ export type Database = {
       refund_daily_usage: {
         Args: { _kind: string; _user_id: string }
         Returns: undefined
+      }
+      release_ai_request: { Args: { _token: string }; Returns: undefined }
+      store_stats_summary: {
+        Args: { _days?: number; _store_id: string }
+        Returns: Json
       }
       submit_store_campaign: {
         Args: { _campaign_id: string }

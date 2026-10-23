@@ -1,6 +1,8 @@
 // Lightweight client-side persistence for the first iteration.
 // Backend (Firebase/Stripe/AI) plugs in later behind these same helpers.
 import { useCallback, useSyncExternalStore } from "react";
+import { toast } from "sonner";
+import { packImages, resolveImages, replaceImageRefs, deleteLocalImages } from "./local-images";
 
 export type Category =
   | "Camiseta" | "Camisa" | "Blusa" | "Vestido" | "Saia"
@@ -153,9 +155,7 @@ export function setStoreUser(uid: string | null) {
     persistTimer = null;
   }
   if (cache) {
-    try {
-      localStorage.setItem(storeKey(prev), JSON.stringify(cache));
-    } catch { /* quota */ }
+    queuePersist(storeKey(prev), cache);
   }
 
   currentUid = uid;
@@ -176,12 +176,15 @@ export function setStoreUser(uid: string | null) {
   }
 
   cache = null;
+  hydrationVersion++;
   emit();
 }
 
 function parseStored(): AppState {
 
   if (typeof window === "undefined") return initial;
+  const pending = pendingSnapshots.get(storeKey());
+  if (pending) return pending;
   try {
     const raw = localStorage.getItem(storeKey());
     if (!raw) return initial;
@@ -202,21 +205,46 @@ function parseStored(): AppState {
 
 function read(): AppState {
   if (typeof window === "undefined") return initial;
-  if (!cache) cache = parseStored();
+  if (!cache) {
+    cache = parseStored();
+    const snapshot = cache;
+    const owner = storeKey();
+    const version = ++hydrationVersion;
+    if (typeof indexedDB !== "undefined") void resolveImages(owner, snapshot).then(({ replacements }) => {
+      if (version !== hydrationVersion || owner !== storeKey() || !cache) return;
+      cache = replaceImageRefs(cache, replacements);
+      emit();
+      if (JSON.stringify(snapshot).includes("data:image/")) queuePersist(owner, cache);
+    }).catch(showPersistenceError);
+  }
   return cache;
 }
 
 let persistTimer: ReturnType<typeof setTimeout> | null = null;
+let hydrationVersion = 0;
+let persistence = Promise.resolve();
+const pendingSnapshots = new Map<string, AppState>();
+function showPersistenceError() {
+  toast.error("Não foi possível salvar ou recuperar suas fotos neste aparelho. Não feche o app e libere espaço antes de tentar novamente.", { id: "wardrobe-persistence-error" });
+}
+function queuePersist(owner: string, snapshot: AppState) {
+  pendingSnapshots.set(owner, snapshot);
+  if (typeof indexedDB === "undefined") {
+    try { localStorage.setItem(owner, JSON.stringify(snapshot)); } catch { showPersistenceError(); }
+    return;
+  }
+  persistence = persistence.catch(() => {}).then(async () => {
+    const packed = await packImages(owner, snapshot);
+    localStorage.setItem(owner, JSON.stringify(packed));
+    if (pendingSnapshots.get(owner) === snapshot) pendingSnapshots.delete(owner);
+  }).catch(showPersistenceError);
+}
 function schedulePersist() {
   if (typeof window === "undefined") return;
   if (persistTimer) clearTimeout(persistTimer);
   persistTimer = setTimeout(() => {
     persistTimer = null;
-    try {
-      localStorage.setItem(storeKey(), JSON.stringify(cache));
-    } catch {
-      /* quota */
-    }
+    if (cache) queuePersist(storeKey(), cache);
   }, 180);
 }
 
@@ -242,6 +270,13 @@ if (typeof window !== "undefined") {
   window.addEventListener("storage", (e) => {
     if (e.key && e.key !== storeKey()) return;
     cache = parseStored();
+    const owner = storeKey();
+    const version = ++hydrationVersion;
+    void resolveImages(owner, cache).then(({ replacements }) => {
+      if (version !== hydrationVersion || owner !== storeKey() || !cache) return;
+      cache = replaceImageRefs(cache, replacements);
+      emit();
+    }).catch(showPersistenceError);
     emit();
   });
   // Garante que nada se perca ao fechar/ocultar a aba.
@@ -249,11 +284,7 @@ if (typeof window !== "undefined") {
     if (persistTimer && cache) {
       clearTimeout(persistTimer);
       persistTimer = null;
-      try {
-        localStorage.setItem(storeKey(), JSON.stringify(cache));
-      } catch {
-        /* quota */
-      }
+      queuePersist(storeKey(), cache);
     }
   });
 }
@@ -337,6 +368,8 @@ export const actions = {
     write({
       ...s,
       garments: s.garments.filter((g) => g.id !== id),
+      tryOn: s.tryOn.filter((item) => item.garmentId !== id),
+      tryOnResult: s.tryOn.some((item) => item.garmentId === id) ? undefined : s.tryOnResult,
       looks: s.looks.map((l) => ({ ...l, garmentIds: l.garmentIds.filter((g) => g !== id) })),
     });
   },
@@ -476,7 +509,15 @@ export const actions = {
   },
   wipe() {
     if (typeof window === "undefined") return;
-    localStorage.removeItem(storeKey());
+    const owner = storeKey();
+    pendingSnapshots.delete(owner);
+    if (persistTimer) clearTimeout(persistTimer);
+    persistTimer = null;
+    hydrationVersion++;
+    cache = initial;
+    persistence = persistence.then(async () => { localStorage.removeItem(owner); await deleteLocalImages(owner); }).catch(showPersistenceError);
+    localStorage.removeItem(owner);
+    emit();
     window.dispatchEvent(new CustomEvent("stylisme:update"));
   },
 };

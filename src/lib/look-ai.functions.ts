@@ -1,3 +1,4 @@
+import { validateAiTextInput } from "./ai-input";
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
@@ -29,11 +30,13 @@ export interface SmartLookInput {
 export const generateSmartLooks = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data: SmartLookInput) => {
+    validateAiTextInput(data);
     if (!Array.isArray(data?.garments) || data.garments.length < 2)
       throw new Error("Cadastre pelo menos 2 peças no armário.");
     return { ...data, garments: data.garments.slice(0, 80) };
   })
   .handler(async ({ data, context }): Promise<SmartLook[]> => {
+    const { boundedFetch } = await import("./bounded-fetch.server");
     const key = process.env.LOVABLE_API_KEY;
     if (!key) throw new Error("IA indisponível no momento.");
 
@@ -63,7 +66,7 @@ REGRAS DE COERÊNCIA (obrigatórias — um look que quebre qualquer uma é invá
 Responda APENAS com JSON válido, sem markdown:
 {"looks":[{"title":"nome curto do look","why":"por que essas peças combinam (1-2 frases em português)","garmentIds":["id","id"]}]}`;
 
-    const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const res = await boundedFetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -99,7 +102,7 @@ Responda APENAS com JSON válido, sem markdown:
       const usedSlots = new Set<string>();
       for (const id of ids) {
         if (unique.includes(id)) continue;
-        const cat = byId.get(id)!.category;
+        const cat = byId.get(id)?.category ?? "";
         const slot =
           ["Camiseta", "Camisa", "Blusa"].includes(cat) ? "top"
           : ["Calça", "Saia", "Shorts"].includes(cat) ? "bottom"
@@ -114,7 +117,7 @@ Responda APENAS com JSON válido, sem markdown:
       if (usedSlots.has("dress")) {
         // vestido não convive com top/bottom
         const filtered = unique.filter((id) => {
-          const cat = byId.get(id)!.category;
+          const cat = byId.get(id)?.category ?? "";
           return !["Camiseta", "Camisa", "Blusa", "Calça", "Saia", "Shorts"].includes(cat);
         });
         unique.length = 0;

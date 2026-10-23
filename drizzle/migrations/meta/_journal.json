@@ -162,6 +162,20 @@
       "when": 1792755710333,
       "tag": "0022_scale_search_and_campaign_indexes",
       "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1792755880772,
+      "tag": "0023_aggregate_store_stats_and_cursor_feed",
+      "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1792756053939,
+      "tag": "0024_bounded_ai_and_atomic_subscription_events",
+      "breakpoints": true
     }
   ]
 }

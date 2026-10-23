@@ -7,6 +7,7 @@ export const generateVirtualTryOn = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator(validateVirtualTryOnInput)
   .handler(async ({ data, context }) => {
+    const { boundedFetch } = await import("./bounded-fetch.server");
     const key = process.env.LOVABLE_API_KEY;
     if (!key) throw new Error("Provador inteligente indisponível.");
     const { runWithDailyQuota } = await import("./quota.server");
@@ -97,7 +98,7 @@ Regras obrigatórias:
 
     const callGateway = async () => {
       // Modelo flash: mesma qualidade de encaixe com resposta em poucos segundos.
-      const response = await fetch("https://ai.gateway.lovable.dev/v1/images/generations", {
+      const response = await boundedFetch("https://ai.gateway.lovable.dev/v1/images/generations", {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
         body: JSON.stringify({

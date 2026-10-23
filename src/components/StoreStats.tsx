@@ -1,49 +1,44 @@
 import { useEffect, useState } from "react";
-import { listCampaignEventsDetailed, listStoreEvents, type Campaign, type Product, type Store } from "@/lib/commerce";
-
-type SE = { kind: string; product_id: string | null; session_key: string; user_id: string | null; created_at: string };
-type CE = { campaign_id: string; kind: string; session_key: string; placement: string; created_at: string };
+import { getStoreSummary, type StoreSummary, type Campaign, type Product, type Store } from "@/lib/commerce";
 
 export function StoreStats({ store, products, campaigns }: { store: Store; products: Product[]; campaigns: Campaign[] }) {
   const [days, setDays] = useState(7);
-  const [se, setSe] = useState<SE[] | null>(null);
-  const [ce, setCe] = useState<CE[]>([]);
+  const [summary, setSummary] = useState<StoreSummary | null>(null);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    setSe(null);
-    void Promise.all([listStoreEvents(store.id, days), listCampaignEventsDetailed(campaigns.map((c) => c.id), days)])
-      .then(([a, b]) => { setSe(a as SE[]); setCe(b as CE[]); })
-      .catch((e) => setError(e.message));
-  }, [store.id, days, campaigns]);
+    let alive = true;
+    setSummary(null);
+    setError("");
+    if (store.status === "verified") void getStoreSummary(store.id, days)
+      .then((data) => { if (alive) setSummary(data); })
+      .catch((e) => { if (alive) setError(e.message); });
+    return () => { alive = false; };
+  }, [store.id, store.status, days]);
 
   if (store.status !== "verified") {
     return <p className="mt-6 rounded-2xl bg-card p-4 text-sm text-muted-foreground shadow-soft">As estatísticas começam quando a loja for aprovada e a página pública entrar no ar. Até lá, ninguém consegue visitá-la.</p>;
   }
   if (error) return <p className="mt-6 text-sm text-destructive">{error}</p>;
-  if (!se) return <p className="mt-6 text-sm text-muted-foreground">Carregando estatísticas…</p>;
+  if (!summary) return <p className="mt-6 text-sm text-muted-foreground">Carregando estatísticas…</p>;
 
-  const count = (k: string) => se.filter((e) => e.kind === k).length;
-  const visitors = new Set(se.filter((e) => e.kind === "store_view").map((e) => e.session_key)).size;
-  const signedIn = new Set(se.filter((e) => e.user_id).map((e) => e.user_id)).size;
-  const impressions = ce.filter((e) => e.kind === "impression").length;
-  const adClicks = ce.filter((e) => e.kind === "click").length;
+  const count = (k: string) => summary.counts[k] ?? 0;
+  const { visitors, signedIn, impressions, adClicks } = summary;
   const ctr = impressions ? ((adClicks / impressions) * 100).toFixed(1) + "%" : "—";
 
   const dayKeys = Array.from({ length: days }, (_, i) => new Date(Date.now() - (days - 1 - i) * 864e5).toISOString().slice(0, 10));
-  const perDay = dayKeys.map((d) => ({ d, v: se.filter((e) => e.kind === "store_view" && e.created_at.startsWith(d)).length + se.filter((e) => e.kind === "product_view" && e.created_at.startsWith(d)).length }));
+  const perDay = dayKeys.map((d) => ({ d, v: summary.daily.find((day) => day.d === d)?.v ?? 0 }));
   const max = Math.max(1, ...perDay.map((x) => x.v));
 
   const productRows = products.map((p) => ({
     name: p.name,
-    views: se.filter((e) => e.kind === "product_view" && e.product_id === p.id).length,
-    clicks: se.filter((e) => e.kind === "product_click" && e.product_id === p.id).length,
+    views: summary.products.find((row) => row.id === p.id)?.views ?? 0,
+    clicks: summary.products.find((row) => row.id === p.id)?.clicks ?? 0,
   })).filter((r) => r.views || r.clicks).sort((a, b) => b.views - a.views);
 
   const campaignRows = campaigns.map((c) => {
-    const imp = ce.filter((e) => e.campaign_id === c.id && e.kind === "impression").length;
-    const clk = ce.filter((e) => e.campaign_id === c.id && e.kind === "click").length;
-    return { name: c.name, status: c.status, imp, clk, people: new Set(ce.filter((e) => e.campaign_id === c.id).map((e) => e.session_key)).size };
+    const row = summary.campaigns.find((row) => row.id === c.id);
+    return { name: c.name, status: c.status, imp: row?.imp ?? 0, clk: row?.clk ?? 0, people: row?.people ?? 0 };
   });
 
   return (

@@ -15,3 +15,7 @@
 - Community search reads only public profile fields and unsuspended posts through the RLS-bound browser client; store search filters verified stores to preserve visibility boundaries.
 - Try-on keeps every selected garment and generates only on explicit submission; persist its result in the per-user wardrobe store and invalidate on selection/body changes, with snapshot checks preventing stale responses across accounts; shared input validation prevents batch truncation.
 - Keep substring community search backed by trigram indexes and commerce time-range queries by matching indexes; validate scale in an isolated load-test environment, never by stressing production.
+- Load the community feed through indexed cursor RPCs and store analytics through RLS-bound aggregate RPCs, so clients do not download full follower lists or raw event histories.
+- Persist private wardrobe image blobs in account-scoped IndexedDB with reference-only localStorage snapshots and serialized writes; retain pending snapshots in memory across account switches to avoid loading stale saves.
+- Bound AI request/response sizes and operation time, and acquire an expiring database-backed per-user lease before quota consumption to prevent concurrent billable requests without changing daily allowances.
+- Reconcile subscription state with Stripe and apply event deduplication, entity versioning and entitlement updates in one privileged database transaction, so duplicate or delayed events do not partially update access.

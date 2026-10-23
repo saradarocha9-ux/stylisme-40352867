@@ -117,30 +117,30 @@ export async function searchCommunityUsers(term: string): Promise<CommunityUser[
   return data ?? [];
 }
 
-export async function listFeed(opts: { sort: FeedSort; category?: string; search?: string }): Promise<FeedPost[]> {
-  let query = supabase.from("look_posts").select(COLUMNS).is("suspended_at", null).limit(60);
-  const text = searchPattern(opts.search ?? "");
-  if (text) query = query.or(`title.ilike.%${text}%,caption.ilike.%${text}%,author_name.ilike.%${text}%`);
-  if (opts.sort === "seguindo") {
-    const ids = await listFollowingIds();
-    if (!ids.length) return [];
-    query = query.in("user_id", ids);
-  }
-  query = opts.sort === "populares"
-    ? query.order("likes_count", { ascending: false }).order("created_at", { ascending: false })
-    : query.order("created_at", { ascending: false });
-  if (opts.category && opts.category !== "todos") query = query.eq("category", opts.category);
+export interface FeedCursor { date: string; id: string; likes: number }
+export async function listFeedPage(opts: { sort: FeedSort; category?: string; search?: string; cursor?: FeedCursor | null }) {
+  const query = supabase.rpc("feed_page", {
+    _sort: opts.sort, _category: opts.category ?? "todos", _search: searchPattern(opts.search ?? ""),
+    _cursor_date: opts.cursor?.date, _cursor_id: opts.cursor?.id, _cursor_likes: opts.cursor?.likes, _limit: 25,
+  });
   const [{ data, error }, dismissed] = await Promise.all([query, listDismissals()]);
   if (error) throw new Error(error.message);
+  const rows = (data ?? []).slice(0, 24) as unknown as Row[];
+  const last = rows.at(-1);
+  const cursor: FeedCursor | null = (data?.length ?? 0) > 24 && last ? { date: last.created_at, id: last.id, likes: last.likes_count } : null;
   const hidden = new Set(dismissed.map((d) => d.post_id));
   const catCount = new Map<string, number>();
   for (const d of dismissed) catCount.set(d.category, (catCount.get(d.category) ?? 0) + 1);
-  const posts = (await hydrate((data ?? []) as unknown as Row[])).filter((p) => !hidden.has(p.id));
+  const posts = (await hydrate(rows)).filter((p) => !hidden.has(p.id));
   // Ordena exclusivamente pelas curtidas reais.
   if (opts.sort === "populares") posts.sort((a, b) => b.likes - a.likes);
   // Estilos marcados como "não tenho interesse" 2+ vezes descem no feed.
   const disliked = (p: FeedPost) => ((catCount.get(p.category) ?? 0) >= 2 ? 1 : 0);
-  return posts.map((p, i) => ({ p, i })).sort((a, b) => disliked(a.p) - disliked(b.p) || a.i - b.i).map((x) => x.p);
+  return { posts: posts.map((p, i) => ({ p, i })).sort((a, b) => disliked(a.p) - disliked(b.p) || a.i - b.i).map((x) => x.p), cursor };
+}
+
+export async function listFeed(opts: { sort: FeedSort; category?: string; search?: string }) {
+  return (await listFeedPage(opts)).posts;
 }
 
 async function listDismissals(): Promise<{ post_id: string; category: string }[]> {

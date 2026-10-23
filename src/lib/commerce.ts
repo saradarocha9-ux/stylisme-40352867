@@ -5,6 +5,18 @@ export type Store = Database["public"]["Tables"]["stores"]["Row"];
 export type Product = Database["public"]["Tables"]["store_products"]["Row"];
 export type Campaign = Database["public"]["Tables"]["store_campaigns"]["Row"];
 
+export interface StoreSummary {
+  counts: Record<string, number>; visitors: number; signedIn: number; impressions: number; adClicks: number;
+  daily: { d: string; v: number }[];
+  products: { id: string; views: number; clicks: number }[];
+  campaigns: { id: string; imp: number; clk: number; people: number }[];
+}
+export async function getStoreSummary(storeId: string, days: number): Promise<StoreSummary> {
+  const { data, error } = await supabase.rpc("store_stats_summary", { _store_id: storeId, _days: days });
+  if (error) throw new Error(error.message);
+  return data as unknown as StoreSummary;
+}
+
 export async function storeAssetUrl(path: string | null) {
   if (!path) return null;
   const { data, error } = await supabase.storage.from("store-assets").createSignedUrl(path, 60 * 60);

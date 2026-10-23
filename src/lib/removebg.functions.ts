@@ -1,3 +1,4 @@
+import { validateImageDataUrl } from "./image-input";
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
@@ -8,12 +9,11 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 export const removeBgRemote = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data: { dataUrl: string }) => {
-    if (!data?.dataUrl?.startsWith("data:image/")) {
-      throw new Error("Imagem inválida.");
-    }
+    validateImageDataUrl(data?.dataUrl);
     return data;
   })
   .handler(async ({ data, context }): Promise<{ dataUrl: string; mode: "alpha" | "whitebg" }> => {
+    const { boundedFetch } = await import("./bounded-fetch.server");
     const { runWithDailyQuota } = await import("./quota.server");
     return runWithDailyQuota({ supabase: context.supabase, userId: context.userId, kind: "wardrobe", action: async () => {
     const apiKey: string | undefined = process.env.REMOVE_BG_API_KEY;
@@ -22,7 +22,7 @@ export const removeBgRemote = createServerFn({ method: "POST" })
     if (apiKey) {
       const key: string = apiKey;
       async function call(size: "auto" | "preview") {
-        return fetch("https://api.remove.bg/v1.0/removebg", {
+        return boundedFetch("https://api.remove.bg/v1.0/removebg", {
           method: "POST",
           headers: {
             "X-Api-Key": key,
@@ -54,7 +54,7 @@ export const removeBgRemote = createServerFn({ method: "POST" })
     const prompt = `Recorte APENAS a peça de roupa/calçado/acessório principal desta foto e devolva-a isolada sobre um fundo BRANCO PURO (#FFFFFF), totalmente uniforme, sem sombras, sem reflexos, sem gradientes e sem qualquer outro objeto, pessoa, mão, cabide, texto ou moldura.
 Regras: preserve exatamente a cor, a estampa, a textura, o formato e todos os detalhes da peça; não redesenhe, não estilize, não corte partes da peça; mantenha a peça inteira, centralizada, ocupando a maior parte do quadro; nenhuma parte branca da própria peça pode ser apagada — mantenha suas bordas nítidas.`;
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/images/generations", {
+    const response = await boundedFetch("https://ai.gateway.lovable.dev/v1/images/generations", {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${aiKey}` },
       body: JSON.stringify({

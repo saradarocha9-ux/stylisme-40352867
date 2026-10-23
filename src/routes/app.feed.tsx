@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Bookmark, EyeOff, Heart, Loader2, Plus, Sparkles, Search, X, User } from "lucide-react";
 import { toast } from "sonner";
-import { FEED_CATEGORIES, applyLikeToggle, dismissLook, undoDismissLook, listFeed, searchCommunityUsers, saveInspiration, timeAgo, toggleLike, type CommunityUser, type FeedPost, type FeedSort } from "@/lib/community";
+import { FEED_CATEGORIES, applyLikeToggle, dismissLook, undoDismissLook, listFeedPage, searchCommunityUsers, saveInspiration, timeAgo, toggleLike, type CommunityUser, type FeedPost, type FeedSort, type FeedCursor } from "@/lib/community";
 import { tap } from "@/lib/haptics";
 import { isOfficialUser } from "@/lib/official";
 import { PartnerCampaignCard } from "@/components/PartnerCampaignCard";
@@ -33,6 +33,8 @@ function FeedPage() {
   const [search, setSearch] = useState("");
   const [users, setUsers] = useState<CommunityUser[]>([]);
   const requestId = useRef(0);
+  const [cursor, setCursor] = useState<FeedCursor | null>(null);
+  const [loadingMore, setLoadingMore] = useState(false);
 
   function dismiss(p: FeedPost) {
     setPosts((list) => list.filter((x) => x.id !== p.id));
@@ -51,16 +53,18 @@ function FeedPage() {
     setLoading(true);
     try {
       const [nextPosts, nextUsers] = await Promise.all([
-        listFeed({ sort, category, search }),
+        listFeedPage({ sort, category, search }),
         search ? searchCommunityUsers(search) : Promise.resolve([]),
       ]);
       if (id !== requestId.current) return;
-      setPosts(nextPosts);
+      setPosts(nextPosts.posts);
+      setCursor(nextPosts.cursor);
       setUsers(nextUsers);
     } catch (e) {
       if (id !== requestId.current) return;
       setPosts([]);
       setUsers([]);
+      setCursor(null);
       toast.error(e instanceof Error ? e.message : "Não consegui carregar os looks.");
     } finally {
       if (id === requestId.current) setLoading(false);
@@ -68,6 +72,19 @@ function FeedPage() {
   }, [sort, category, search]);
 
   useEffect(() => { void load(); }, [load]);
+
+  async function loadMore() {
+    if (!cursor || loadingMore) return;
+    const id = requestId.current;
+    setLoadingMore(true);
+    try {
+      const page = await listFeedPage({ sort, category, search, cursor });
+      if (id !== requestId.current) return;
+      setPosts((previous) => [...previous, ...page.posts.filter((post) => !previous.some((p) => p.id === post.id))]);
+      setCursor(page.cursor);
+    } catch (error) { toast.error(error instanceof Error ? error.message : "Não consegui carregar mais looks."); }
+    finally { setLoadingMore(false); }
+  }
 
   async function like(post: FeedPost) {
     tap();
@@ -192,6 +209,7 @@ function FeedPage() {
           ))}
         </div>
       )}
+      {!loading && cursor && <Button variant="outline" className="my-5 w-full" onClick={() => void loadMore()} disabled={loadingMore}>{loadingMore ? <Loader2 className="animate-spin" size={16} /> : <Plus size={16} />} Mais looks</Button>}
     </div>
   );
 }
