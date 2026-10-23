@@ -33,7 +33,7 @@
 - [x] "Não tenho interesse" nos looks do Inspire-se para aprender o gosto
 
 ## Provador
-- [ ] Esclarecer a diferença entre provas do usuário e indisponibilidade do serviço; retirar a referência a créditos do aviso ao usuário.
-- [ ] Retirar os links e formulário da lista de espera; conferir acesso direto e redirecionamento de links antigos.
+- [x] Esclarecer a diferença entre provas do usuário e indisponibilidade do serviço; referência a créditos retirada do aviso do provador, sem alterar quotas.
+- [x] Retirar os links e formulário da lista de espera; acesso direto e redirecionamento dos links antigos conferidos no navegador.
 - [x] Escolher várias peças sem geração automática e vestir juntas somente ao enviar; seis peças preservadas após recarregar e um único envio explícito verificados com sessão real; testes de seleção acima de cinco aprovados.
 - [ ] Confirmar a foto final da prova em lote — bloqueado por créditos de IA esgotados, conforme aviso retornado no teste real.
