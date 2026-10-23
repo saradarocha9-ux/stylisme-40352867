@@ -183,6 +183,8 @@ export function setStoreUser(uid: string | null) {
 function parseStored(): AppState {
 
   if (typeof window === "undefined") return initial;
+  const pending = pendingSnapshots.get(storeKey());
+  if (pending) return pending;
   try {
     const raw = localStorage.getItem(storeKey());
     if (!raw) return initial;
@@ -221,10 +223,12 @@ function read(): AppState {
 let persistTimer: ReturnType<typeof setTimeout> | null = null;
 let hydrationVersion = 0;
 let persistence = Promise.resolve();
+const pendingSnapshots = new Map<string, AppState>();
 function showPersistenceError() {
   toast.error("Não foi possível salvar ou recuperar suas fotos neste aparelho. Não feche o app e libere espaço antes de tentar novamente.", { id: "wardrobe-persistence-error" });
 }
 function queuePersist(owner: string, snapshot: AppState) {
+  pendingSnapshots.set(owner, snapshot);
   if (typeof indexedDB === "undefined") {
     try { localStorage.setItem(owner, JSON.stringify(snapshot)); } catch { showPersistenceError(); }
     return;
@@ -232,6 +236,7 @@ function queuePersist(owner: string, snapshot: AppState) {
   persistence = persistence.catch(() => {}).then(async () => {
     const packed = await packImages(owner, snapshot);
     localStorage.setItem(owner, JSON.stringify(packed));
+    if (pendingSnapshots.get(owner) === snapshot) pendingSnapshots.delete(owner);
   }).catch(showPersistenceError);
 }
 function schedulePersist() {
@@ -505,6 +510,7 @@ export const actions = {
   wipe() {
     if (typeof window === "undefined") return;
     const owner = storeKey();
+    pendingSnapshots.delete(owner);
     if (persistTimer) clearTimeout(persistTimer);
     persistTimer = null;
     hydrationVersion++;

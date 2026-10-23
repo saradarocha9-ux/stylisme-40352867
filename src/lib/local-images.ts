@@ -7,6 +7,10 @@ function openImages() {
     request.onupgradeneeded = () => request.result.createObjectStore("images");
     request.onsuccess = () => resolve(request.result);
     request.onerror = () => { database = undefined; reject(request.error); };
+    request.onblocked = () => { database = undefined; reject(new Error("Feche outras abas do Stylisme e tente novamente.")); };
+    request.addEventListener("success", () => {
+      request.result.onversionchange = () => { request.result.close(); database = undefined; };
+    });
   });
   return database;
 }
@@ -72,7 +76,7 @@ export async function resolveImages<T>(owner: string, state: T): Promise<{ state
   const replacements = new Map<string, string>();
   const resolved = await visit(state, async (text) => {
     if (!text.startsWith(PREFIX)) return text;
-    if (!text.startsWith(`${PREFIX}${encodeURIComponent(owner)}:`)) return undefined;
+    if (!text.startsWith(`${PREFIX}${encodeURIComponent(owner)}:`)) throw new Error("A foto pertence a outra conta.");
     const existing = replacements.get(text);
     if (existing) return existing;
     const blob = await get(text);

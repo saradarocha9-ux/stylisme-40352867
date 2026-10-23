@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { createHash } from "crypto";
+import type { Database } from "@/integrations/supabase/types";
 
 export const Route = createFileRoute("/api/public/stripe-webhook")({
   server: { handlers: { POST: async ({ request }) => {
@@ -57,12 +58,14 @@ export const Route = createFileRoute("/api/public/stripe-webhook")({
     const live = ["active", "trialing"].includes(object.status ?? "");
     const end = object.items?.data?.[0]?.current_period_end;
     if (isStorePlan && live && !end) return new Response("Vigência ausente", { status: 503 });
-    const applied = await supabaseAdmin.rpc("apply_subscription_event", {
+    // Generated RPC types omit PostgreSQL argument nullability; SQL explicitly accepts null for the unused entity.
+    const args = {
       _event_id: event.id, _event_type: event.type, _payload_hash: payloadHash, _event_created: event.created,
       _user_id: userId ?? null, _store_id: storeId ?? null, _premium: live,
       _tier: object.metadata?.tier ?? null, _until: end ? new Date(end * 1000).toISOString() : null,
       _subscription_id: object.id ?? null,
-    });
+    } as unknown as Database["public"]["Functions"]["apply_subscription_event"]["Args"];
+    const applied = await supabaseAdmin.rpc("apply_subscription_event", args);
     if (applied.error) return new Response("Falha ao registrar assinatura", { status: 500 });
     return new Response("ok");
   } } },
