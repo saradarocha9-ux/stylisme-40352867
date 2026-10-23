@@ -33,4 +33,5 @@
 - [x] "Não tenho interesse" nos looks do Inspire-se para aprender o gosto
 
 ## Provador
-- [ ] Escolher várias peças sem geração automática e vestir juntas somente ao enviar; testar seleção e envio.
+- [x] Escolher várias peças sem geração automática e vestir juntas somente ao enviar; seis peças preservadas após recarregar e um único envio explícito verificados com sessão real; testes de seleção acima de cinco aprovados.
+- [ ] Confirmar a foto final da prova em lote — bloqueado por créditos de IA esgotados, conforme aviso retornado no teste real.
