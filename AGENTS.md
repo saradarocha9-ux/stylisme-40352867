@@ -14,3 +14,4 @@
 - Store authorization roles only in `user_roles` and verify them server-side through `has_role`, because profile fields and browser state are not security boundaries.
 - Community search reads only public profile fields and unsuspended posts through the RLS-bound browser client; store search filters verified stores to preserve visibility boundaries.
 - Try-on keeps every selected garment and generates only on explicit submission; persist its result in the per-user wardrobe store and invalidate on selection/body changes, with snapshot checks preventing stale responses across accounts; shared input validation prevents batch truncation.
+- Keep substring community search backed by trigram indexes and commerce time-range queries by matching indexes; validate scale in an isolated load-test environment, never by stressing production.

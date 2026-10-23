@@ -1,7 +1,8 @@
 # Roadmap
 
 ## Capacidade
-- [ ] Auditar gargalos de consultas, imagens e IA e corrigir os riscos confirmados de menor escopo.
+- [x] Auditar gargalos de consultas, imagens e IA; índices de busca e comércio aplicados e confirmados; limitações documentadas em CAPACIDADE.md.
+- [ ] Substituir estatísticas brutas por agregados, paginar feed/seguidores e tirar fotos base64 do armazenamento local — preparação estrutural ainda não executada.
 - [ ] Certificar capacidade em grande escala — depende de teste de carga em ambiente isolado, meta de usuários simultâneos e orçamento de infraestrutura/IA.
 
 - [x] Corrigir a experiência de “Seu próximo look” e aplicar limites de IA no servidor.
