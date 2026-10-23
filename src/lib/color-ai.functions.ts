@@ -87,8 +87,7 @@ export const analyzeColorPalette = createServerFn({ method: "POST" })
     const colors = (v: unknown) =>
       Array.isArray(v)
         ? (v as { name?: string; hex?: string }[])
-            .filter((c) => typeof c?.hex === "string" && /^#[0-9a-fA-F]{6}$/.test(c.hex!))
-            .map((c) => ({ name: String(c.name ?? ""), hex: c.hex! }))
+            .flatMap((c) => typeof c?.hex === "string" && /^#[0-9a-fA-F]{6}$/.test(c.hex) ? [{ name: String(c.name ?? ""), hex: c.hex }] : [])
         : [];
 
     return {

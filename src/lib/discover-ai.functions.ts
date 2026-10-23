@@ -1,3 +1,4 @@
+import { validateAiTextInput } from "./ai-input";
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import type { LookGarmentBrief } from "./look-ai.functions";
@@ -44,6 +45,7 @@ const BUDGET_TXT: Record<Budget, string> = {
 export const discoverLooks = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: DiscoverInput) => {
+    validateAiTextInput(d);
     if (!d?.prefs || !["own", "complete", "explore"].includes(d.mode)) throw new Error("Pedido inválido.");
     if (d.mode === "own" && (d.garments?.length ?? 0) < 2) throw new Error("Cadastre pelo menos 2 peças para usar o que você tem.");
     return { ...d, garments: (d.garments ?? []).slice(0, 80), feedback: (d.feedback ?? []).slice(-10) };

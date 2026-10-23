@@ -1,3 +1,4 @@
+import { validateAiTextInput } from "./ai-input";
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import type { ColorAnalysis } from "./color-ai.functions";
@@ -36,6 +37,7 @@ export interface GarmentBrief {
 export const recommendFromPalette = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data: { analysis: ColorAnalysis; garments: GarmentBrief[] }) => {
+    validateAiTextInput(data);
     if (!data?.analysis?.season) throw new Error("Faça a análise de cores primeiro.");
     if (!Array.isArray(data.garments) || data.garments.length === 0)
       throw new Error("Cadastre peças no armário para receber recomendações.");

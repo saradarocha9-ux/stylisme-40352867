@@ -1,3 +1,4 @@
+import { validateAiTextInput } from "./ai-input";
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
@@ -29,6 +30,7 @@ export interface SmartLookInput {
 export const generateSmartLooks = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data: SmartLookInput) => {
+    validateAiTextInput(data);
     if (!Array.isArray(data?.garments) || data.garments.length < 2)
       throw new Error("Cadastre pelo menos 2 peças no armário.");
     return { ...data, garments: data.garments.slice(0, 80) };
@@ -100,7 +102,7 @@ Responda APENAS com JSON válido, sem markdown:
       const usedSlots = new Set<string>();
       for (const id of ids) {
         if (unique.includes(id)) continue;
-        const cat = byId.get(id)!.category;
+        const cat = byId.get(id)?.category ?? "";
         const slot =
           ["Camiseta", "Camisa", "Blusa"].includes(cat) ? "top"
           : ["Calça", "Saia", "Shorts"].includes(cat) ? "bottom"
@@ -115,7 +117,7 @@ Responda APENAS com JSON válido, sem markdown:
       if (usedSlots.has("dress")) {
         // vestido não convive com top/bottom
         const filtered = unique.filter((id) => {
-          const cat = byId.get(id)!.category;
+          const cat = byId.get(id)?.category ?? "";
           return !["Camiseta", "Camisa", "Blusa", "Calça", "Saia", "Shorts"].includes(cat);
         });
         unique.length = 0;

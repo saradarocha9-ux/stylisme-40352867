@@ -1,3 +1,4 @@
+import { validateAiTextInput } from "./ai-input";
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
@@ -23,6 +24,7 @@ export interface MatchInput {
 export const matchWardrobe = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data: MatchInput) => {
+    validateAiTextInput(data);
     if (!Array.isArray(data?.lookGarments) || data.lookGarments.length === 0)
       throw new Error("Esse look não tem peças descritas.");
     if (!Array.isArray(data?.wardrobe) || data.wardrobe.length === 0)
