@@ -109,7 +109,7 @@ Regras obrigatórias:
 
       if (!response.ok) {
         if (response.status === 429) throw new Error("Muitas provas seguidas. Aguarde um instante e tente novamente.");
-        if (response.status === 402) throw new Error("Créditos de IA esgotados.");
+        if (response.status === 402) throw new Error("Provador temporariamente indisponível. Tente novamente mais tarde.");
         console.error("try-on gateway error", response.status, (await response.text()).slice(0, 500));
         throw new Error("Não foi possível gerar o caimento das peças.");
       }
