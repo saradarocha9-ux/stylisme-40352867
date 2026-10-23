@@ -1,25 +1,11 @@
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { createServerFn } from "@tanstack/react-start";
-
-export interface VirtualTryOnGarment {
-  dataUrl: string;
-  name: string;
-  category: string;
-  material?: string;
-}
+import { validateVirtualTryOnInput } from "./virtual-tryon-input";
+export type { VirtualTryOnGarment } from "./virtual-tryon-input";
 
 export const generateVirtualTryOn = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: { bodyDataUrl: string; garments: VirtualTryOnGarment[] }) => {
-    if (!data?.bodyDataUrl?.startsWith("data:image/")) throw new Error("Foto do corpo inválida.");
-    if (!Array.isArray(data.garments) || data.garments.length === 0 || data.garments.length > 5) {
-      throw new Error("Escolha de uma a cinco peças.");
-    }
-    if (data.garments.some((garment) => !garment.dataUrl?.startsWith("data:image/"))) {
-      throw new Error("Uma das peças possui imagem inválida.");
-    }
-    return data;
-  })
+  .inputValidator(validateVirtualTryOnInput)
   .handler(async ({ data, context }) => {
     const key = process.env.LOVABLE_API_KEY;
     if (!key) throw new Error("Provador inteligente indisponível.");
