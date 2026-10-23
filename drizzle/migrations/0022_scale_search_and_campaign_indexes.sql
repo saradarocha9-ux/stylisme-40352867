@@ -1,0 +1,10 @@
+CREATE EXTENSION IF NOT EXISTS pg_trgm WITH SCHEMA extensions;
+CREATE INDEX IF NOT EXISTS public_profiles_name_search_idx ON public.public_profiles USING gin (name extensions.gin_trgm_ops);
+CREATE INDEX IF NOT EXISTS public_profiles_username_search_idx ON public.public_profiles USING gin (username extensions.gin_trgm_ops);
+CREATE INDEX IF NOT EXISTS look_posts_title_search_idx ON public.look_posts USING gin (title extensions.gin_trgm_ops) WHERE suspended_at IS NULL;
+CREATE INDEX IF NOT EXISTS look_posts_caption_search_idx ON public.look_posts USING gin (caption extensions.gin_trgm_ops) WHERE suspended_at IS NULL;
+CREATE INDEX IF NOT EXISTS look_posts_author_search_idx ON public.look_posts USING gin (author_name extensions.gin_trgm_ops) WHERE suspended_at IS NULL;
+CREATE INDEX IF NOT EXISTS look_posts_category_recent_visible_idx ON public.look_posts (category, created_at DESC) WHERE suspended_at IS NULL;
+CREATE INDEX IF NOT EXISTS campaign_events_campaign_date_idx ON public.campaign_events (campaign_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS stores_verified_name_idx ON public.stores (name) WHERE status = 'verified';
+CREATE INDEX IF NOT EXISTS store_products_public_recent_idx ON public.store_products (store_id, created_at DESC) WHERE published = true;
